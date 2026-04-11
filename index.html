@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Лист персонажа D&D 5e</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a18;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid #e0ddd4;padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:16px;font-weight:600;color:#1a1a18;flex:1}
+.btn{font-size:13px;padding:6px 14px;border:1px solid #ccc;border-radius:8px;cursor:pointer;background:#fff;color:#444;transition:all 0.15s;white-space:nowrap}
+.btn:hover{background:#f0efe8;border-color:#aaa}
+.btn.primary{background:#534AB7;color:#fff;border-color:#534AB7}
+.btn.primary:hover{background:#3C3489}
+.btn.danger{border-color:#993C1D;color:#993C1D}
+.btn.danger:hover{background:#FAECE7}
+.sheet{padding:16px 20px;max-width:960px;margin:0 auto}
+.section{background:#fff;border:1px solid #e0ddd4;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#888;margin-bottom:10px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.04em}
+.field input,.field select,.field textarea{background:#f5f4f0;border:1px solid #e0ddd4;border-radius:8px;padding:6px 8px;font-size:13px;color:#1a1a18;font-family:inherit;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid #7F77DD;outline-offset:-1px}
+.field-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.field-row .field{flex:1;min-width:90px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.stat-box{background:#f5f4f0;border:1px solid #e0ddd4;border-radius:8px;padding:8px 4px;text-align:center}
+.stat-box label{font-size:10px;color:#888;text-transform:uppercase;display:block;margin-bottom:4px}
+.stat-box input{width:100%;border:none;background:transparent;text-align:center;font-size:20px;font-weight:600;color:#1a1a18}
+.stat-mod{font-size:13px;color:#555;margin-top:2px;font-weight:500}
+.hp-bar{height:8px;background:#e0ddd4;border-radius:4px;overflow:hidden;margin-top:6px}
+.hp-fill{height:100%;background:#639922;border-radius:4px;transition:width 0.3s,background 0.3s}
+.tab-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{font-size:13px;padding:6px 14px;border:1px solid #e0ddd4;border-radius:8px;cursor:pointer;background:#fff;color:#888;transition:all 0.15s}
+.tab.active{background:#fff;border-color:#534AB7;color:#534AB7;font-weight:500}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.skill-list{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.skill-item{display:flex;align-items:center;gap:6px;font-size:13px;padding:3px 0}
+.skill-item input[type=checkbox]{width:14px;height:14px;cursor:pointer;accent-color:#534AB7}
+.skill-val{font-size:12px;font-weight:600;min-width:28px;text-align:right;color:#534AB7}
+.dot{width:18px;height:18px;border-radius:50%;border:2px solid #ccc;cursor:pointer;transition:background 0.15s;flex-shrink:0;display:inline-block}
+.resource-dots{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.death-saves{display:flex;gap:20px;margin-top:6px}
+.saves-group{display:flex;align-items:center;gap:6px}
+.saves-group label{font-size:12px;color:#888}
+.class-resource{background:#f5f4f0;border:1px solid #e0ddd4;border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.class-resource-title{font-size:12px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px}
+.currency-row{display:flex;gap:8px}
+.currency-box{flex:1;text-align:center}
+.currency-box label{font-size:10px;color:#888;display:block;margin-bottom:3px;text-transform:uppercase}
+.currency-box input{width:100%;text-align:center;border:1px solid #e0ddd4;border-radius:8px;padding:5px;font-size:13px;background:#f5f4f0}
+.inv-header{display:grid;grid-template-columns:3fr 1fr 1fr 28px;gap:6px;margin-bottom:4px}
+.inv-item{display:grid;grid-template-columns:3fr 1fr 1fr 28px;gap:6px;margin-bottom:5px;align-items:center}
+.inv-item input{background:#f5f4f0;border:1px solid #e0ddd4;border-radius:6px;padding:5px 7px;font-size:13px;width:100%}
+.add-btn{font-size:12px;color:#888;background:none;border:1px dashed #ccc;border-radius:8px;padding:5px 12px;cursor:pointer;margin-top:4px;display:block;width:100%;text-align:center}
+.add-btn:hover{border-color:#534AB7;color:#534AB7}
+.remove-btn{background:none;border:none;cursor:pointer;color:#bbb;font-size:16px;line-height:1;padding:0 4px}
+.remove-btn:hover{color:#993C1D}
+.attack-header{display:grid;grid-template-columns:2fr 1fr 1fr 28px;gap:6px;margin-bottom:4px}
+.attack-row{display:grid;grid-template-columns:2fr 1fr 1fr 28px;gap:6px;margin-bottom:5px;align-items:center}
+.attack-row input{background:#f5f4f0;border:1px solid #e0ddd4;border-radius:6px;padding:5px 7px;font-size:13px;width:100%}
+.inspiration-dot{width:28px;height:28px;border-radius:50%;border:2px solid #888;cursor:pointer;display:inline-block;transition:background 0.2s,border-color 0.2s}
+.inspiration-dot.on{background:#639922;border-color:#3B6D11}
+textarea{resize:vertical;line-height:1.6;min-height:80px}
+.spell-slot-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.spell-slot-row label{font-size:13px;min-width:80px;color:#555}
+.level-badge{background:#E6F1FB;color:#185FA5;font-size:11px;font-weight:600;padding:2px 10px;border-radius:6px;margin-left:8px}
+.hidden{display:none}
+.col-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.04em}
+.big-num{font-size:26px;font-weight:600;color:#1a1a18;text-align:center}
+.center-section{text-align:center}
+.passive-line{font-size:13px;color:#555;margin-bottom:8px}
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .skill-list{grid-template-columns:1fr}
+}
+@media print{
+  .topbar{display:none}
+  body{background:#fff}
+  .section{break-inside:avoid}
+}
+.spell-vtab{font-size:12px;padding:5px 12px;border:1px solid #e0ddd4;border-radius:8px;cursor:pointer;background:#fff;color:#888;transition:all .15s}
+.spell-vtab.active{border-color:#534AB7;color:#534AB7;font-weight:600;background:#fff}
+.spell-vtab:hover{border-color:#aaa;color:#555}
+.spell-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #e0ddd4;border-radius:8px;background:#fff;transition:all .15s;cursor:pointer}
+.spell-row:hover{border-color:#534AB7;background:#f8f7ff}
+.spell-row.known{background:#f0fce8;border-color:#C0DD97}
+.spell-row.prepared{background:#e8f3ff;border-color:#B5D4F4}
+.spell-row.locked{opacity:.45;cursor:not-allowed}
+.spell-badge{font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;white-space:nowrap}
+.badge-level{background:#EEEDFE;color:#534AB7}
+.badge-school{background:#E1F5EE;color:#0F6E56}
+.badge-conc{background:#FAECE7;color:#993C1D}
+.vtab-count{font-size:10px;background:#e0ddd4;color:#666;padding:1px 5px;border-radius:8px;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>⚔️ Лист персонажа D&D 5e <span id="levelBadge" class="level-badge">Ур. 1</span></h1>
+  <button class="btn" onclick="saveJSON()">💾 Сохранить JSON</button>
+  <label class="btn" style="cursor:pointer">📂 Загрузить JSON<input type="file" accept=".json" onchange="loadJSON(event)" style="display:none"></label>
+  <button class="btn primary" onclick="window.print()">🖨️ Печать</button>
+  <button class="btn danger" onclick="if(confirm('Очистить весь лист?'))resetSheet()">🗑 Сбросить</button>
+</div>
+
+<div class="sheet">
+
+  <div class="section">
+    <div class="field-row">
+      <div class="field" style="flex:2"><label>Имя персонажа</label><input type="text" id="charName" placeholder="Имя героя"></div>
+      <div class="field" style="max-width:160px"><label>Класс</label>
+        <select id="classSelect" onchange="onClassChange()">
+          <option value="barbarian">Варвар</option>
+          <option value="bard">Бард</option>
+          <option value="cleric">Жрец</option>
+          <option value="druid">Друид</option>
+          <option value="fighter">Воин</option>
+          <option value="monk">Монах</option>
+          <option value="paladin">Паладин</option>
+          <option value="ranger">Следопыт</option>
+          <option value="rogue">Плут</option>
+          <option value="sorcerer">Чародей</option>
+          <option value="warlock">Колдун</option>
+          <option value="wizard">Волшебник</option>
+        </select>
+      </div>
+      <div class="field" style="max-width:80px"><label>Уровень</label>
+        <input type="number" id="levelInput" value="1" min="1" max="20" oninput="onLevelChange()" style="text-align:center;font-size:18px;font-weight:600">
+      </div>
+      <div class="field"><label>Раса</label><input type="text" id="race" placeholder="Эльф, Гном..."></div>
+      <div class="field"><label>Предыстория</label><input type="text" id="background" placeholder="Солдат..."></div>
+      <div class="field"><label>Мировоззрение</label><input type="text" id="alignment" placeholder="Нейтральное добро"></div>
+      <div class="field"><label>Игрок</label><input type="text" id="playerName" placeholder="Имя игрока"></div>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="showTab('main',this)">Основное</div>
+    <div class="tab" onclick="showTab('skills',this)">Навыки</div>
+    <div class="tab" onclick="showTab('resources',this)">Ресурсы</div>
+    <div class="tab" onclick="showTab('inventory',this)">Инвентарь</div>
+    <div class="tab" onclick="showTab('notes',this)">Заметки</div>
+  </div>
+
+  <!-- MAIN TAB -->
+  <div id="tab-main" class="tab-panel active">
+    <div class="section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <div class="section-title" style="margin-bottom:0">Характеристики</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:12px;color:#888">Очки покупки:</span>
+          <span id="pointsLeft" style="font-size:16px;font-weight:700;color:#534AB7">27</span>
+          <span style="font-size:12px;color:#aaa">/ 27</span>
+          <span id="asiInfo" style="font-size:12px;color:#888;display:none">| ASI:</span>
+          <span id="asiLeft" style="font-size:14px;font-weight:700;color:#D85A30;display:none">0</span>
+          <span id="asiTotal" style="font-size:12px;color:#aaa;display:none"></span>
+        </div>
+      </div>
+      <div class="stats-grid" id="statsGrid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;min-height:80px"></div>
+      <div id="asiPanel" style="display:none;margin-top:10px;padding:10px;background:#FFF8F0;border:1px solid #F5C4B3;border-radius:8px">
+        <div style="font-size:12px;font-weight:600;color:#993C1D;margin-bottom:6px">Повышение характеристик (ASI) — уровень <span id="asiLevelLabel"></span></div>
+        <div style="font-size:12px;color:#666;margin-bottom:8px">Распределите +2 очка между характеристиками (максимум +2 к одной). Максимальное значение: 20.</div>
+        <div id="asiButtons" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <div class="section">
+          <div class="section-title">Хиты</div>
+          <div class="field-row">
+            <div class="field"><label>Максимум</label><input type="number" id="hpMax" value="8" min="1" oninput="updateHpBar()" style="text-align:center;font-size:16px"></div>
+            <div class="field"><label>Текущие</label><input type="number" id="hpCur" value="8" min="0" oninput="updateHpBar()" style="text-align:center;font-size:16px"></div>
+            <div class="field"><label>Временные</label><input type="number" id="hpTemp" value="0" min="0" style="text-align:center;font-size:16px"></div>
+          </div>
+          <div class="hp-bar"><div class="hp-fill" id="hpFill" style="width:100%"></div></div>
+          <div style="margin-top:12px">
+            <div class="section-title" style="margin-bottom:4px">Смерть — спасброски</div>
+            <div class="death-saves">
+              <div class="saves-group"><label>Успех</label>
+                <span class="dot" style="border-color:#3B6D11" onclick="toggleDot(this,'#639922')"></span>
+                <span class="dot" style="border-color:#3B6D11" onclick="toggleDot(this,'#639922')"></span>
+                <span class="dot" style="border-color:#3B6D11" onclick="toggleDot(this,'#639922')"></span>
+              </div>
+              <div class="saves-group"><label>Провал</label>
+                <span class="dot" style="border-color:#993C1D" onclick="toggleDot(this,'#D85A30')"></span>
+                <span class="dot" style="border-color:#993C1D" onclick="toggleDot(this,'#D85A30')"></span>
+                <span class="dot" style="border-color:#993C1D" onclick="toggleDot(this,'#D85A30')"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">Боевые показатели</div>
+          <div class="field-row">
+            <div class="field center-section"><label>КД</label><input type="number" id="ac" value="10" style="text-align:center;font-size:20px;font-weight:600"></div>
+            <div class="field center-section"><label>Инициатива</label><input type="text" id="initField" value="+0" style="text-align:center;font-size:20px;font-weight:600"></div>
+            <div class="field center-section"><label>Скорость</label><input type="text" id="speed" value="30 фт." style="text-align:center"></div>
+          </div>
+          <div class="field-row" style="margin-top:6px">
+            <div class="field"><label>Кость хитов</label><input type="text" id="hitDie" value="d8" readonly style="color:#888;text-align:center"></div>
+            <div class="field"><label>Всего КХ</label><input type="number" id="hdTotal" value="1" readonly style="color:#888;text-align:center"></div>
+            <div class="field"><label>Осталось</label><input type="number" id="hdCur" value="1" min="0" style="text-align:center"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section center-section">
+          <div class="section-title">Вдохновение</div>
+          <span id="inspireDot" class="inspiration-dot" onclick="this.classList.toggle('on')" title="Вдохновение"></span>
+          <div style="margin-top:14px">
+            <div class="section-title">Бонус мастерства</div>
+            <div class="big-num" id="profBonusDisplay">+2</div>
+          </div>
+          <div style="margin-top:14px">
+            <div class="section-title">Пассивная внимательность</div>
+            <div class="big-num" id="passivePerc">10</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Атаки и оружие</div>
+      <div class="attack-header">
+        <div class="col-label">Название</div>
+        <div class="col-label">Бонус атаки</div>
+        <div class="col-label">Урон / тип</div>
+        <div></div>
+      </div>
+      <div id="attackList"></div>
+      <button class="add-btn" onclick="addAttack()">+ Добавить атаку</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Черты, способности, особенности</div>
+      <textarea id="features" placeholder="Описание классовых способностей, расовых черт, подвигов и других особенностей..." style="width:100%;min-height:120px"></textarea>
+    </div>
+  </div>
+
+  <!-- SKILLS TAB -->
+  <div id="tab-skills" class="tab-panel">
+    <div class="grid2">
+      <div class="section">
+        <div class="section-title">Спасброски</div>
+        <div id="savingThrows"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Владения и языки</div>
+        <textarea id="profs" placeholder="Языки, инструменты, оружие, доспехи..." style="width:100%;min-height:120px"></textarea>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Навыки <span style="font-size:11px;font-weight:400;color:#aaa">(отметьте навыки владения)</span></div>
+      <div class="skill-list" id="skillList"></div>
+    </div>
+  </div>
+
+  <!-- RESOURCES TAB -->
+  <div id="tab-resources" class="tab-panel">
+    <div class="section">
+      <div class="section-title">Классовые ресурсы</div>
+      <div id="classResources"></div>
+    </div>
+    <div id="spellSection" class="section hidden">
+      <div class="section-title">Ячейки заклинаний</div>
+      <div id="spellSlots"></div>
+    </div>
+    <!-- SPELL SYSTEM -->
+    <div class="section" id="spellBookSection">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        <div class="section-title" style="margin-bottom:0">Книга заклинаний</div>
+        <div id="concBar" style="display:flex;gap:6px;align-items:center;background:#FFF8F0;border:1px solid #F5C4B3;border-radius:8px;padding:4px 10px">
+          <span style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.04em">Концентрация:</span>
+          <span id="concSpellName" style="font-size:13px;color:#993C1D;font-style:italic;font-weight:500">нет</span>
+          <button id="concClearBtn" onclick="clearConcentration()" style="display:none;font-size:11px;padding:1px 7px;border:1px solid #F5C4B3;border-radius:5px;background:#fff;cursor:pointer;color:#993C1D">✕</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap">
+        <button class="spell-vtab active" id="svt-all" onclick="setSpellTab('all',this)">Все заклинания</button>
+        <button class="spell-vtab" id="svt-known" onclick="setSpellTab('known',this)">Изученные <span id="knownBadge"></span></button>
+        <button class="spell-vtab" id="svt-prepared" onclick="setSpellTab('prepared',this)">Подготовленные <span id="prepBadge"></span></button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
+        <select id="sfClass" onchange="renderSpellBook()" style="font-size:12px;padding:4px 8px;border:1px solid #e0ddd4;border-radius:6px;background:#f5f4f0;color:#555">
+          <option value="">Все классы</option>
+          <option value="bard">Бард</option><option value="cleric">Жрец</option>
+          <option value="druid">Друид</option><option value="paladin">Паладин</option>
+          <option value="ranger">Следопыт</option><option value="sorcerer">Чародей</option>
+          <option value="warlock">Колдун</option><option value="wizard">Волшебник</option>
+        </select>
+        <select id="sfLevel" onchange="renderSpellBook()" style="font-size:12px;padding:4px 8px;border:1px solid #e0ddd4;border-radius:6px;background:#f5f4f0;color:#555">
+          <option value="">Все круги</option>
+          <option value="0">Заговоры</option><option value="1">1 круг</option>
+          <option value="2">2 круг</option><option value="3">3 круг</option>
+          <option value="4">4 круг</option><option value="5">5 круг</option>
+          <option value="6">6 круг</option><option value="7">7 круг</option>
+          <option value="8">8 круг</option><option value="9">9 круг</option>
+        </select>
+        <select id="sfSchool" onchange="renderSpellBook()" style="font-size:12px;padding:4px 8px;border:1px solid #e0ddd4;border-radius:6px;background:#f5f4f0;color:#555">
+          <option value="">Все школы</option>
+          <option value="Воплощение">Воплощение</option><option value="Вызов">Вызов</option>
+          <option value="Иллюзия">Иллюзия</option><option value="Некромантия">Некромантия</option>
+          <option value="Очарование">Очарование</option><option value="Прорицание">Прорицание</option>
+          <option value="Преобразование">Преобразование</option><option value="Ограждение">Ограждение</option>
+        </select>
+        <input type="text" id="sfSearch" oninput="renderSpellBook()" placeholder="Поиск..." style="font-size:12px;padding:4px 8px;border:1px solid #e0ddd4;border-radius:6px;background:#f5f4f0;color:#555;width:130px">
+      </div>
+      <div id="spellListEl" style="display:flex;flex-direction:column;gap:3px;max-height:480px;overflow-y:auto;padding-right:2px"></div>
+      <div id="noSpellsMsg" style="display:none;font-size:13px;color:#aaa;text-align:center;padding:20px">Заклинаний не найдено</div>
+    </div>
+    <!-- Spell detail popup -->
+    <div id="spellPopup" onclick="if(event.target===this)closeSpellPopup()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;align-items:flex-start;justify-content:center;padding-top:60px">
+      <div style="background:#fff;border-radius:12px;padding:20px 22px;max-width:460px;width:92%;max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.18)">
+        <button onclick="closeSpellPopup()" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;line-height:1">&#x2715;</button>
+        <div id="spellPopupBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVENTORY TAB -->
+  <div id="tab-inventory" class="tab-panel">
+    <div class="section">
+      <div class="section-title">Монеты</div>
+      <div class="currency-row">
+        <div class="currency-box"><label>Платина</label><input type="number" id="pp" value="0" min="0"></div>
+        <div class="currency-box"><label>Золото</label><input type="number" id="gp" value="0" min="0"></div>
+        <div class="currency-box"><label>Электрум</label><input type="number" id="ep" value="0" min="0"></div>
+        <div class="currency-box"><label>Серебро</label><input type="number" id="sp" value="0" min="0"></div>
+        <div class="currency-box"><label>Медь</label><input type="number" id="cp" value="0" min="0"></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Снаряжение</div>
+      <div class="inv-header">
+        <div class="col-label">Предмет</div>
+        <div class="col-label">Кол-во</div>
+        <div class="col-label">Вес (фн)</div>
+        <div></div>
+      </div>
+      <div id="invList"></div>
+      <button class="add-btn" onclick="addInvItem()">+ Добавить предмет</button>
+    </div>
+  </div>
+
+  <!-- NOTES TAB -->
+  <div id="tab-notes" class="tab-panel">
+    <div class="grid2">
+      <div>
+        <div class="section"><div class="section-title">Черты характера</div><textarea id="personality" placeholder="Характерные черты и манеры поведения..." style="width:100%"></textarea></div>
+        <div class="section"><div class="section-title">Идеалы</div><textarea id="ideals" placeholder="Ценности, убеждения, принципы..." style="width:100%"></textarea></div>
+      </div>
+      <div>
+        <div class="section"><div class="section-title">Привязанности</div><textarea id="bonds" placeholder="Семья, союзники, важные места и вещи..." style="width:100%"></textarea></div>
+        <div class="section"><div class="section-title">Слабости</div><textarea id="flaws" placeholder="Пороки, страхи, слабости характера..." style="width:100%"></textarea></div>
+      </div>
+    </div>
+    <div class="section"><div class="section-title">История персонажа</div><textarea id="backstory" placeholder="Расскажите о своём персонаже — откуда он, что его привело к приключениям..." style="width:100%;min-height:160px"></textarea></div>
+    <div class="section"><div class="section-title">Заметки по сессии</div><textarea id="notes" placeholder="Квесты, NPC, важные события, зацепки..." style="width:100%;min-height:100px"></textarea></div>
+    <div class="section"><div class="section-title">Союзники и организации</div><textarea id="allies" placeholder="Союзники, фракции, покровители..." style="width:100%;min-height:80px"></textarea></div>
+  </div>
+
+</div><!-- /sheet -->
+
+<script>
+const SKILLS=[
+  {name:"Акробатика",stat:"dex"},{name:"Анализ",stat:"int"},{name:"Атлетика",stat:"str"},
+  {name:"Внимательность",stat:"wis"},{name:"Выживание",stat:"wis"},{name:"Выступление",stat:"cha"},
+  {name:"Запугивание",stat:"cha"},{name:"История",stat:"int"},{name:"Магия",stat:"int"},
+  {name:"Медицина",stat:"wis"},{name:"Обман",stat:"cha"},{name:"Природа",stat:"int"},
+  {name:"Проницательность",stat:"wis"},{name:"Религия",stat:"int"},{name:"Скрытность",stat:"dex"},
+  {name:"Уговоры",stat:"cha"},{name:"Управление животными",stat:"wis"},{name:"Ловкость рук",stat:"dex"}
+];
+const SAVES=["str","dex","con","int","wis","cha"];
+const SAVE_NAMES={str:"Сила",dex:"Ловкость",con:"Телосложение",int:"Интеллект",wis:"Мудрость",cha:"Харизма"};
+const HIT_DICE={barbarian:"d12",bard:"d8",cleric:"d8",druid:"d8",fighter:"d10",monk:"d8",paladin:"d10",ranger:"d10",rogue:"d8",sorcerer:"d6",warlock:"d8",wizard:"d6"};
+const CLASS_DATA={
+  barbarian:{resources:[{id:"rage",label:"Ярость",color:"#D85A30",perLevel:[2,2,3,3,3,4,4,4,4,4,4,5,5,5,5,5,6,6,6,null]}]},
+  bard:{resources:[{id:"inspiration",label:"Бардовское вдохновение",color:"#7F77DD",perLevel:[2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4]}]},
+  cleric:{resources:[{id:"channel",label:"Канал божественности",color:"#BA7517",perLevel:[0,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3]}]},
+  druid:{resources:[{id:"wild",label:"Дикий облик",color:"#639922",perLevel:[2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3]}]},
+  fighter:{resources:[{id:"surge",label:"Всплеск действия",color:"#378ADD",perLevel:[0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2]},{id:"superiority",label:"Кости превосходства",color:"#185FA5",perLevel:[0,0,0,4,4,4,4,5,5,5,5,5,5,5,5,5,6,6,6,6]}]},
+  monk:{resources:[{id:"ki",label:"Очки ци",color:"#1D9E75",perLevel:[0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]}]},
+  paladin:{resources:[{id:"lay",label:"Наложение рук (запас ХП)",color:"#BA7517",perLevel:[5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100]}]},
+  ranger:{resources:[{id:"favored",label:"Избранный враг (видов)",color:"#639922",perLevel:[1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3]}]},
+  rogue:{resources:[{id:"sneak",label:"Скрытая атака (d6)",color:"#888",perLevel:[1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10]}]},
+  sorcerer:{resources:[{id:"sorcery",label:"Очки чародейства",color:"#7F77DD",perLevel:[0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]}]},
+  warlock:{resources:[{id:"pact",label:"Ячейки договора",color:"#D4537E",perLevel:[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]}]},
+  wizard:{resources:[{id:"arcane",label:"Восстановление магии (ур. ячеек)",color:"#378ADD",perLevel:[0,0,0,0,0,0,1,1,2,2,3,3,4,4,5,5,5,5,5,5]}]}
+};
+const SPELL_SLOTS={
+  bard:[[2],[3,2],[4,3,2],[4,3,3,1],[4,3,3,2,1],[4,3,3,3,1,1],[4,3,3,3,2,1,1],[4,3,3,3,2,2,1,1],[4,3,3,3,2,2,1,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,3,2,2,1,1,1],[4,3,3,3,3,2,2,2,1,1],[4,3,3,3,3,2,2,2,2,1]],
+  cleric:[[2],[3,2],[4,3,2],[4,3,3,1],[4,3,3,2,1],[4,3,3,3,1,1],[4,3,3,3,2,1,1],[4,3,3,3,2,2,1,1],[4,3,3,3,2,2,1,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,3,2,2,1,1,1],[4,3,3,3,3,2,2,2,1,1],[4,3,3,3,3,2,2,2,2,1]],
+  druid:[[2],[3,2],[4,3,2],[4,3,3,1],[4,3,3,2,1],[4,3,3,3,1,1],[4,3,3,3,2,1,1],[4,3,3,3,2,2,1,1],[4,3,3,3,2,2,1,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,3,2,2,1,1,1],[4,3,3,3,3,2,2,2,1,1],[4,3,3,3,3,2,2,2,2,1]],
+  sorcerer:[[2],[3,2],[4,3,2],[4,3,3,1],[4,3,3,2,1],[4,3,3,3,1,1],[4,3,3,3,2,1,1],[4,3,3,3,2,2,1,1],[4,3,3,3,2,2,1,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,3,2,2,1,1,1],[4,3,3,3,3,2,2,2,1,1],[4,3,3,3,3,2,2,2,2,1]],
+  warlock:[[1,1],[2,2],[2,2],[3,2],[3,2],[3,3],[4,3],[4,3],[5,3],[5,4],[5,4],[5,4],[5,4],[5,4],[5,4],[5,4],[5,4],[5,4],[5,4],[5,4]],
+  wizard:[[2],[3,2],[4,3,2],[4,3,3,1],[4,3,3,2,1],[4,3,3,3,1,1],[4,3,3,3,2,1,1],[4,3,3,3,2,2,1,1],[4,3,3,3,2,2,1,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,2,2,2,1,1,1],[4,3,3,3,3,2,2,1,1,1],[4,3,3,3,3,2,2,2,1,1],[4,3,3,3,3,2,2,2,2,1]],
+  paladin:[[2],[3,2],[4,3,2],[4,3,3,1],[4,3,3,2,1],[4,3,3,3,1,1],[4,3,3,3,2,1,1],[4,3,3,3,2,2,1,1],[4,3,3,3,2,2,1,1,1],[4,3,3,3,2,2,2,1,1]],
+  ranger:[[2],[3,2],[4,3,2],[4,3,3,1],[4,3,3,2,1],[4,3,3,3,1,1],[4,3,3,3,2,1,1],[4,3,3,3,2,2,1,1],[4,3,3,3,2,2,1,1,1],[4,3,3,3,2,2,2,1,1]]
+};
+const SPELLCASTERS=["bard","cleric","druid","sorcerer","warlock","wizard","paladin","ranger"];
+const ORDINALS=["1-й","2-й","3-й","4-й","5-й","6-й","7-й","8-й","9-й"];
+
+let skillProf={};
+let saveProf={str:false,dex:false,con:false,int:false,wis:false,cha:false};
+
+// Point buy state
+const STATS=['str','dex','con','int','wis','cha'];
+const STAT_NAMES={str:'Сила',dex:'Ловкость',con:'Телосл.',int:'Интеллект',wis:'Мудрость',cha:'Харизма'};
+const POINT_COST=[0,0,0,0,0,0,0,0,0,1,2,3,4,5,7,9]; // index = stat value, 8..15
+const BASE_POINTS=27;
+const ASI_LEVELS=[4,8,12,16,19];
+
+let statValues={str:8,dex:8,con:8,int:8,wis:8,cha:8};
+let asiBonus={str:0,dex:0,con:0,int:0,wis:0,cha:0}; // total ASI added per stat
+let asiPool=0; // remaining ASI points to assign
+
+function v(id){return document.getElementById(id)}
+function getLevel(){return Math.min(20,Math.max(1,parseInt(v('levelInput').value)||1))}
+function getPB(l){return Math.floor((l-1)/4)+2}
+function getMod(stat){return Math.floor(((statValues[stat]||10)-10)/2)}
+function fmtMod(n){return(n>=0?'+':'')+n}
+
+function pointCost(val){
+  if(val<8||val>15)return 0;
+  return POINT_COST[val];
+}
+function totalSpent(){
+  return STATS.reduce((s,st)=>s+pointCost(statValues[st]),0);
+}
+function pointsLeft(){
+  return BASE_POINTS-totalSpent();
+}
+function totalASIGranted(lvl){
+  return ASI_LEVELS.filter(l=>l<=lvl).length*2;
+}
+function totalASIUsed(){
+  return STATS.reduce((s,st)=>s+asiBonus[st],0);
+}
+
+function buildStatsGrid(){
+  const grid=v('statsGrid');
+  if(!grid)return;
+  grid.innerHTML='';
+  STATS.forEach(st=>{
+    const box=document.createElement('div');
+    box.className='stat-box';
+    box.id='box_'+st;
+    const minusBtn=document.createElement('button');
+    minusBtn.textContent='\u2212';
+    minusBtn.style.cssText='width:22px;height:22px;border:1px solid #ccc;border-radius:5px;background:#f5f4f0;cursor:pointer;font-size:14px;line-height:1;padding:0';
+    minusBtn.onclick=()=>adjustStat(st,-1);
+    const plusBtn=document.createElement('button');
+    plusBtn.textContent='+';
+    plusBtn.style.cssText='width:22px;height:22px;border:1px solid #ccc;border-radius:5px;background:#f5f4f0;cursor:pointer;font-size:14px;line-height:1;padding:0';
+    plusBtn.onclick=()=>adjustStat(st,+1);
+    const valSpan=document.createElement('span');
+    valSpan.id=st+'_val';
+    valSpan.style.cssText='font-size:20px;font-weight:700;min-width:28px;text-align:center';
+    valSpan.textContent=statValues[st];
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;justify-content:center;gap:4px;margin:4px 0';
+    row.appendChild(minusBtn);row.appendChild(valSpan);row.appendChild(plusBtn);
+    const asiDiv=document.createElement('div');
+    asiDiv.id=st+'_asi';
+    asiDiv.style.cssText='font-size:11px;color:#aaa;margin-bottom:2px';
+    const modDiv=document.createElement('div');
+    modDiv.id=st+'Mod';
+    modDiv.className='stat-mod';
+    modDiv.textContent=fmtMod(getMod(st));
+    const lbl=document.createElement('label');
+    lbl.textContent=STAT_NAMES[st];
+    box.appendChild(lbl);box.appendChild(row);box.appendChild(asiDiv);box.appendChild(modDiv);
+    grid.appendChild(box);
+  });
+}
+
+function adjustStat(st, delta){
+  const cur=statValues[st];
+  const newVal=cur+delta;
+  if(newVal<8||newVal>15)return;
+  const newSpent=totalSpent()-pointCost(cur)+pointCost(newVal);
+  if(newSpent>BASE_POINTS)return;
+  statValues[st]=newVal;
+  refreshStats();
+}
+
+function refreshStats(){
+  const lvl=getLevel();
+  const pl=pointsLeft();
+  v('pointsLeft').textContent=pl;
+  v('pointsLeft').style.color=pl===0?'#639922':pl<0?'#993C1D':'#534AB7';
+
+  // ASI display
+  const granted=totalASIGranted(lvl);
+  const used=totalASIUsed();
+  asiPool=granted-used;
+  if(granted>0){
+    v('asiInfo').style.display='';v('asiLeft').style.display='';v('asiTotal').style.display='';
+    v('asiLeft').textContent=asiPool;
+    v('asiLeft').style.color=asiPool>0?'#D85A30':'#639922';
+    v('asiTotal').textContent='/ '+granted+' очков';
+  } else {
+    v('asiInfo').style.display='none';v('asiLeft').style.display='none';v('asiTotal').style.display='none';
+  }
+
+  STATS.forEach(st=>{
+    const total=statValues[st]+asiBonus[st];
+    v(st+'_val').textContent=total;
+    const asiEl=v(st+'_asi');
+    if(asiBonus[st]>0){asiEl.textContent='('+statValues[st]+' + ASI '+asiBonus[st]+')';}
+    else{asiEl.textContent='';}
+    v(st+'Mod').textContent=fmtMod(Math.floor((total-10)/2));
+
+    // colour the box if capped or free
+    const box=v('box_'+st);
+    if(statValues[st]>=15&&pl===0){box.style.borderColor='#639922';}
+    else if(pl===0&&statValues[st]<15){box.style.borderColor='#BA7517';}
+    else{box.style.borderColor='#e0ddd4';}
+  });
+
+  // ASI panel
+  const asiNextLvl=ASI_LEVELS.find(l=>l===lvl);
+  if(asiPool>0){
+    v('asiPanel').style.display='block';
+    v('asiLevelLabel').textContent=lvl;
+    buildASIButtons();
+  } else {
+    v('asiPanel').style.display='none';
+  }
+
+  updateSkills();updateSaves();updatePassive();
+}
+
+function buildASIButtons(){
+  const btns=v('asiButtons');btns.innerHTML='';
+  STATS.forEach(st=>{
+    const total=statValues[st]+asiBonus[st];
+    const canAdd=asiPool>0&&total<20;
+    const canRemove=asiBonus[st]>0;
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:4px;background:#fff;border:1px solid #e0ddd4;border-radius:8px;padding:4px 8px';
+    row.innerHTML=`<span style="font-size:12px;min-width:56px;color:#555">${STAT_NAMES[st]}</span>
+      <button onclick="adjustASI('${st}',-1)" ${canRemove?'':'disabled'} style="width:20px;height:20px;border:1px solid #ccc;border-radius:4px;background:#f5f4f0;cursor:${canRemove?'pointer':'default'};font-size:12px;padding:0;opacity:${canRemove?1:0.3}">−</button>
+      <span style="font-size:13px;font-weight:700;min-width:16px;text-align:center;color:#D85A30">${asiBonus[st]>0?'+'+asiBonus[st]:'0'}</span>
+      <button onclick="adjustASI('${st}',+1)" ${canAdd?'':'disabled'} style="width:20px;height:20px;border:1px solid #ccc;border-radius:4px;background:#f5f4f0;cursor:${canAdd?'pointer':'default'};font-size:12px;padding:0;opacity:${canAdd?1:0.3}">+</button>
+      <span style="font-size:11px;color:#aaa;margin-left:2px">→ ${total}</span>`;
+    btns.appendChild(row);
+  });
+}
+
+function adjustASI(st, delta){
+  const total=statValues[st]+asiBonus[st];
+  if(delta>0&&(asiPool<=0||total>=20))return;
+  if(delta<0&&asiBonus[st]<=0)return;
+  asiBonus[st]+=delta;
+  refreshStats();
+}
+
+function showTab(id,el){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  v('tab-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+function toggleDot(el,color){
+  el.classList.toggle('filled');
+  el.style.background=el.classList.contains('filled')?color:'transparent';
+}
+
+function updateAll(){
+  const lvl=getLevel();
+  const pb=getPB(lvl);
+  v('levelBadge').textContent='Ур. '+lvl;
+  v('profBonusDisplay').textContent='+'+pb;
+  refreshStats();
+}
+
+function getStatTotal(st){return (statValues[st]||8)+(asiBonus[st]||0);}
+
+function updateSkills(){
+  const pb=getPB(getLevel());
+  SKILLS.forEach((sk,i)=>{
+    const base=Math.floor((getStatTotal(sk.stat)-10)/2);
+    const prof=skillProf[sk.name]||false;
+    const val=base+(prof?pb:0);
+    const el=v('skv'+i);
+    if(el)el.textContent=fmtMod(val);
+    const cb=v('sk'+i);
+    if(cb)skillProf[sk.name]=cb.checked;
+  });
+}
+
+function updateSaves(){
+  const pb=getPB(getLevel());
+  SAVES.forEach(s=>{
+    const base=Math.floor((getStatTotal(s)-10)/2);
+    const cb=v('save_'+s);
+    const prof=cb?cb.checked:false;
+    const el=v('savv_'+s);
+    if(el)el.textContent=fmtMod(base+(prof?pb:0));
+  });
+}
+
+function updatePassive(){
+  const pb=getPB(getLevel());
+  const base=Math.floor((getStatTotal('wis')-10)/2);
+  const prof=skillProf['Внимательность']||false;
+  v('passivePerc').textContent=10+base+(prof?pb:0);
+}
+
+function updateHpBar(){
+  const mx=parseInt(v('hpMax').value)||1;
+  const cur=parseInt(v('hpCur').value)||0;
+  const pct=Math.max(0,Math.min(100,(cur/mx)*100));
+  v('hpFill').style.width=pct+'%';
+  v('hpFill').style.background=pct>50?'#639922':pct>25?'#BA7517':'#993C1D';
+}
+
+function buildSkillList(){
+  const el=v('skillList');el.innerHTML='';
+  SKILLS.forEach((sk,i)=>{
+    const d=document.createElement('div');d.className='skill-item';
+    d.innerHTML=`<input type="checkbox" id="sk${i}" onchange="skillProf['${sk.name}']=this.checked;updateSkills();updatePassive()">
+      <span style="flex:1">${sk.name} <span style="font-size:11px;color:#aaa">(${sk.stat.toUpperCase()})</span></span>
+      <span class="skill-val" id="skv${i}">+0</span>`;
+    el.appendChild(d);
+  });
+}
+
+function buildSaveList(){
+  const el=v('savingThrows');el.innerHTML='';
+  SAVES.forEach(s=>{
+    const d=document.createElement('div');d.className='skill-item';d.style.marginBottom='6px';
+    d.innerHTML=`<input type="checkbox" id="save_${s}" onchange="updateSaves()">
+      <span style="flex:1">${SAVE_NAMES[s]}</span>
+      <span class="skill-val" id="savv_${s}">+0</span>`;
+    el.appendChild(d);
+  });
+}
+
+function onClassChange(){renderClass();renderSpellBook();}
+function onLevelChange(){
+  const val=Math.min(20,Math.max(1,parseInt(v('levelInput').value)||1));
+  v('levelInput').value=val;
+  v('hitDie').value=HIT_DICE[v('classSelect').value];
+  v('hdTotal').value=val;
+  renderClass();updateAll();renderSpellBook();
+}
+
+function renderClass(){
+  const cls=v('classSelect').value;
+  const lvl=getLevel();
+  v('hitDie').value=HIT_DICE[cls];
+  v('hdTotal').value=lvl;
+  renderClassResources(cls,lvl);
+  renderSpellSlots(cls,lvl);
+}
+
+function renderClassResources(cls,lvl){
+  const el=v('classResources');el.innerHTML='';
+  const data=CLASS_DATA[cls];
+  if(!data){el.innerHTML='<p style="color:#aaa;font-size:13px">Нет специальных ресурсов.</p>';return;}
+  data.resources.forEach(res=>{
+    let count=res.perLevel[lvl-1];
+    const d=document.createElement('div');d.className='class-resource';
+    if(!count||count===0){
+      d.innerHTML=`<div class="class-resource-title">${res.label}</div><div style="font-size:12px;color:#aaa">Недоступно на ${lvl} уровне</div>`;
+    } else {
+      d.innerHTML=`<div class="class-resource-title">${res.label} <span style="color:${res.color};font-size:14px">${count}</span></div><div class="resource-dots" id="dots_${res.id}"></div>`;
+      el.appendChild(d);
+      const dots=d.querySelector('.resource-dots');
+      for(let i=0;i<count;i++){
+        const dot=document.createElement('span');dot.className='dot';
+        dot.style.borderColor=res.color;
+        dot.onclick=function(){this.classList.toggle('filled');this.style.background=this.classList.contains('filled')?res.color:'transparent';};
+        dots.appendChild(dot);
+      }
+    }
+    el.appendChild(d);
+  });
+}
+
+function renderSpellSlots(cls,lvl){
+  const sec=v('spellSection');
+  const el=v('spellSlots');
+  if(!SPELLCASTERS.includes(cls)){sec.classList.add('hidden');return;}
+  const slots=SPELL_SLOTS[cls];
+  if(!slots||!slots[lvl-1]){sec.classList.add('hidden');return;}
+  sec.classList.remove('hidden');
+  el.innerHTML='';
+  slots[lvl-1].forEach((count,i)=>{
+    const row=document.createElement('div');row.className='spell-slot-row';
+    row.innerHTML=`<label>${ORDINALS[i]} круг</label><div class="resource-dots" id="ss${i}"></div>`;
+    el.appendChild(row);
+    const dots=row.querySelector('.resource-dots');
+    for(let j=0;j<count;j++){
+      const d=document.createElement('span');d.className='dot';d.style.borderColor='#7F77DD';
+      d.onclick=function(){this.classList.toggle('filled');this.style.background=this.classList.contains('filled')?'#7F77DD':'transparent';};
+      dots.appendChild(d);
+    }
+  });
+}
+
+function addAttack(name='',bonus='',dmg=''){
+  const list=v('attackList');
+  const row=document.createElement('div');row.className='attack-row';
+  row.innerHTML=`<input type="text" placeholder="Длинный меч" value="${name}">
+    <input type="text" placeholder="+5" value="${bonus}" style="text-align:center">
+    <input type="text" placeholder="1к8+3" value="${dmg}" style="text-align:center">
+    <button class="remove-btn" onclick="this.parentElement.remove()">✕</button>`;
+  list.appendChild(row);
+}
+
+function addInvItem(name='',qty='1',wt='0'){
+  const list=v('invList');
+  const row=document.createElement('div');row.className='inv-item';
+  row.innerHTML=`<input type="text" placeholder="Название предмета" value="${name}">
+    <input type="number" value="${qty}" min="0" style="text-align:center">
+    <input type="number" value="${wt}" min="0" step="0.5" style="text-align:center">
+    <button class="remove-btn" onclick="this.parentElement.remove()">✕</button>`;
+  list.appendChild(row);
+}
+
+// ---- SAVE / LOAD JSON ----
+function getSheetData(){
+  const attacks=[];
+  document.querySelectorAll('.attack-row').forEach(r=>{
+    const ins=r.querySelectorAll('input');
+    attacks.push({name:ins[0].value,bonus:ins[1].value,dmg:ins[2].value});
+  });
+  const inventory=[];
+  document.querySelectorAll('.inv-item').forEach(r=>{
+    const ins=r.querySelectorAll('input');
+    inventory.push({name:ins[0].value,qty:ins[1].value,wt:ins[2].value});
+  });
+  const fields=['charName','classSelect','levelInput','race','background','alignment','playerName',
+    'hpMax','hpCur','hpTemp','ac','initField','speed','hdCur',
+    'features','profs','spells','personality','ideals','bonds','flaws','backstory','notes','allies',
+    'pp','gp','ep','sp','cp'];
+  const data={};
+  fields.forEach(f=>{const el=v(f);if(el)data[f]=el.value;});
+  data.statValues=Object.assign({},statValues);
+  data.asiBonus=Object.assign({},asiBonus);
+  data.attacks=attacks;
+  data.inventory=inventory;
+  data.skillProf=Object.assign({},skillProf);
+  data.saveProf={};
+  SAVES.forEach(s=>{const cb=v('save_'+s);if(cb)data.saveProf[s]=cb.checked;});
+  data.inspiration=v('inspireDot').classList.contains('on');
+  data.knownSpells=[...knownSpells];
+  data.preparedSpells=[...preparedSpells];
+  data.concSpell=concSpell;
+  return data;
+}
+
+function saveJSON(){
+  const data=getSheetData();
+  const name=(v('charName').value||'персонаж').replace(/[^а-яёa-z0-9_\-]/gi,'_');
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=name+'_dnd.json';a.click();URL.revokeObjectURL(a.href);
+}
+
+function loadJSON(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      applySheetData(data);
+    }catch(err){alert('Ошибка чтения файла: '+err.message);}
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+function applySheetData(data){
+  const fields=['charName','classSelect','levelInput','race','background','alignment','playerName',
+    'hpMax','hpCur','hpTemp','ac','initField','speed','hdCur',
+    'features','profs','spells','personality','ideals','bonds','flaws','backstory','notes','allies',
+    'pp','gp','ep','sp','cp'];
+  fields.forEach(f=>{const el=v(f);if(el&&data[f]!==undefined)el.value=data[f];});
+  if(data.statValues)Object.assign(statValues,data.statValues);
+  if(data.asiBonus)Object.assign(asiBonus,data.asiBonus);
+  if(data.skillProf){
+    Object.assign(skillProf,data.skillProf);
+    SKILLS.forEach((sk,i)=>{const cb=v('sk'+i);if(cb)cb.checked=!!skillProf[sk.name];});
+  }
+  if(data.saveProf){
+    SAVES.forEach(s=>{const cb=v('save_'+s);if(cb)cb.checked=!!data.saveProf[s];});
+  }
+  if(data.inspiration!==undefined){
+    v('inspireDot').classList.toggle('on',data.inspiration);
+  }
+  v('attackList').innerHTML='';
+  (data.attacks||[]).forEach(a=>addAttack(a.name,a.bonus,a.dmg));
+  v('invList').innerHTML='';
+  (data.inventory||[]).forEach(it=>addInvItem(it.name,it.qty,it.wt));
+  if(data.knownSpells)knownSpells=new Set(data.knownSpells);
+  if(data.preparedSpells)preparedSpells=new Set(data.preparedSpells);
+  concSpell=data.concSpell||null;
+  renderClass();updateAll();updateHpBar();updateConcBar();renderSpellBook();
+}
+
+function resetSheet(){
+  document.querySelectorAll('input[type=text],input[type=number],textarea').forEach(el=>{
+    el.value=el.defaultValue||'';
+  });
+  v('attackList').innerHTML='';v('invList').innerHTML='';
+  skillProf={};SAVES.forEach(s=>{const cb=v('save_'+s);if(cb)cb.checked=false;});
+  v('inspireDot').classList.remove('on');
+  STATS.forEach(st=>{statValues[st]=8;asiBonus[st]=0;});
+  buildSkillList();buildSaveList();buildStatsGrid();if(data.knownSpells)knownSpells=new Set(data.knownSpells);
+  if(data.preparedSpells)preparedSpells=new Set(data.preparedSpells);
+  concSpell=data.concSpell||null;
+  renderClass();updateAll();updateHpBar();updateConcBar();renderSpellBook();
+}
+
+// ============ SPELL DATABASE ============
+const SPELL_DB=[
+{name:"Волшебная рука",level:0,school:"Вызов",classes:["bard","sorcerer","warlock","wizard"],cast:"1 действие",range:"30 фт.",dur:"1 минута",conc:false,comp:"В, С",desc:"Создаёт призрачную руку, которая взаимодействует с предметами, открывает замки, передаёт вещи."},
+{name:"Зловещий вихрь",level:0,school:"Воплощение",classes:["warlock"],cast:"1 действие",range:"120 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Серп магической энергии. Атака заклинанием дальнего боя: 1к10 урона силовым полем."},
+{name:"Искра",level:0,school:"Воплощение",classes:["sorcerer","wizard"],cast:"1 действие",range:"60 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Искра в существо. Атака заклинанием дальнего боя: 1к8 урона электричеством."},
+{name:"Кислотный всплеск",level:0,school:"Вызов",classes:["sorcerer","wizard"],cast:"1 действие",range:"60 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Пузырь кислоты. Спасбросок Ловкости: 1к6 урона кислотой."},
+{name:"Ледяной клинок",level:0,school:"Воплощение",classes:["druid","sorcerer","wizard"],cast:"1 действие",range:"60 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Осколок льда. Атака дальнего боя: 1к6 урона холодом. При попадании скорость цели −10 фт."},
+{name:"Огненный снаряд",level:0,school:"Воплощение",classes:["sorcerer","wizard"],cast:"1 действие",range:"120 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Сгусток огня. Атака заклинанием дальнего боя: 1к10 урона огнём."},
+{name:"Отравляющий фонтан",level:0,school:"Вызов",classes:["cleric","druid","sorcerer","wizard","warlock"],cast:"1 действие",range:"10 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Струя отравляющей слизи. Спасбросок Телосложения: 1к12 урона ядом."},
+{name:"Починка",level:0,school:"Преобразование",classes:["bard","cleric","druid","sorcerer","wizard"],cast:"1 минута",range:"Касание",dur:"Мгновенно",conc:false,comp:"В, С, М",desc:"Чинит одиночный разрыв или перелом в предмете. Не работает на магические вещи."},
+{name:"Пресветлое слово",level:0,school:"Воплощение",classes:["cleric"],cast:"1 действие",range:"60 фт.",dur:"Мгновенно",conc:false,comp:"В",desc:"Слово силы. Существо восстанавливает 1к4 + мод. Мудрости хитов."},
+{name:"Священное пламя",level:0,school:"Воплощение",classes:["cleric"],cast:"1 действие",range:"60 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Пламя нисходит. Спасбросок Ловкости (без укрытия): 1к8 урона излучением."},
+{name:"Фокусы",level:0,school:"Преобразование",classes:["bard","sorcerer","warlock","wizard"],cast:"1 действие",range:"10 фт.",dur:"До 1 часа",conc:false,comp:"В, С",desc:"Мелкие магические трюки: зажигаете свечу, создаёте запах, иллюзию звука."},
+{name:"Хватка ведьмы",level:0,school:"Некромантия",classes:["warlock"],cast:"1 действие",range:"Касание",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Атака заклинанием ближнего боя: 1к10 некротического урона. При убийстве восстанавливаете 1к6+уровень хитов."},
+{name:"Хлыст шипов",level:0,school:"Преобразование",classes:["druid"],cast:"1 действие",range:"30 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Шип растения. Атака ближнего боя: 1к6 урона, цель притягивается на 10 фт. к вам."},
+{name:"Шёпот тьмы",level:0,school:"Иллюзия",classes:["warlock","bard"],cast:"1 действие",range:"30 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Атака заклинанием дальнего боя: 1к6 урона психической энергией."},
+{name:"Волна грома",level:1,school:"Воплощение",classes:["bard","druid","sorcerer","wizard"],cast:"1 действие",range:"Личная (15-фт. куб)",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Волна грома. Спасбросок Телосложения: 2к8 урона громом + отбросить на 10 фт. +1к8 за уровень выше 1."},
+{name:"Доспехи мага",level:1,school:"Ограждение",classes:["sorcerer","wizard"],cast:"1 действие",range:"Касание",dur:"8 часов",conc:false,comp:"В, С, М",desc:"Базовый КД без доспехов становится 13 + мод. Ловкости."},
+{name:"Длинный шаг",level:1,school:"Преобразование",classes:["bard","druid","ranger","wizard"],cast:"1 бонусное действие",range:"Касание",dur:"1 час",conc:false,comp:"В, С",desc:"Скорость существа +10 фт. на 1 час."},
+{name:"Звук тишины",level:2,school:"Иллюзия",classes:["bard","cleric","ranger"],cast:"1 действие",range:"120 фт.",dur:"10 минут",conc:true,comp:"В, С",desc:"Сфера тишины 20 фт. Внутри невозможны звуки и вербальные компоненты."},
+{name:"Героизм",level:1,school:"Очарование",classes:["bard","paladin"],cast:"1 действие",range:"Касание",dur:"1 минута",conc:true,comp:"В, С",desc:"Иммунитет к испугу и временные хиты = мод. Харизмы в начале каждого хода."},
+{name:"Команда",level:1,school:"Очарование",classes:["cleric","paladin"],cast:"1 действие",range:"60 фт.",dur:"1 раунд",conc:false,comp:"В",desc:"Слово команды при провале спасброска Мудрости: «Стой», «Беги», «Пади», «Иди» или «Угрожай»."},
+{name:"Лечение ран",level:1,school:"Воплощение",classes:["bard","cleric","druid","paladin","ranger"],cast:"1 действие",range:"Касание",dur:"Мгновенно",conc:false,comp:"В, С",desc:"1к8 + мод. Мудрости хитов. +1к8 за каждый уровень ячейки выше 1-го."},
+{name:"Лечащее слово",level:1,school:"Воплощение",classes:["bard","cleric","druid"],cast:"1 бонусное действие",range:"60 фт.",dur:"Мгновенно",conc:false,comp:"В",desc:"1к4 + мод. заклинателя хитов. +1к4 за каждый уровень ячейки выше 1."},
+{name:"Опутать",level:1,school:"Воплощение",classes:["bard","cleric","druid"],cast:"1 бонусное действие",range:"60 фт.",dur:"Мгновенно",conc:false,comp:"В",desc:"Растения хватают врагов в радиусе 20 фт. Спасбросок Силы 12, иначе существо становится опутанным."},
+{name:"Магическая стрела",level:1,school:"Воплощение",classes:["sorcerer","wizard"],cast:"1 действие",range:"120 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Три светящиеся стрелы автоматически поражают цель. Каждая: 1к4+1 силового поля. +1 стрела за уровень выше 1."},
+{name:"Незримый слуга",level:1,school:"Вызов",classes:["bard","warlock","wizard"],cast:"1 действие",range:"60 фт.",dur:"1 час",conc:false,comp:"В, С, М",desc:"Невидимая сила выполняет простые задачи по команде."},
+{name:"Обнаружение магии",level:1,school:"Прорицание",classes:["bard","cleric","druid","paladin","ranger","sorcerer","wizard"],cast:"1 действие",range:"Личная",dur:"10 минут",conc:true,comp:"В, С",desc:"Чувствуете присутствие магии в пределах 30 фт., видите ауры вокруг магических предметов."},
+{name:"Очарование личности",level:1,school:"Очарование",classes:["bard","cleric","druid","sorcerer","warlock","wizard"],cast:"1 действие",range:"30 фт.",dur:"1 час",conc:false,comp:"В, С",desc:"Спасбросок Мудрости: провал — цель считает вас дружественным."},
+{name:"Погружение в воду",level:1,school:"Преобразование",classes:["druid","ranger","sorcerer","wizard"],cast:"1 действие",range:"60 фт.",dur:"24 часа",conc:false,comp:"В, С",desc:"Существо получает дыхание под водой и скорость плавания 30 фт."},
+{name:"Поглощение стихий",level:1,school:"Ограждение",classes:["druid","ranger","sorcerer","wizard"],cast:"1 реакция",range:"Личная",dur:"1 раунд",conc:false,comp:"С",desc:"Сопротивление к стихийному урону. Первая атака следующего хода +1к6 этого типа."},
+{name:"Проклятие",level:1,school:"Некромантия",classes:["bard","cleric","wizard","warlock"],cast:"1 действие",range:"90 фт.",dur:"Конц., до 1 мин.",conc:true,comp:"В, С, М",desc:"Помеха на атаки или спасброски по вашему выбору + 1к6 некротики от атак."},
+{name:"Священное оружие",level:1,school:"Воплощение",classes:["paladin"],cast:"1 бонусное действие",range:"Личная",dur:"1 минута",conc:true,comp:"В",desc:"+2 к атакам и урону. При попадании +2к8. +1к8 за уровень выше 1."},
+{name:"Сон",level:1,school:"Очарование",classes:["bard","sorcerer","wizard"],cast:"1 действие",range:"90 фт.",dur:"1 минута",conc:false,comp:"В, С, М",desc:"Бросьте 5к8 — столько хитов существ засыпает, начиная с наименее крепких."},
+{name:"Щит",level:1,school:"Ограждение",classes:["sorcerer","wizard"],cast:"1 реакция",range:"Личная",dur:"1 раунд",conc:false,comp:"В, С",desc:"+5 к КД, в том числе против атаки-триггера. Защита от Магической стрелы."},
+{name:"Кислотная стрела",level:2,school:"Вызов",classes:["wizard"],cast:"1 действие",range:"90 фт.",dur:"Мгновенно",conc:false,comp:"В, С, М",desc:"Атака дальнего боя: 4к4 кислотой. При промахе 2к4. В конце следующего хода ещё 2к4."},
+{name:"Невидимость",level:2,school:"Иллюзия",classes:["bard","sorcerer","warlock","wizard"],cast:"1 действие",range:"Касание",dur:"1 час",conc:true,comp:"В, С, М",desc:"Невидимость до атаки или применения заклинания."},
+{name:"Ослепление/Оглушение",level:2,school:"Некромантия",classes:["bard","cleric","sorcerer","wizard"],cast:"1 действие",range:"30 фт.",dur:"1 минута",conc:false,comp:"В",desc:"Спасбросок Телосложения: ослеплён или оглушён. Повторный спасбросок в конце каждого хода."},
+{name:"Паутина",level:2,school:"Вызов",classes:["sorcerer","wizard"],cast:"1 действие",range:"60 фт.",dur:"1 час",conc:true,comp:"В, С, М",desc:"Куб паутины 20 фт. Существа проходят спасбросок Ловкости или опутываются."},
+{name:"Туман",level:2,school:"Вызов",classes:["druid","sorcerer","wizard"],cast:"1 действие",range:"120 фт.",dur:"1 час",conc:true,comp:"В, С",desc:"Туман радиусом 20 фт. Рассеивается сильным ветром за 1 раунд."},
+{name:"Тьма",level:2,school:"Воплощение",classes:["sorcerer","warlock","wizard"],cast:"1 действие",range:"60 фт.",dur:"10 минут",conc:true,comp:"В, М",desc:"Магическая тьма 15 фт. Нельзя развеять немагическим светом."},
+{name:"Туманный шаг",level:2,school:"Вызов",classes:["sorcerer","warlock","wizard"],cast:"1 бонусное действие",range:"Личная",dur:"Мгновенно",conc:false,comp:"В",desc:"Телепортируетесь до 30 фт."},
+{name:"Духовное оружие",level:2,school:"Воплощение",classes:["cleric"],cast:"1 бонусное действие",range:"60 фт.",dur:"1 минута",conc:false,comp:"В, С",desc:"Призрачное оружие атакует бонусным действием: 1к8 + мод. Мудрости силового поля."},
+{name:"Зеркальное подобие",level:2,school:"Иллюзия",classes:["sorcerer","warlock","wizard"],cast:"1 действие",range:"Личная",dur:"1 минута",conc:false,comp:"В, С",desc:"3 иллюзорные копии. Копия поглощает атаку при к20 ≥ 6/8/11 (в зависимости от числа копий)."},
+{name:"Призыв зверя",level:2,school:"Вызов",classes:["druid","ranger"],cast:"1 действие",range:"60 фт.",dur:"1 час",conc:true,comp:"В, С, М",desc:"Призываете зверя CR ≤ 1/4 (1/2 на 4-й ячейке, CR 1 на 5-й)."},
+{name:"Шкура дерева",level:2,school:"Преобразование",classes:["druid","ranger"],cast:"1 действие",range:"Касание",dur:"1 час",conc:false,comp:"В, С, М",desc:"КД существа становится 16, если ниже."},
+{name:"Духовные стражи",level:3,school:"Вызов",classes:["cleric"],cast:"1 действие",range:"Личная (15 фт.)",dur:"10 минут",conc:true,comp:"В, С, М",desc:"Духи вокруг вас. Враги в пределах 15 фт. замедляются и получают 3к8 урона при входе."},
+{name:"Замедление",level:3,school:"Преобразование",classes:["sorcerer","wizard"],cast:"1 действие",range:"120 фт.",dur:"1 минута",conc:true,comp:"В, С, М",desc:"До 6 существ спасбросок Мудрости: скорость вдвое, −2 КД и спасбросок Ловкости, только действие или бонусное."},
+{name:"Магический круг",level:3,school:"Ограждение",classes:["cleric","paladin","warlock","wizard"],cast:"1 минута",range:"10 фт.",dur:"1 час",conc:false,comp:"В, С, М",desc:"Круг 10 фт. Определённый тип (нежить, небожители, демоны и т.д.) не может войти."},
+{name:"Массовое лечение ран",level:3,school:"Воплощение",classes:["bard","cleric","druid"],cast:"1 действие",range:"60 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"До 6 существ в пределах 30 фт. восстанавливают 3к8 + мод. Мудрости. +1к8 за уровень выше 3."},
+{name:"Огненный шар",level:3,school:"Воплощение",classes:["sorcerer","wizard"],cast:"1 действие",range:"150 фт.",dur:"Мгновенно",conc:false,comp:"В, С, М",desc:"Взрыв в сфере 20 фт. Спасбросок Ловкости: 8к6 огня, половина при успехе. +1к6 за уровень выше 3."},
+{name:"Полёт",level:3,school:"Преобразование",classes:["sorcerer","warlock","wizard"],cast:"1 действие",range:"Касание",dur:"10 минут",conc:true,comp:"В, С, М",desc:"Скорость полёта 60 фт. +1 существо за уровень ячейки выше 3."},
+{name:"Рассеяние магии",level:3,school:"Ограждение",classes:["bard","cleric","druid","paladin","sorcerer","warlock","wizard"],cast:"1 действие",range:"120 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"Оканчиваете заклинания ≤ 3-го уровня. Против более высоких: к20 + мод. vs КС 10+уровень."},
+{name:"Скакун фантом",level:3,school:"Иллюзия",classes:["wizard"],cast:"1 минута",range:"30 фт.",dur:"1 час",conc:false,comp:"В, С",desc:"Иллюзорный конь. Скорость 100 фт. Существует 1 час."},
+{name:"Страх",level:3,school:"Иллюзия",classes:["bard","sorcerer","warlock","wizard"],cast:"1 действие",range:"Личная (30-фт. конус)",dur:"1 минута",conc:true,comp:"В, С, М",desc:"Спасбросок Мудрости: пугаются и бегут от вас."},
+{name:"Ускорение",level:3,school:"Преобразование",classes:["sorcerer","wizard"],cast:"1 действие",range:"30 фт.",dur:"1 минута",conc:true,comp:"В, С, М",desc:"Скорость удваивается, +2 КД, преимущество к сп. Ловкости, доп. действие атаки. После — минута без действий."},
+{name:"Шаровая молния (3 ур.)",level:3,school:"Воплощение",classes:["sorcerer","wizard"],cast:"1 действие",range:"150 фт.",dur:"Мгновенно",conc:false,comp:"В, С, М",desc:"Три осколка молнии по трём целям. Атака дальнего боя: 2к6 молнией каждый."},
+{name:"Гипнотический узор",level:3,school:"Иллюзия",classes:["bard","sorcerer","warlock","wizard"],cast:"1 действие",range:"120 фт.",dur:"1 минута",conc:true,comp:"С, М",desc:"Куб 30 фт. переливающихся цветов. Существа ≤ 25 хитов: спасбросок Мудрости или очаровываются."},
+{name:"Вызов молнии",level:3,school:"Вызов",classes:["druid"],cast:"1 действие",range:"120 фт.",dur:"10 минут",conc:true,comp:"В, С",desc:"Создаёте тучу. Действием вызываете молнию: 3к10 молнии (спасбросок Ловкости, половина)."},
+{name:"Контрзаклинание",level:3,school:"Ограждение",classes:["sorcerer","warlock","wizard"],cast:"1 реакция",range:"60 фт.",dur:"Мгновенно",conc:false,comp:"С",desc:"Прерываете заклинание ≤ 3-го уровня. Против выше: к20 + мод. vs КС 10+уровень."},
+{name:"Изгнание",level:4,school:"Ограждение",classes:["cleric","paladin","sorcerer","warlock","wizard"],cast:"1 действие",range:"60 фт.",dur:"1 минута",conc:true,comp:"В, С, М",desc:"Спасбросок Харизмы: изгоняется. Уроженцы другого плана исчезают насовсем, если концентрация длится до конца."},
+{name:"Высшая невидимость",level:4,school:"Иллюзия",classes:["bard","sorcerer","wizard"],cast:"1 действие",range:"Касание",dur:"1 минута",conc:true,comp:"В, С",desc:"Невидимость даже при атаке или заклинаниях."},
+{name:"Ледяной шторм",level:4,school:"Воплощение",classes:["druid","sorcerer","wizard"],cast:"1 действие",range:"300 фт.",dur:"Мгновенно",conc:false,comp:"В, С, М",desc:"Куски льда в цилиндре 20 фт./40 фт. 2к8 дробящего + 4к6 холода (спасбросок Ловкости)."},
+{name:"Огненная стена",level:4,school:"Воплощение",classes:["cleric","druid","sorcerer","wizard"],cast:"1 действие",range:"120 фт.",dur:"1 минута",conc:true,comp:"В, С, М",desc:"Стена огня 60 фт. или кольцо 20 фт. Проход: 5к8 огня."},
+{name:"Полиморф",level:4,school:"Преобразование",classes:["bard","druid","sorcerer","wizard"],cast:"1 действие",range:"60 фт.",dur:"1 час",conc:true,comp:"В, С, М",desc:"Превращаете существо в зверя CR ≤ уровня цели. При 0 хитов возвращается исходный облик."},
+{name:"Конус холода",level:5,school:"Воплощение",classes:["sorcerer","wizard"],cast:"1 действие",range:"Личная (60-фт. конус)",dur:"Мгновенно",conc:false,comp:"В, С, М",desc:"Спасбросок Телосложения: 8к8 холода, половина при успехе. +1к8 за уровень выше 5."},
+{name:"Массовое лечение",level:5,school:"Воплощение",classes:["cleric","druid"],cast:"1 действие",range:"60 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"До 6 существ в пределах 30 фт. восстанавливают 5к8 + мод. хитов."},
+{name:"Огненный смерч",level:5,school:"Вызов",classes:["druid"],cast:"1 действие",range:"150 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"7к8 огня + 7к8 дробящего. Спасбросок Ловкости — половина огня, дробящий без спасброска."},
+{name:"Подъём мёртвых",level:5,school:"Некромантия",classes:["bard","cleric","wizard"],cast:"1 час",range:"Касание",dur:"Мгновенно",conc:false,comp:"В, С, М",desc:"Возвращает к жизни существо, умершее ≤ 10 дней назад. Штраф −4 к броскам."},
+{name:"Рассеивание зла и добра",level:5,school:"Ограждение",classes:["cleric","paladin"],cast:"1 действие",range:"Личная",dur:"1 минута",conc:true,comp:"В, С, М",desc:"Небесные, элементальные, феи, нежить — помеха на атаки против вас. Изгоняете или прерываете одержимость."},
+{name:"Удержание чудовища",level:5,school:"Очарование",classes:["bard","sorcerer","warlock","wizard"],cast:"1 действие",range:"90 фт.",dur:"1 минута",conc:true,comp:"В, С, М",desc:"Спасбросок Мудрости: паралич любого существа (не только гуманоидов)."},
+{name:"Хаотический шаг",level:3,school:"Вызов",classes:["sorcerer","wizard"],cast:"1 бонусное действие",range:"Личная",dur:"Мгновенно",conc:false,comp:"В",desc:"Телепортируетесь в точку в пределах 500 фт., которую видите."},
+{name:"Удержание личности",level:2,school:"Очарование",classes:["bard","cleric","druid","sorcerer","warlock","wizard"],cast:"1 действие",range:"60 фт.",dur:"1 минута",conc:true,comp:"В, С",desc:"Спасбросок Мудрости: паралич гуманоида. Повторный спасбросок в конце каждого хода."},
+{name:"Цепная молния",level:6,school:"Воплощение",classes:["sorcerer","wizard"],cast:"1 действие",range:"150 фт.",dur:"Мгновенно",conc:false,comp:"В, С, М",desc:"Молния поражает главную цель и прыгает на до 3 рядом. 10к8 молнии (спасбросок Ловкости). +1 цель за уровень выше 6."},
+{name:"Круг смерти",level:6,school:"Некромантия",classes:["sorcerer","warlock","wizard"],cast:"1 действие",range:"150 фт.",dur:"Мгновенно",conc:false,comp:"В, С, М",desc:"Сфера некроза 60 фт. Спасбросок Телосложения: 8к6 некротики, половина при успехе."},
+{name:"Истинное зрение",level:6,school:"Прорицание",classes:["bard","cleric","sorcerer","warlock","wizard"],cast:"1 действие",range:"Касание",dur:"1 час",conc:false,comp:"В, С, М",desc:"Видит сквозь иллюзии, в абсолютной тьме, невидимые объекты и истинный облик оборотней."},
+{name:"Огненный шторм",level:7,school:"Воплощение",classes:["cleric","druid","sorcerer"],cast:"1 действие",range:"150 фт.",dur:"Мгновенно",conc:false,comp:"В, С",desc:"До 10 кубов 10 фт. в огне. Спасбросок Ловкости: 7к10 огня, половина при успехе."},
+{name:"Телепортация",level:7,school:"Вызов",classes:["bard","sorcerer","wizard"],cast:"1 действие",range:"10 фт.",dur:"Мгновенно",conc:false,comp:"В",desc:"Мгновенная переброска себя и до 8 существ в знакомое место на одном плане."},
+{name:"Правдивое слово",level:8,school:"Воплощение",classes:["cleric"],cast:"1 действие",range:"30 фт.",dur:"Мгновенно",conc:false,comp:"В",desc:"До 6 существ восстанавливают хиты и освобождаются от состояний (слепота, глухота, окаменение и т.д.)."},
+{name:"Истинное воскрешение",level:9,school:"Некромантия",classes:["cleric","druid"],cast:"1 час",range:"Касание",dur:"Мгновенно",conc:false,comp:"В, С, М",desc:"Возвращает к жизни существо, умершее ≤ 200 лет назад. Воссоздаёт тело, полное восстановление."},
+{name:"Пожелание",level:9,school:"Вызов",classes:["sorcerer","wizard"],cast:"1 действие",range:"Личная",dur:"Мгновенно",conc:false,comp:"В",desc:"Самое мощное заклинание. Дублирует любое заклинание ≤ 8 уровня или достигает любого разумного эффекта."},
+];
+
+// ============ SPELL STATE ============
+let knownSpells=new Set();
+let preparedSpells=new Set();
+let concSpell=null;
+let spellTab='all';
+
+// Max spell circle by class and char level (half-casters get spells at 2nd lvl)
+const MAX_SPELL_LEVEL_BY_CLASS={
+  bard:[1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,9,9],
+  cleric:[1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,9,9],
+  druid:[1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,9,9],
+  sorcerer:[1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,9,9],
+  warlock:[1,1,2,2,3,3,4,4,5,5,5,5,5,5,5,5,5,5,5,5],
+  wizard:[1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,9,9],
+  paladin:[0,0,1,1,2,2,3,3,4,4,4,4,4,4,4,4,4,4,4,4],
+  ranger:[0,0,1,1,2,2,3,3,4,4,4,4,4,4,4,4,4,4,4,4],
+};
+
+function getMaxSpellLevel(){
+  const cls=v('classSelect').value;
+  const lvl=getLevel();
+  const table=MAX_SPELL_LEVEL_BY_CLASS[cls];
+  if(!table)return 0;
+  return table[lvl-1]||0;
+}
+
+function isSpellcasterClass(){
+  return SPELLCASTERS.includes(v('classSelect').value);
+}
+
+function setSpellTab(tab,el){
+  spellTab=tab;
+  document.querySelectorAll('.spell-vtab').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderSpellBook();
+}
+
+function renderSpellBook(){
+  if(!v('spellListEl'))return;
+  const filterClass=v('sfClass').value;
+  const filterLevel=v('sfLevel').value;
+  const filterSchool=v('sfSchool').value;
+  const search=(v('sfSearch').value||'').toLowerCase().trim();
+  const maxLvl=getMaxSpellLevel();
+  const cls=v('classSelect').value;
+
+  let spells=SPELL_DB.filter(sp=>{
+    if(spellTab==='known'&&!knownSpells.has(sp.name))return false;
+    if(spellTab==='prepared'&&!preparedSpells.has(sp.name))return false;
+    if(filterClass&&!sp.classes.includes(filterClass))return false;
+    if(filterLevel!==''&&sp.level!==parseInt(filterLevel))return false;
+    if(filterSchool&&sp.school!==filterSchool)return false;
+    if(search&&!sp.name.toLowerCase().includes(search)&&!sp.desc.toLowerCase().includes(search))return false;
+    return true;
+  });
+
+  // Sort by level then name
+  spells.sort((a,b)=>a.level-b.level||a.name.localeCompare(b.name,'ru'));
+
+  const container=v('spellListEl');
+  container.innerHTML='';
+
+  if(spells.length===0){
+    v('noSpellsMsg').style.display='block';
+  } else {
+    v('noSpellsMsg').style.display='none';
+  }
+
+  // Group by level
+  let lastLevel=-1;
+  spells.forEach(sp=>{
+    if(sp.level!==lastLevel){
+      lastLevel=sp.level;
+      const hdr=document.createElement('div');
+      hdr.style.cssText='font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#aaa;padding:6px 2px 3px;margin-top:4px';
+      hdr.textContent=sp.level===0?'Заговоры':sp.level+'-й круг';
+      container.appendChild(hdr);
+    }
+
+    const isKnown=knownSpells.has(sp.name);
+    const isPrep=preparedSpells.has(sp.name);
+    const isConc=concSpell===sp.name;
+    const isLocked=!isSpellcasterClass()||(sp.level>0&&sp.level>maxLvl);
+    const isClassSpell=sp.classes.includes(cls);
+
+    const row=document.createElement('div');
+    row.className='spell-row'+(isPrep?' prepared':(isKnown?' known':''))+(isLocked?' locked':'');
+
+    // Left: name + badges
+    const left=document.createElement('div');
+    left.style.cssText='flex:1;min-width:0';
+    const nameRow=document.createElement('div');
+    nameRow.style.cssText='display:flex;align-items:center;gap:5px;flex-wrap:wrap';
+
+    const nameSpan=document.createElement('span');
+    nameSpan.style.cssText='font-size:13px;font-weight:500;color:'+(isLocked?'#bbb':'#1a1a18');
+    nameSpan.textContent=sp.name;
+    nameRow.appendChild(nameSpan);
+
+    const lvlBadge=document.createElement('span');
+    lvlBadge.className='spell-badge badge-level';
+    lvlBadge.textContent=sp.level===0?'Заговор':sp.level+' кр.';
+    nameRow.appendChild(lvlBadge);
+
+    const schoolBadge=document.createElement('span');
+    schoolBadge.className='spell-badge badge-school';
+    schoolBadge.textContent=sp.school;
+    nameRow.appendChild(schoolBadge);
+
+    if(sp.conc){
+      const cb=document.createElement('span');
+      cb.className='spell-badge badge-conc';
+      cb.textContent='Концентрация';
+      nameRow.appendChild(cb);
+    }
+    if(isConc){
+      const cb=document.createElement('span');
+      cb.className='spell-badge';
+      cb.style.cssText='background:#FAECE7;color:#D85A30;border:1px solid #F5C4B3';
+      cb.textContent='● Активна';
+      nameRow.appendChild(cb);
+    }
+    left.appendChild(nameRow);
+
+    const meta=document.createElement('div');
+    meta.style.cssText='font-size:11px;color:#aaa;margin-top:2px';
+    meta.textContent=sp.cast+' · '+sp.range;
+    left.appendChild(meta);
+    row.appendChild(left);
+
+    // Right: action buttons
+    const btns=document.createElement('div');
+    btns.style.cssText='display:flex;gap:5px;align-items:center;flex-shrink:0';
+
+    if(!isLocked){
+      // Info button
+      const infoBtn=document.createElement('button');
+      infoBtn.textContent='?';
+      infoBtn.style.cssText='width:24px;height:24px;border:1px solid #e0ddd4;border-radius:6px;background:#f5f4f0;cursor:pointer;font-size:12px;font-weight:600;color:#888;flex-shrink:0';
+      infoBtn.onclick=(e)=>{e.stopPropagation();openSpellPopup(sp);};
+      btns.appendChild(infoBtn);
+
+      // Know toggle
+      const knowBtn=document.createElement('button');
+      knowBtn.textContent=isKnown?'−':'Изучить';
+      knowBtn.title=isKnown?'Убрать из изученных':'Добавить в изученные';
+      knowBtn.style.cssText='font-size:11px;padding:3px 8px;border:1px solid '+(isKnown?'#C0DD97':'#ccc')+';border-radius:6px;background:'+(isKnown?'#f0fce8':'#fff')+';cursor:pointer;color:'+(isKnown?'#3B6D11':'#555')+';white-space:nowrap';
+      knowBtn.onclick=(e)=>{e.stopPropagation();toggleKnown(sp.name);};
+      btns.appendChild(knowBtn);
+
+      // Prepare toggle (only if known)
+      if(isKnown){
+        const prepBtn=document.createElement('button');
+        prepBtn.textContent=isPrep?'Снять':'Подг.';
+        prepBtn.title=isPrep?'Убрать из подготовленных':'Подготовить';
+        prepBtn.style.cssText='font-size:11px;padding:3px 8px;border:1px solid '+(isPrep?'#B5D4F4':'#ccc')+';border-radius:6px;background:'+(isPrep?'#e8f3ff':'#fff')+';cursor:pointer;color:'+(isPrep?'#185FA5':'#555')+';white-space:nowrap';
+        prepBtn.onclick=(e)=>{e.stopPropagation();togglePrepared(sp.name);};
+        btns.appendChild(prepBtn);
+      }
+
+      // Concentration toggle (only if prepared and has conc)
+      if(isPrep&&sp.conc){
+        const concBtn=document.createElement('button');
+        concBtn.textContent=isConc?'Снять конц.':'Конц.';
+        concBtn.style.cssText='font-size:11px;padding:3px 8px;border:1px solid '+(isConc?'#F5C4B3':'#ccc')+';border-radius:6px;background:'+(isConc?'#FFF8F0':'#fff')+';cursor:pointer;color:'+(isConc?'#993C1D':'#555')+';white-space:nowrap';
+        concBtn.onclick=(e)=>{e.stopPropagation();toggleConc(sp.name);};
+        btns.appendChild(concBtn);
+      }
+    } else {
+      const lockSpan=document.createElement('span');
+      lockSpan.style.cssText='font-size:11px;color:#ccc';
+      lockSpan.textContent=isSpellcasterClass()?'Недост. круг':'Не маг';
+      btns.appendChild(lockSpan);
+    }
+
+    row.appendChild(btns);
+    row.onclick=()=>{if(!isLocked)openSpellPopup(sp);};
+    container.appendChild(row);
+  });
+
+  // Update badges
+  const kc=knownSpells.size;
+  const pc=preparedSpells.size;
+  v('knownBadge').innerHTML=kc>0?'<span class="vtab-count">'+kc+'</span>':'';
+  v('prepBadge').innerHTML=pc>0?'<span class="vtab-count">'+pc+'</span>':'';
+}
+
+function toggleKnown(name){
+  if(knownSpells.has(name)){
+    knownSpells.delete(name);
+    preparedSpells.delete(name);
+    if(concSpell===name)concSpell=null;
+  } else {
+    knownSpells.add(name);
+  }
+  renderSpellBook();
+  updateConcBar();
+}
+
+function togglePrepared(name){
+  if(preparedSpells.has(name)){
+    preparedSpells.delete(name);
+    if(concSpell===name)concSpell=null;
+  } else {
+    preparedSpells.add(name);
+  }
+  renderSpellBook();
+  updateConcBar();
+}
+
+function toggleConc(name){
+  if(concSpell===name){concSpell=null;}
+  else {concSpell=name;}
+  updateConcBar();
+  renderSpellBook();
+}
+
+function clearConcentration(){
+  concSpell=null;
+  updateConcBar();
+  renderSpellBook();
+}
+
+function updateConcBar(){
+  v('concSpellName').textContent=concSpell||'нет';
+  v('concSpellName').style.color=concSpell?'#993C1D':'#aaa';
+  v('concClearBtn').style.display=concSpell?'':'none';
+}
+
+function openSpellPopup(sp){
+  const SCHOOL_COLORS={Воплощение:'#D85A30',Вызов:'#1D9E75',Иллюзия:'#7F77DD',Некромантия:'#444',Очарование:'#D4537E',Прорицание:'#185FA5',Преобразование:'#BA7517',Ограждение:'#639922'};
+  const col=SCHOOL_COLORS[sp.school]||'#888';
+  const lvlStr=sp.level===0?'Заговор':(sp.level+'-й круг');
+  v('spellPopupBody').innerHTML=`
+    <div style="margin-bottom:12px">
+      <div style="font-size:18px;font-weight:600;color:#1a1a18;margin-bottom:4px">${sp.name}</div>
+      <div style="font-size:12px;color:${col};font-weight:500">${lvlStr} · ${sp.school}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;font-size:12px">
+      <div style="background:#f5f4f0;border-radius:6px;padding:6px 8px"><div style="color:#aaa;margin-bottom:1px">Время накладывания</div><div style="font-weight:500">${sp.cast}</div></div>
+      <div style="background:#f5f4f0;border-radius:6px;padding:6px 8px"><div style="color:#aaa;margin-bottom:1px">Дальность</div><div style="font-weight:500">${sp.range}</div></div>
+      <div style="background:#f5f4f0;border-radius:6px;padding:6px 8px"><div style="color:#aaa;margin-bottom:1px">Длительность</div><div style="font-weight:500">${sp.dur}${sp.conc?' <span style="color:#993C1D">(конц.)</span>':''}</div></div>
+      <div style="background:#f5f4f0;border-radius:6px;padding:6px 8px"><div style="color:#aaa;margin-bottom:1px">Компоненты</div><div style="font-weight:500">${sp.comp}</div></div>
+    </div>
+    <div style="font-size:13px;line-height:1.6;color:#333;margin-bottom:14px">${sp.desc}</div>
+    <div style="font-size:11px;color:#aaa">Доступно: ${sp.classes.map(c=>({bard:'Бард',cleric:'Жрец',druid:'Друид',paladin:'Паладин',ranger:'Следопыт',sorcerer:'Чародей',warlock:'Колдун',wizard:'Волшебник'})[c]||c).join(', ')}</div>`;
+  const popup=v('spellPopup');
+  popup.style.display='flex';
+}
+
+function closeSpellPopup(){
+  v('spellPopup').style.display='none';
+}
+// Init
+window.addEventListener('DOMContentLoaded', function(){
+  buildSkillList();
+  buildSaveList();
+  buildStatsGrid();
+  renderClass();
+  updateAll();
+  updateHpBar();
+  renderSpellBook();
+  updateConcBar();
+});
+</script>
+</body>
+</html>
