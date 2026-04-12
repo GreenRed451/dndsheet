@@ -97,19 +97,67 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 .badge-school{background:#E1F5EE;color:#0F6E56}
 .badge-conc{background:#FAECE7;color:#993C1D}
 .vtab-count{font-size:10px;background:#e0ddd4;color:#666;padding:1px 5px;border-radius:8px;font-weight:600}
+
+/* Firebase sync UI */
+.fb-bar{display:flex;align-items:center;gap:8px;padding:6px 12px;background:#f5f4f0;border:1px solid #e0ddd4;border-radius:8px;flex-wrap:wrap}
+.fb-bar label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.fb-bar input{font-size:12px;padding:4px 8px;border:1px solid #e0ddd4;border-radius:6px;background:#fff;color:#1a1a18;width:220px}
+.fb-bar input:focus{outline:2px solid #7F77DD;outline-offset:-1px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0;transition:background .3s}
+.sync-dot.green{background:#639922}
+.sync-dot.orange{background:#BA7517}
+.sync-dot.red{background:#993C1D}
+.sync-label{font-size:12px;color:#888;white-space:nowrap}
+.player-pill{font-size:11px;padding:2px 8px;border-radius:10px;background:#EEEDFE;color:#534AB7;font-weight:500;white-space:nowrap}
+.fb-config-hint{font-size:11px;color:#BA7517;background:#FAEEDA;border:1px solid #FAC775;border-radius:6px;padding:4px 10px;white-space:nowrap}
+.save-toast{position:fixed;bottom:20px;right:20px;background:#1a1a18;color:#fff;font-size:12px;padding:7px 14px;border-radius:8px;opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;pointer-events:none;z-index:9999}
+.save-toast.show{opacity:1;transform:translateY(0)}
+.gm-panel{background:#fff;border:1px solid #e0ddd4;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.gm-panel-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#534AB7;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.player-card{background:#f5f4f0;border:1px solid #e0ddd4;border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.player-card:hover{border-color:#534AB7}
+.player-card-name{font-size:14px;font-weight:600;color:#1a1a18}
+.player-card-meta{font-size:12px;color:#888;margin-top:2px}
+.player-card-hp{font-size:12px;margin-top:4px}
+.player-hp-bar{height:5px;background:#e0ddd4;border-radius:3px;overflow:hidden;margin-top:3px}
+.player-hp-fill{height:100%;border-radius:3px;transition:width .4s,background .4s}
 </style>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getDatabase, ref, set, onValue, off } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+  window._fbMod = { initializeApp, getDatabase, ref, set, onValue, off };
+</script>
 </head>
 <body>
 
 <div class="topbar">
-  <h1>⚔️ Лист персонажа D&D 5e <span id="levelBadge" class="level-badge">Ур. 1</span></h1>
-  <button class="btn" onclick="saveJSON()">💾 Сохранить JSON</button>
-  <label class="btn" style="cursor:pointer">📂 Загрузить JSON<input type="file" accept=".json" onchange="loadJSON(event)" style="display:none"></label>
-  <button class="btn primary" onclick="window.print()">🖨️ Печать</button>
-  <button class="btn danger" onclick="if(confirm('Очистить весь лист?'))resetSheet()">🗑 Сбросить</button>
+  <h1>⚔️ D&D 5e <span id="levelBadge" class="level-badge">Ур. 1</span></h1>
+  <div class="fb-bar" id="fbBar">
+    <span class="sync-dot" id="syncDot"></span>
+    <span class="sync-label" id="syncLabel">Не подключено</span>
+    <label>Комната:</label>
+    <input type="text" id="fbRoomInput" placeholder="my-campaign-2024" maxlength="40" oninput="onRoomInput()">
+    <label>Имя:</label>
+    <input type="text" id="fbNameInput" placeholder="Имя игрока" maxlength="30" oninput="onRoomInput()">
+    <button class="btn" onclick="connectRoom()" id="fbConnectBtn">Войти</button>
+    <button class="btn" onclick="disconnectRoom()" id="fbDisconnectBtn" style="display:none">Выйти</button>
+    <span id="fbConfigHint" class="fb-config-hint" style="display:none">⚠ Нужна настройка Firebase</span>
+  </div>
+  <button class="btn" onclick="saveJSON()" title="Скачать JSON">💾</button>
+  <label class="btn" style="cursor:pointer" title="Загрузить JSON">📂<input type="file" accept=".json" onchange="loadJSON(event)" style="display:none"></label>
+  <button class="btn primary" onclick="window.print()" title="Печать">🖨️</button>
+  <button class="btn danger" onclick="if(confirm('Очистить лист?'))resetSheet()" title="Сбросить">🗑</button>
 </div>
 
 <div class="sheet">
+
+  <!-- GM Panel (visible only to GM role) -->
+  <div class="gm-panel" id="gmPanel" style="display:none">
+    <div class="gm-panel-title">👁 Мастер — обзор игроков <span id="gmPlayerCount" style="font-size:11px;color:#aaa;font-weight:400"></span></div>
+    <div id="gmPlayerList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px"></div>
+  </div>
 
   <div class="section">
     <div class="field-row">
@@ -213,7 +261,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
       <div>
         <div class="section center-section">
           <div class="section-title">Вдохновение</div>
-          <span id="inspireDot" class="inspiration-dot" onclick="this.classList.toggle('on')" title="Вдохновение"></span>
+          <span id="inspireDot" class="inspiration-dot" onclick="this.classList.toggle('on');fbSync()" title="Вдохновение"></span>
           <div style="margin-top:14px">
             <div class="section-title">Бонус мастерства</div>
             <div class="big-num" id="profBonusDisplay">+2</div>
@@ -489,6 +537,7 @@ function adjustStat(st, delta){
   if(newSpent>BASE_POINTS)return;
   statValues[st]=newVal;
   refreshStats();
+  fbSync();
 }
 
 function refreshStats(){
@@ -561,6 +610,7 @@ function adjustASI(st, delta){
   if(delta<0&&asiBonus[st]<=0)return;
   asiBonus[st]+=delta;
   refreshStats();
+  fbSync();
 }
 
 function showTab(id,el){
@@ -573,6 +623,7 @@ function showTab(id,el){
 function toggleDot(el,color){
   el.classList.toggle('filled');
   el.style.background=el.classList.contains('filled')?color:'transparent';
+  fbSync();
 }
 
 function updateAll(){
@@ -818,10 +869,10 @@ function resetSheet(){
   skillProf={};SAVES.forEach(s=>{const cb=v('save_'+s);if(cb)cb.checked=false;});
   v('inspireDot').classList.remove('on');
   STATS.forEach(st=>{statValues[st]=8;asiBonus[st]=0;});
-  buildSkillList();buildSaveList();buildStatsGrid();if(data.knownSpells)knownSpells=new Set(data.knownSpells);
-  if(data.preparedSpells)preparedSpells=new Set(data.preparedSpells);
-  concSpell=data.concSpell||null;
+  knownSpells=new Set();preparedSpells=new Set();concSpell=null;
+  buildSkillList();buildSaveList();buildStatsGrid();
   renderClass();updateAll();updateHpBar();updateConcBar();renderSpellBook();
+  fbSync();
 }
 
 // ============ SPELL DATABASE ============
@@ -1105,6 +1156,7 @@ function toggleKnown(name){
   }
   renderSpellBook();
   updateConcBar();
+  fbSync();
 }
 
 function togglePrepared(name){
@@ -1116,6 +1168,7 @@ function togglePrepared(name){
   }
   renderSpellBook();
   updateConcBar();
+  fbSync();
 }
 
 function toggleConc(name){
@@ -1129,6 +1182,7 @@ function clearConcentration(){
   concSpell=null;
   updateConcBar();
   renderSpellBook();
+  fbSync();
 }
 
 function updateConcBar(){
@@ -1161,7 +1215,186 @@ function openSpellPopup(sp){
 function closeSpellPopup(){
   v('spellPopup').style.display='none';
 }
-// Init
+// ============ FIREBASE SYNC ============
+// REPLACE THESE VALUES with your own Firebase project config:
+const FB_CONFIG = {
+  apiKey:            "AIzaSyBEjhg3RC4EzeaK792Ob2pn5krfXnn6rxk",
+  authDomain:        "dndsheet-1c7c2.firebaseapp.com",
+  databaseURL:       "https://dndsheet-1c7c2-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "dndsheet-1c7c2",
+  storageBucket:     "dndsheet-1c7c2.firebasestorage.app",
+  messagingSenderId: "771509243100",
+  appId:             "1:771509243100:web:b4655cafbe4935de447819"
+};
+
+let fbApp=null, fbDb=null, fbRoomRef=null, fbPlayerRef=null;
+let fbRoom='', fbPlayerName='', fbIsGm=false;
+let fbRemoteListeners={};   // name -> unsubscribe fn
+let fbSuppressSync=false;   // prevent echo when we apply incoming data
+let fbSaveTimer=null;
+
+function fbInit(){
+  if(fbApp)return true;
+  if(!window._fbMod){console.warn('Firebase module not loaded');return false;}
+  if(!FB_CONFIG.apiKey||FB_CONFIG.apiKey.startsWith('REPLACE')){
+    v('fbConfigHint').style.display='';
+    return false;
+  }
+  try{
+    const {initializeApp,getDatabase}=window._fbMod;
+    fbApp=initializeApp(FB_CONFIG);
+    fbDb=getDatabase(fbApp);
+    v('fbConfigHint').style.display='none';
+    return true;
+  }catch(e){console.error('Firebase init error:',e);return false;}
+}
+
+function onRoomInput(){
+  // Enable connect button only when both fields filled
+  const room=v('fbRoomInput').value.trim();
+  const name=v('fbNameInput').value.trim();
+  v('fbConnectBtn').disabled=!(room&&name);
+}
+
+function connectRoom(){
+  if(!fbInit())return;
+  const room=v('fbRoomInput').value.trim().replace(/[.#$\[\]]/g,'_');
+  const name=v('fbNameInput').value.trim();
+  if(!room||!name){alert('Заполните название комнаты и имя');return;}
+  if(fbPlayerRef){disconnectRoom();}
+
+  fbRoom=room; fbPlayerName=name;
+  const {ref,set,onValue}=window._fbMod;
+  fbDb._room=room;
+
+  // GM = первый, кто создаёт комнату (или если никого нет)
+  const roomRef=ref(fbDb,`rooms/${room}`);
+  onValue(roomRef,snap=>{
+    const d=snap.val();
+    fbIsGm=!d||!d.players||Object.keys(d.players).length===0||(d.players&&d.players[name]);
+    v('gmPanel').style.display=fbIsGm?'block':'none';
+    updateSyncUI('green','Подключено: '+room);
+    v('fbConnectBtn').style.display='none';
+    v('fbDisconnectBtn').style.display='';
+    v('fbRoomInput').disabled=true;
+    v('fbNameInput').disabled=true;
+  },{onlyOnce:true});
+
+  // Write my data path
+  fbPlayerRef=ref(fbDb,`rooms/${room}/players/${name}`);
+  // Initial write
+  fbSync();
+
+  // Listen to ALL players in this room
+  fbRoomRef=ref(fbDb,`rooms/${room}/players`);
+  onValue(fbRoomRef, snap=>{
+    const players=snap.val()||{};
+    updateGmPanel(players);
+    // If remote player updated their sheet, don't re-echo to Firebase
+    Object.keys(players).forEach(pname=>{
+      if(pname!==name){/* read-only for GM view */}
+    });
+  });
+
+  updateSyncUI('green','Подключено → '+room);
+  console.log('[FB] Connected room:',room,'as:',name);
+}
+
+function disconnectRoom(){
+  if(!fbDb||!fbRoom)return;
+  const {ref,off}=window._fbMod;
+  if(fbRoomRef)off(fbRoomRef);
+  fbRoomRef=null; fbPlayerRef=null;
+  fbRoom=''; fbPlayerName='';
+  v('fbConnectBtn').style.display='';
+  v('fbDisconnectBtn').style.display='none';
+  v('fbRoomInput').disabled=false;
+  v('fbNameInput').disabled=false;
+  v('gmPanel').style.display='none';
+  updateSyncUI('','Не подключено');
+}
+
+function fbSync(){
+  if(!fbPlayerRef||fbSuppressSync)return;
+  clearTimeout(fbSaveTimer);
+  fbSaveTimer=setTimeout(()=>{
+    const {set}=window._fbMod;
+    const data=getSheetData();
+    data._name=fbPlayerName;
+    data._ts=Date.now();
+    set(fbPlayerRef,data).then(()=>{
+      updateSyncUI('green','Синхронизировано');
+      showSaveToast('☁ Сохранено в облако');
+    }).catch(e=>{
+      updateSyncUI('red','Ошибка записи');
+      console.error('[FB] write error:',e);
+    });
+    updateSyncUI('orange','Сохранение...');
+  },700);
+}
+
+function updateSyncUI(color,text){
+  const dot=v('syncDot');
+  dot.className='sync-dot'+(color?' '+color:'');
+  v('syncLabel').textContent=text;
+}
+
+function showSaveToast(msg){
+  let t=v('saveToast');
+  if(!t)return;
+  t.textContent=msg||'✓ Сохранено';
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h=setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function updateGmPanel(players){
+  if(!fbIsGm)return;
+  const el=v('gmPlayerList');
+  el.innerHTML='';
+  const names=Object.keys(players);
+  v('gmPlayerCount').textContent='('+names.length+' игрок'+(names.length===1?'':'ов')+')';
+  names.forEach(name=>{
+    const p=players[name]||{};
+    const hpMax=parseInt(p.hpMax)||1;
+    const hpCur=parseInt(p.hpCur)||0;
+    const pct=Math.max(0,Math.min(100,Math.round(hpCur/hpMax*100)));
+    const hpColor=pct>50?'#639922':pct>25?'#BA7517':'#993C1D';
+    const card=document.createElement('div');
+    card.className='player-card';
+    const charName=p.charName||name;
+    const cls=({'barbarian':'Варвар','bard':'Бард','cleric':'Жрец','druid':'Друид','fighter':'Воин',
+      'monk':'Монах','paladin':'Паладин','ranger':'Следопыт','rogue':'Плут',
+      'sorcerer':'Чародей','warlock':'Колдун','wizard':'Волшебник'})[p.classSelect]||p.classSelect||'';
+    const lvl=p.levelInput||1;
+    const race=p.race||'';
+    card.innerHTML=`
+      <div class="player-card-name">${charName}</div>
+      <div class="player-card-meta">${cls} ${lvl} ур.${race?' · '+race:''} · <span style="color:#888">${name}</span></div>
+      <div class="player-card-hp">
+        <span style="font-size:12px;color:${hpColor};font-weight:600">${hpCur} / ${hpMax} ХП</span>
+        <div class="player-hp-bar"><div class="player-hp-fill" style="width:${pct}%;background:${hpColor}"></div></div>
+      </div>`;
+    card.onclick=()=>loadPlayerSheet(p,name);
+    el.appendChild(card);
+  });
+}
+
+function loadPlayerSheet(data,playerName){
+  if(!confirm('Загрузить лист игрока '+playerName+'? Ваши изменения не сохранятся.'))return;
+  fbSuppressSync=true;
+  applySheetData(data);
+  fbSuppressSync=false;
+  showSaveToast('👁 Просмотр: '+playerName);
+}
+
+// Hook fbSync into all state-changing functions
+function hookFbSync(){
+  document.addEventListener('input',()=>fbSync());
+  document.addEventListener('change',()=>fbSync());
+}
+
+// ============ INIT ============
 window.addEventListener('DOMContentLoaded', function(){
   buildSkillList();
   buildSaveList();
@@ -1171,7 +1404,12 @@ window.addEventListener('DOMContentLoaded', function(){
   updateHpBar();
   renderSpellBook();
   updateConcBar();
+  hookFbSync();
+  v('fbConnectBtn').disabled=true;
+  // Try init Firebase (will show hint if config not filled)
+  setTimeout(()=>{fbInit();},300);
 });
 </script>
+<div id="saveToast" class="save-toast"></div>
 </body>
 </html>
