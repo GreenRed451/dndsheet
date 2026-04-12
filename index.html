@@ -121,6 +121,9 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 .player-card-hp{font-size:12px;margin-top:4px}
 .player-hp-bar{height:5px;background:#e0ddd4;border-radius:3px;overflow:hidden;margin-top:3px}
 .player-hp-fill{height:100%;border-radius:3px;transition:width .4s,background .4s}
+
+@keyframes live-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.live-badge{display:inline-block;width:7px;height:7px;border-radius:50%;background:#534AB7;animation:live-pulse 1.4s ease-in-out infinite;margin-right:3px}
 </style>
 
 <!-- Firebase SDK -->
@@ -1230,6 +1233,8 @@ const FB_CONFIG = {
 let fbApp=null, fbDb=null, fbRoomRef=null, fbPlayerRef=null;
 let fbRoom='', fbPlayerName='', fbIsGm=false;
 let fbRemoteListeners={};   // name -> unsubscribe fn
+let fbLivePlayer=null;       // имя игрока, за которым следим live
+let fbLiveUnsub=null;        // функция отписки от live-игрока
 let fbSuppressSync=false;   // prevent echo when we apply incoming data
 let fbSaveTimer=null;
 
@@ -1302,6 +1307,7 @@ function connectRoom(){
 
 function disconnectRoom(){
   if(!fbDb||!fbRoom)return;
+  stopWatchingLive(true);
   const {ref,off}=window._fbMod;
   if(fbRoomRef)off(fbRoomRef);
   fbRoomRef=null; fbPlayerRef=null;
@@ -1354,38 +1360,82 @@ function updateGmPanel(players){
   el.innerHTML='';
   const names=Object.keys(players);
   v('gmPlayerCount').textContent='('+names.length+' игрок'+(names.length===1?'':'ов')+')';
-  names.forEach(name=>{
-    const p=players[name]||{};
+  names.forEach(pname=>{
+    const p=players[pname]||{};
     const hpMax=parseInt(p.hpMax)||1;
     const hpCur=parseInt(p.hpCur)||0;
     const pct=Math.max(0,Math.min(100,Math.round(hpCur/hpMax*100)));
     const hpColor=pct>50?'#639922':pct>25?'#BA7517':'#993C1D';
+    const isLive=fbLivePlayer===pname;
     const card=document.createElement('div');
     card.className='player-card';
-    const charName=p.charName||name;
+    card.style.borderColor=isLive?'#534AB7':'';
+    card.style.background=isLive?'#f8f7ff':'';
+    const charName=p.charName||pname;
     const cls=({'barbarian':'Варвар','bard':'Бард','cleric':'Жрец','druid':'Друид','fighter':'Воин',
       'monk':'Монах','paladin':'Паладин','ranger':'Следопыт','rogue':'Плут',
       'sorcerer':'Чародей','warlock':'Колдун','wizard':'Волшебник'})[p.classSelect]||p.classSelect||'';
     const lvl=p.levelInput||1;
     const race=p.race||'';
+    const ts=p._ts?Math.round((Date.now()-p._ts)/1000):null;
+    const tsStr=ts===null?'':(ts<5?'только что':(ts<60?ts+'с назад':(Math.round(ts/60)+'мин назад')));
     card.innerHTML=`
-      <div class="player-card-name">${charName}</div>
-      <div class="player-card-meta">${cls} ${lvl} ур.${race?' · '+race:''} · <span style="color:#888">${name}</span></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+        <div class="player-card-name">${charName}${isLive?' <span style="font-size:10px;color:#534AB7;font-weight:400">● LIVE</span>':''}</div>
+        ${tsStr?`<span style="font-size:10px;color:#aaa">${tsStr}</span>`:''}
+      </div>
+      <div class="player-card-meta">${cls} ${lvl} ур.${race?' · '+race:''} · <span style="color:#aaa">${pname}</span></div>
       <div class="player-card-hp">
         <span style="font-size:12px;color:${hpColor};font-weight:600">${hpCur} / ${hpMax} ХП</span>
         <div class="player-hp-bar"><div class="player-hp-fill" style="width:${pct}%;background:${hpColor}"></div></div>
+      </div>
+      <div style="margin-top:6px;display:flex;gap:5px">
+        <button onclick="event.stopPropagation();watchPlayerLive('${pname}')"
+          style="font-size:11px;padding:2px 8px;border:1px solid ${isLive?'#534AB7':'#ccc'};border-radius:5px;background:${isLive?'#EEEDFE':'#fff'};color:${isLive?'#534AB7':'#555'};cursor:pointer">
+          ${isLive?'● Смотрю Live':'👁 Live'}
+        </button>
+        ${isLive?`<button onclick="event.stopPropagation();stopWatchingLive()"
+          style="font-size:11px;padding:2px 8px;border:1px solid #ccc;border-radius:5px;background:#fff;color:#888;cursor:pointer">Стоп</button>`:''}
       </div>`;
-    card.onclick=()=>loadPlayerSheet(p,name);
     el.appendChild(card);
   });
 }
 
+function watchPlayerLive(playerName){
+  // Если уже смотрим этого же — ничего не делаем
+  if(fbLivePlayer===playerName)return;
+  // Отписаться от предыдущего
+  stopWatchingLive(true);
+  if(!fbDb||!fbRoom)return;
+  const {ref,onValue,off}=window._fbMod;
+  const playerRef=ref(fbDb,`rooms/${fbRoom}/players/${playerName}`);
+  fbLivePlayer=playerName;
+  // Подписка: каждый раз когда игрок что-то меняет — применяем на нашем экране
+  fbLiveUnsub=()=>off(playerRef);
+  onValue(playerRef, snap=>{
+    const data=snap.val();
+    if(!data)return;
+    fbSuppressSync=true;
+    applySheetData(data);
+    fbSuppressSync=false;
+    updateSyncUI('green','Live: '+playerName);
+    showSaveToast('🔄 '+playerName+' обновил лист');
+  });
+  updateSyncUI('green','Live: '+playerName);
+  showSaveToast('👁 Слежу за: '+playerName);
+}
+
+function stopWatchingLive(silent){
+  if(fbLiveUnsub){fbLiveUnsub();fbLiveUnsub=null;}
+  fbLivePlayer=null;
+  if(!silent){
+    updateSyncUI('green','Подключено → '+fbRoom);
+    showSaveToast('Просмотр завершён');
+  }
+}
+
 function loadPlayerSheet(data,playerName){
-  if(!confirm('Загрузить лист игрока '+playerName+'? Ваши изменения не сохранятся.'))return;
-  fbSuppressSync=true;
-  applySheetData(data);
-  fbSuppressSync=false;
-  showSaveToast('👁 Просмотр: '+playerName);
+  watchPlayerLive(playerName);
 }
 
 // Hook fbSync into all state-changing functions
