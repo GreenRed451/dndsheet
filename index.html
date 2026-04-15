@@ -154,6 +154,9 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
   <button class="btn danger" onclick="if(confirm('Очистить лист?'))resetSheet()" title="Сбросить">🗑</button>
 </div>
 
+<!-- Баннер восстановления сессии -->
+<div id="reconnectBanner" style="display:none;align-items:center;gap:10px;background:#F0EDFF;border-bottom:1px solid #C9C4F5;padding:8px 20px;flex-wrap:wrap"></div>
+
 <div class="sheet">
 
   <!-- GM Panel (visible only to GM role) -->
@@ -858,8 +861,8 @@ function applySheetData(data){
   (data.attacks||[]).forEach(a=>addAttack(a.name,a.bonus,a.dmg));
   v('invList').innerHTML='';
   (data.inventory||[]).forEach(it=>addInvItem(it.name,it.qty,it.wt));
-  if(data.knownSpells)knownSpells=new Set(data.knownSpells);
-  if(data.preparedSpells)preparedSpells=new Set(data.preparedSpells);
+  knownSpells=new Set(Array.isArray(data.knownSpells)?data.knownSpells:[]);
+  preparedSpells=new Set(Array.isArray(data.preparedSpells)?data.preparedSpells:[]);
   concSpell=data.concSpell||null;
   renderClass();updateAll();updateHpBar();updateConcBar();renderSpellBook();
 }
@@ -1107,7 +1110,7 @@ function renderSpellBook(){
     const isKnown=knownSpells.has(sp.name);
     const isPrep=preparedSpells.has(sp.name);
     const isConc=concSpell===sp.name;
-    const isLocked=!isSpellcasterClass()||(sp.level>0&&sp.level>maxLvl);
+    const isLocked=false; // ограничения по кругу отключены — мастер следит сам
     const isClassSpell=sp.classes.includes(cls);
 
     const row=document.createElement('div');
@@ -1342,10 +1345,14 @@ function connectRoom(){
       // Комната пустая — я становлюсь GM, записываю своё имя
       set(gmRef, name);
       fbIsGm=true;
+      localStorage.setItem('dnd_fb_room', room);
+      localStorage.setItem('dnd_fb_name', name);
     } else {
       // GM уже есть — GM только если моё имя совпадает
       fbIsGm=(currentGm===name);
     }
+    localStorage.setItem('dnd_fb_room', room);
+    localStorage.setItem('dnd_fb_name', name);
     v('gmPanel').style.display=fbIsGm?'block':'none';
     v('fbConnectBtn').style.display='none';
     v('fbDisconnectBtn').style.display='';
@@ -1378,6 +1385,8 @@ function disconnectRoom(){
   if(fbRoomRef)off(fbRoomRef);
   fbRoomRef=null; fbPlayerRef=null;
   fbRoom=''; fbPlayerName='';
+  localStorage.removeItem('dnd_fb_room');
+  localStorage.removeItem('dnd_fb_name');
   v('fbConnectBtn').style.display='';
   v('fbDisconnectBtn').style.display='none';
   v('fbRoomInput').disabled=false;
@@ -1532,9 +1541,47 @@ window.addEventListener('DOMContentLoaded', function(){
   updateConcBar();
   hookFbSync();
   v('fbConnectBtn').disabled=true;
-  // Try init Firebase (will show hint if config not filled)
-  setTimeout(()=>{fbInit();},300);
+
+  // Инициализируем Firebase и пробуем восстановить сессию
+  setTimeout(()=>{
+    if(!fbInit()) return;
+    const savedRoom = localStorage.getItem('dnd_fb_room');
+    const savedName = localStorage.getItem('dnd_fb_name');
+    if(savedRoom && savedName){
+      // Подставляем сохранённые значения в поля
+      v('fbRoomInput').value = savedRoom;
+      v('fbNameInput').value = savedName;
+      v('fbConnectBtn').disabled = false;
+      // Показываем баннер восстановления вместо тихого автоподключения
+      showReconnectBanner(savedRoom, savedName);
+    }
+  }, 300);
 });
+
+function showReconnectBanner(room, name){
+  const banner = document.getElementById('reconnectBanner');
+  if(!banner) return;
+  banner.innerHTML =
+    '<span style="font-size:13px;color:#534AB7">' +
+      '&#8629; Вернуться в комнату <b>' + room + '</b> как <b>' + name + '</b>?' +
+    '</span>' +
+    '<button class="btn primary" style="padding:4px 12px;font-size:12px" ' +
+      'onclick="reconnectSession()">Войти</button>' +
+    '<button class="btn" style="padding:4px 12px;font-size:12px" ' +
+      'onclick="dismissReconnect()">Нет</button>';
+  banner.style.display = 'flex';
+}
+
+function reconnectSession(){
+  document.getElementById('reconnectBanner').style.display='none';
+  connectRoom();
+}
+
+function dismissReconnect(){
+  localStorage.removeItem('dnd_fb_room');
+  localStorage.removeItem('dnd_fb_name');
+  document.getElementById('reconnectBanner').style.display='none';
+}
 </script>
 <div id="saveToast" class="save-toast"></div>
 </body>
