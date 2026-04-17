@@ -129,8 +129,8 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getDatabase, ref, set, onValue, off } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
-  window._fbMod = { initializeApp, getDatabase, ref, set, onValue, off };
+  import { getDatabase, ref, set, onValue, off, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+  window._fbMod = { initializeApp, getDatabase, ref, set, onValue, off, get };
 </script>
 </head>
 <body>
@@ -156,6 +156,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 
 <!-- Баннер восстановления сессии -->
 <div id="reconnectBanner" style="display:none;align-items:center;gap:10px;background:#F0EDFF;border-bottom:1px solid #C9C4F5;padding:8px 20px;flex-wrap:wrap"></div>
+<div id="localRestoreBanner" style="display:none;align-items:center;gap:10px;background:#EEF8E8;border-bottom:1px solid #C0DD97;padding:8px 20px;flex-wrap:wrap"></div>
 
 <div class="sheet">
 
@@ -737,7 +738,7 @@ function renderClassResources(cls,lvl){
       for(let i=0;i<count;i++){
         const dot=document.createElement('span');dot.className='dot';
         dot.style.borderColor=res.color;
-        dot.onclick=function(){this.classList.toggle('filled');this.style.background=this.classList.contains('filled')?res.color:'transparent';};
+        dot.onclick=function(){this.classList.toggle('filled');this.style.background=this.classList.contains('filled')?res.color:'transparent';fbSync();};
         dots.appendChild(dot);
       }
     }
@@ -760,7 +761,7 @@ function renderSpellSlots(cls,lvl){
     const dots=row.querySelector('.resource-dots');
     for(let j=0;j<count;j++){
       const d=document.createElement('span');d.className='dot';d.style.borderColor='#7F77DD';
-      d.onclick=function(){this.classList.toggle('filled');this.style.background=this.classList.contains('filled')?'#7F77DD':'transparent';};
+      d.onclick=function(){this.classList.toggle('filled');this.style.background=this.classList.contains('filled')?'#7F77DD':'transparent';fbSync();};
       dots.appendChild(d);
     }
   });
@@ -772,8 +773,9 @@ function addAttack(name='',bonus='',dmg=''){
   row.innerHTML=`<input type="text" placeholder="Длинный меч" value="${name}">
     <input type="text" placeholder="+5" value="${bonus}" style="text-align:center">
     <input type="text" placeholder="1к8+3" value="${dmg}" style="text-align:center">
-    <button class="remove-btn" onclick="this.parentElement.remove()">✕</button>`;
+    <button class="remove-btn" onclick="this.parentElement.remove();fbSync()">✕</button>`;
   list.appendChild(row);
+  fbSync();
 }
 
 function addInvItem(name='',qty='1',wt='0'){
@@ -782,8 +784,9 @@ function addInvItem(name='',qty='1',wt='0'){
   row.innerHTML=`<input type="text" placeholder="Название предмета" value="${name}">
     <input type="number" value="${qty}" min="0" style="text-align:center">
     <input type="number" value="${wt}" min="0" step="0.5" style="text-align:center">
-    <button class="remove-btn" onclick="this.parentElement.remove()">✕</button>`;
+    <button class="remove-btn" onclick="this.parentElement.remove();fbSync()">✕</button>`;
   list.appendChild(row);
+  fbSync();
 }
 
 // ---- SAVE / LOAD JSON ----
@@ -815,7 +818,142 @@ function getSheetData(){
   data.knownSpells=[...knownSpells];
   data.preparedSpells=[...preparedSpells];
   data.concSpell=concSpell;
+  data.deathSaves={
+    success:captureDotStates('.death-saves .saves-group:first-child .dot'),
+    failure:captureDotStates('.death-saves .saves-group:last-child .dot')
+  };
+  data.resourceDots=captureDotMap('#classResources .resource-dots');
+  data.spellSlotDots=captureDotMap('#spellSlots .resource-dots');
   return data;
+}
+
+function captureDotStates(selector){
+  return [...document.querySelectorAll(selector)].map(dot=>dot.classList.contains('filled'));
+}
+
+function applyDotStates(selector, states){
+  const dots=[...document.querySelectorAll(selector)];
+  dots.forEach((dot,i)=>{
+    const filled=!!(states&&states[i]);
+    dot.classList.toggle('filled', filled);
+    dot.style.background=filled?(dot.style.borderColor||getComputedStyle(dot).borderColor):'transparent';
+  });
+}
+
+function captureDotMap(selector){
+  const map={};
+  document.querySelectorAll(selector).forEach(container=>{
+    if(container.id) map[container.id]=[...container.querySelectorAll('.dot')].map(dot=>dot.classList.contains('filled'));
+  });
+  return map;
+}
+
+function applyDotMap(map){
+  Object.entries(map||{}).forEach(([id, states])=>{
+    const container=v(id);
+    if(!container) return;
+    [...container.querySelectorAll('.dot')].forEach((dot,i)=>{
+      const filled=!!(states&&states[i]);
+      dot.classList.toggle('filled', filled);
+      dot.style.background=filled?(dot.style.borderColor||getComputedStyle(dot).borderColor):'transparent';
+    });
+  });
+}
+
+function isSheetMeaningful(data){
+  if(!data) return false;
+  const textFields=['charName','race','background','alignment','playerName','features','profs','personality','ideals','bonds','flaws','backstory','notes','allies'];
+  if(textFields.some(f=>String(data[f]||'').trim()!=='')) return true;
+  if((data.classSelect||'barbarian')!=='barbarian') return true;
+  if((parseInt(data.levelInput)||1)!==1) return true;
+  if((parseInt(data.hpMax)||8)!==8 || (parseInt(data.hpCur)||8)!==8 || (parseInt(data.hpTemp)||0)!==0) return true;
+  if((parseInt(data.ac)||10)!==10 || String(data.initField||'+0')!=='+0' || String(data.speed||'30 фт.')!=='30 фт.') return true;
+  if((parseInt(data.hdCur)||1)!==1) return true;
+  if(['pp','gp','ep','sp','cp'].some(f=>(parseFloat(data[f])||0)!==0)) return true;
+  if(data.statValues && STATS.some(st=>(parseInt(data.statValues[st])||8)!==8)) return true;
+  if(data.asiBonus && STATS.some(st=>(parseInt(data.asiBonus[st])||0)!==0)) return true;
+  if(data.skillProf && Object.values(data.skillProf).some(Boolean)) return true;
+  if(data.saveProf && Object.values(data.saveProf).some(Boolean)) return true;
+  if(data.inspiration) return true;
+  if(data.attacks && data.attacks.some(a=>Object.values(a||{}).some(v=>String(v||'').trim()!=='' && String(v)!=='0'))) return true;
+  if(data.inventory && data.inventory.some(it=>String((it&&it.name)||'').trim()!=='' || String((it&&it.qty)||'1')!=='1' || String((it&&it.wt)||'0')!=='0')) return true;
+  if(data.knownSpells && data.knownSpells.length) return true;
+  if(data.preparedSpells && data.preparedSpells.length) return true;
+  if(data.concSpell) return true;
+  if(data.deathSaves && ([...(data.deathSaves.success||[]), ...(data.deathSaves.failure||[])].some(Boolean))) return true;
+  if(data.resourceDots && Object.values(data.resourceDots).some(arr=>Array.isArray(arr)&&arr.some(Boolean))) return true;
+  if(data.spellSlotDots && Object.values(data.spellSlotDots).some(arr=>Array.isArray(arr)&&arr.some(Boolean))) return true;
+  return false;
+}
+
+function readLocalDraft(){
+  try{
+    const raw=localStorage.getItem(LOCAL_AUTOSAVE_KEY);
+    if(!raw) return null;
+    const data=JSON.parse(raw);
+    if(!data||typeof data!=='object') return null;
+    if(!data._localSavedAt || (Date.now()-data._localSavedAt)>LOCAL_AUTOSAVE_MAX_AGE){
+      localStorage.removeItem(LOCAL_AUTOSAVE_KEY);
+      return null;
+    }
+    return data;
+  }catch(e){
+    console.warn('Local draft read error:', e);
+    return null;
+  }
+}
+
+function saveLocalDraftNow(){
+  try{
+    const data=getSheetData();
+    if(!isSheetMeaningful(data)){
+      localStorage.removeItem(LOCAL_AUTOSAVE_KEY);
+      return;
+    }
+    data._localSavedAt=Date.now();
+    localStorage.setItem(LOCAL_AUTOSAVE_KEY, JSON.stringify(data));
+  }catch(e){
+    console.warn('Local draft save error:', e);
+  }
+}
+
+function scheduleLocalAutosave(){
+  clearTimeout(localSaveTimer);
+  localSaveTimer=setTimeout(saveLocalDraftNow, 400);
+}
+
+function clearLocalDraft(){
+  localStorage.removeItem(LOCAL_AUTOSAVE_KEY);
+  const banner=v('localRestoreBanner');
+  if(banner) banner.style.display='none';
+}
+
+function showLocalRestoreBanner(savedAt){
+  const banner=v('localRestoreBanner');
+  if(!banner) return;
+  const when=new Date(savedAt).toLocaleString('ru-RU');
+  banner.innerHTML=
+    '<span style="font-size:13px;color:#3B6D11">' +
+      '↺ Найден локальный черновик от <b>' + when + '</b>.' +
+    '</span>' +
+    '<button class="btn primary" style="padding:4px 12px;font-size:12px" onclick="restoreLocalDraft()">Восстановить</button>' +
+    '<button class="btn" style="padding:4px 12px;font-size:12px" onclick="dismissLocalRestore()">Скрыть</button>' +
+    '<button class="btn danger" style="padding:4px 12px;font-size:12px" onclick="clearLocalDraft()">Удалить</button>';
+  banner.style.display='flex';
+}
+
+function restoreLocalDraft(){
+  const data=readLocalDraft();
+  if(!data) return;
+  applySheetData(data);
+  saveLocalDraftNow();
+  v('localRestoreBanner').style.display='none';
+  showSaveToast('↺ Локальный черновик восстановлен');
+}
+
+function dismissLocalRestore(){
+  const banner=v('localRestoreBanner');
+  if(banner) banner.style.display='none';
 }
 
 function saveJSON(){
@@ -833,6 +971,8 @@ function loadJSON(event){
     try{
       const data=JSON.parse(e.target.result);
       applySheetData(data);
+      saveLocalDraftNow();
+      showSaveToast('📂 JSON загружен');
     }catch(err){alert('Ошибка чтения файла: '+err.message);}
   };
   reader.readAsText(file);
@@ -861,10 +1001,14 @@ function applySheetData(data){
   (data.attacks||[]).forEach(a=>addAttack(a.name,a.bonus,a.dmg));
   v('invList').innerHTML='';
   (data.inventory||[]).forEach(it=>addInvItem(it.name,it.qty,it.wt));
-  knownSpells=new Set(Array.isArray(data.knownSpells)?data.knownSpells:[]);
-  preparedSpells=new Set(Array.isArray(data.preparedSpells)?data.preparedSpells:[]);
+  knownSpells=new Set(Array.isArray(data.knownSpells)?data.knownSpells:(data.knownSpells?[data.knownSpells]:[]));
+  preparedSpells=new Set(Array.isArray(data.preparedSpells)?data.preparedSpells:(data.preparedSpells?[data.preparedSpells]:[]));
   concSpell=data.concSpell||null;
   renderClass();updateAll();updateHpBar();updateConcBar();renderSpellBook();
+  applyDotStates('.death-saves .saves-group:first-child .dot', data.deathSaves?.success||[]);
+  applyDotStates('.death-saves .saves-group:last-child .dot', data.deathSaves?.failure||[]);
+  applyDotMap(data.resourceDots||{});
+  applyDotMap(data.spellSlotDots||{});
 }
 
 function resetSheet(){
@@ -878,6 +1022,7 @@ function resetSheet(){
   knownSpells=new Set();preparedSpells=new Set();concSpell=null;
   buildSkillList();buildSaveList();buildStatsGrid();
   renderClass();updateAll();updateHpBar();updateConcBar();renderSpellBook();
+  clearLocalDraft();
   fbSync();
 }
 
@@ -1259,6 +1404,7 @@ function toggleConc(name){
   else {concSpell=name;}
   updateConcBar();
   renderSpellBook();
+  fbSync();
 }
 
 function clearConcentration(){
@@ -1317,6 +1463,12 @@ let fbLivePlayer=null;       // имя игрока, за которым сле�
 let fbLiveUnsub=null;        // функция отписки от live-игрока
 let fbSuppressSync=false;   // prevent echo when we apply incoming data
 let fbSaveTimer=null;
+let fbInitialLoadDone=false;
+let fbPlayerCreatedAt=null;
+
+const LOCAL_AUTOSAVE_KEY='dnd_local_autosave_v1';
+const LOCAL_AUTOSAVE_MAX_AGE=1000*60*60*24*14;
+let localSaveTimer=null;
 
 function fbInit(){
   if(fbApp)return true;
@@ -1348,45 +1500,69 @@ function connectRoom(){
   if(!room||!name){alert('Заполните название комнаты и имя');return;}
   if(fbPlayerRef){disconnectRoom();}
 
-  fbRoom=room; fbPlayerName=name;
-  const {ref,set,onValue}=window._fbMod;
+  fbRoom=room;
+  fbPlayerName=name;
+  fbInitialLoadDone=false;
+  fbPlayerCreatedAt=null;
 
-  // Шаг 1: читаем кто сейчас GM в этой комнате (onlyOnce)
+  const {ref,set,onValue,get}=window._fbMod;
   const gmRef=ref(fbDb,`rooms/${room}/gm`);
-  onValue(gmRef, snap=>{
+
+  onValue(gmRef, async snap=>{
     const currentGm=snap.val();
-    if(!currentGm){
-      // Комната пустая — я становлюсь GM, записываю своё имя
-      set(gmRef, name);
-      fbIsGm=true;
+    try{
+      if(!currentGm){
+        await set(gmRef, name);
+        fbIsGm=true;
+      } else {
+        fbIsGm=(currentGm===name);
+      }
+
       localStorage.setItem('dnd_fb_room', room);
       localStorage.setItem('dnd_fb_name', name);
-    } else {
-      // GM уже есть — GM только если моё имя совпадает
-      fbIsGm=(currentGm===name);
+
+      v('gmPanel').style.display=fbIsGm?'block':'none';
+      v('fbConnectBtn').style.display='none';
+      v('fbDisconnectBtn').style.display='';
+      v('fbRoomInput').disabled=true;
+      v('fbNameInput').disabled=true;
+      updateSyncUI('orange','Загрузка персонажа...');
+
+      fbPlayerRef=ref(fbDb,`rooms/${room}/players/${name}`);
+      const playerSnap=await get(fbPlayerRef);
+
+      if(playerSnap.exists()){
+        const playerData=playerSnap.val()||{};
+        fbPlayerCreatedAt=playerData._createdAt||Date.now();
+        fbSuppressSync=true;
+        applySheetData(playerData);
+        fbSuppressSync=false;
+        saveLocalDraftNow();
+        updateSyncUI('green', fbIsGm ? '👑 Мастер · персонаж загружен' : 'Персонаж загружен');
+      } else {
+        const data=getSheetData();
+        data._name=fbPlayerName;
+        data._ts=Date.now();
+        data._createdAt=Date.now();
+        fbPlayerCreatedAt=data._createdAt;
+        await set(fbPlayerRef,data);
+        updateSyncUI('green', fbIsGm ? '👑 Мастер · создан новый лист' : 'Создан новый персонаж');
+        showSaveToast('☁ Создан новый персонаж');
+      }
+
+      fbInitialLoadDone=true;
+
+      fbRoomRef=ref(fbDb,`rooms/${room}/players`);
+      onValue(fbRoomRef, snap2=>{
+        const players=snap2.val()||{};
+        const others={};
+        Object.keys(players).forEach(k=>{ if(k!==name) others[k]=players[k]; });
+        updateGmPanel(others);
+      });
+    }catch(e){
+      updateSyncUI('red','Ошибка загрузки');
+      console.error('[FB] connect error:', e);
     }
-    localStorage.setItem('dnd_fb_room', room);
-    localStorage.setItem('dnd_fb_name', name);
-    v('gmPanel').style.display=fbIsGm?'block':'none';
-    v('fbConnectBtn').style.display='none';
-    v('fbDisconnectBtn').style.display='';
-    v('fbRoomInput').disabled=true;
-    v('fbNameInput').disabled=true;
-    updateSyncUI('green', fbIsGm ? '👑 Мастер · '+room : 'Подключено → '+room);
-
-    // Шаг 2: пишем свои данные и подписываемся на комнату
-    fbPlayerRef=ref(fbDb,`rooms/${room}/players/${name}`);
-    fbSync();
-
-    fbRoomRef=ref(fbDb,`rooms/${room}/players`);
-    onValue(fbRoomRef, snap2=>{
-      const players=snap2.val()||{};
-      // Убираем себя из GM-панели
-      const others={};
-      Object.keys(players).forEach(k=>{ if(k!==name) others[k]=players[k]; });
-      updateGmPanel(others);
-    });
-
   },{onlyOnce:true});
 
   console.log('[FB] Connecting room:',room,'as:',name);
@@ -1399,6 +1575,8 @@ function disconnectRoom(){
   if(fbRoomRef)off(fbRoomRef);
   fbRoomRef=null; fbPlayerRef=null;
   fbRoom=''; fbPlayerName='';
+  fbInitialLoadDone=false;
+  fbPlayerCreatedAt=null;
   localStorage.removeItem('dnd_fb_room');
   localStorage.removeItem('dnd_fb_name');
   v('fbConnectBtn').style.display='';
@@ -1410,13 +1588,16 @@ function disconnectRoom(){
 }
 
 function fbSync(){
-  if(!fbPlayerRef||fbSuppressSync)return;
+  if(!fbSuppressSync) scheduleLocalAutosave();
+  if(!fbPlayerRef||fbSuppressSync||!fbInitialLoadDone)return;
   clearTimeout(fbSaveTimer);
   fbSaveTimer=setTimeout(()=>{
     const {set}=window._fbMod;
     const data=getSheetData();
     data._name=fbPlayerName;
     data._ts=Date.now();
+    data._createdAt=fbPlayerCreatedAt||Date.now();
+    updateSyncUI('orange','Сохранение...');
     set(fbPlayerRef,data).then(()=>{
       updateSyncUI('green','Синхронизировано');
       showSaveToast('☁ Сохранено в облако');
@@ -1424,7 +1605,6 @@ function fbSync(){
       updateSyncUI('red','Ошибка записи');
       console.error('[FB] write error:',e);
     });
-    updateSyncUI('orange','Сохранение...');
   },700);
 }
 
@@ -1557,6 +1737,11 @@ window.addEventListener('DOMContentLoaded', function(){
   v('fbConnectBtn').disabled=true;
 
   // Инициализируем Firebase и пробуем восстановить сессию
+  const localDraft=readLocalDraft();
+  if(localDraft && isSheetMeaningful(localDraft)){
+    showLocalRestoreBanner(localDraft._localSavedAt);
+  }
+
   setTimeout(()=>{
     if(!fbInit()) return;
     const savedRoom = localStorage.getItem('dnd_fb_room');
