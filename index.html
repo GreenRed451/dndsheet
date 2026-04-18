@@ -56,6 +56,10 @@ body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a18;min-heigh
 .inv-header{display:grid;grid-template-columns:3fr 1fr 1fr 28px;gap:6px;margin-bottom:4px}
 .inv-item{display:grid;grid-template-columns:3fr 1fr 1fr 28px;gap:6px;margin-bottom:5px;align-items:center}
 .inv-item input{background:#f5f4f0;border:1px solid #e0ddd4;border-radius:6px;padding:5px 7px;font-size:13px;width:100%}
+.ability-header{display:grid;grid-template-columns:1.2fr 2fr 28px;gap:6px;margin-bottom:4px}
+.ability-row{display:grid;grid-template-columns:1.2fr 2fr 28px;gap:6px;margin-bottom:6px;align-items:start}
+.ability-row input,.ability-row textarea{background:#f5f4f0;border:1px solid #e0ddd4;border-radius:6px;padding:5px 7px;font-size:13px;width:100%;font-family:inherit}
+.ability-row textarea{min-height:46px;resize:vertical;line-height:1.4}
 .add-btn{font-size:12px;color:#888;background:none;border:1px dashed #ccc;border-radius:8px;padding:5px 12px;cursor:pointer;margin-top:4px;display:block;width:100%;text-align:center}
 .add-btn:hover{border-color:#534AB7;color:#534AB7}
 .remove-btn{background:none;border:none;cursor:pointer;color:#bbb;font-size:16px;line-height:1;padding:0 4px}
@@ -78,6 +82,9 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
   .stats-grid{grid-template-columns:repeat(3,1fr)}
   .grid2,.grid3{grid-template-columns:1fr}
   .skill-list{grid-template-columns:1fr}
+  .ability-header{display:none}
+  .ability-row{grid-template-columns:1fr 28px}
+  .ability-row textarea{grid-column:1 / -1}
 }
 @media print{
   .topbar{display:none}
@@ -200,6 +207,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
     <div class="tab" onclick="showTab('skills',this)">Навыки</div>
     <div class="tab" onclick="showTab('resources',this)">Ресурсы</div>
     <div class="tab" onclick="showTab('inventory',this)">Инвентарь</div>
+    <div class="tab" onclick="showTab('abilities',this)">Умения</div>
     <div class="tab" onclick="showTab('notes',this)">Заметки</div>
   </div>
 
@@ -401,6 +409,23 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
       </div>
       <div id="invList"></div>
       <button class="add-btn" onclick="addInvItem()">+ Добавить предмет</button>
+    </div>
+  </div>
+
+  <!-- ABILITIES TAB -->
+  <div id="tab-abilities" class="tab-panel">
+    <div class="section">
+      <div class="section-title">Умения и особенности</div>
+      <div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">
+        Записывайте здесь расовые, классовые и сюжетные умения: Божественное чувство, кошачью ловкость, карабканье, благословения, черты и другие важные особенности.
+      </div>
+      <div class="ability-header">
+        <div class="col-label">Умение</div>
+        <div class="col-label">Описание</div>
+        <div></div>
+      </div>
+      <div id="abilityList"></div>
+      <button class="add-btn" onclick="addAbility()">+ Добавить умение</button>
     </div>
   </div>
 
@@ -848,6 +873,28 @@ function addInvItem(name='',qty='1',wt='0'){
   fbSync();
 }
 
+function addAbility(name='',desc=''){
+  const list=v('abilityList');
+  const row=document.createElement('div');row.className='ability-row';
+  const nameInput=document.createElement('input');
+  nameInput.type='text';
+  nameInput.placeholder='Божественное чувство';
+  nameInput.value=name;
+  const descInput=document.createElement('textarea');
+  descInput.placeholder='Краткое описание, условия использования, количество раз, восстановление...';
+  descInput.value=desc;
+  const removeBtn=document.createElement('button');
+  removeBtn.className='remove-btn';
+  removeBtn.type='button';
+  removeBtn.textContent='✕';
+  removeBtn.onclick=function(){row.remove();fbSync();};
+  row.appendChild(nameInput);
+  row.appendChild(descInput);
+  row.appendChild(removeBtn);
+  list.appendChild(row);
+  fbSync();
+}
+
 // ---- SAVE / LOAD JSON ----
 function getSheetData(){
   const attacks=[];
@@ -860,6 +907,12 @@ function getSheetData(){
     const ins=r.querySelectorAll('input');
     inventory.push({name:ins[0].value,qty:ins[1].value,wt:ins[2].value});
   });
+  const abilities=[];
+  document.querySelectorAll('.ability-row').forEach(r=>{
+    const name=r.querySelector('input')?.value||'';
+    const desc=r.querySelector('textarea')?.value||'';
+    abilities.push({name,desc});
+  });
   const fields=['charName','classSelect','levelInput','race','background','alignment','playerName',
     'hpMax','hpCur','hpTemp','ac','initField','speed','hdCur',
     'features','profs','spells','personality','ideals','bonds','flaws','backstory','notes','allies',
@@ -870,6 +923,7 @@ function getSheetData(){
   data.asiBonus=Object.assign({},asiBonus);
   data.attacks=attacks;
   data.inventory=inventory;
+  data.abilities=abilities;
   data.skillProf=Object.assign({},skillProf);
   data.saveProf={};
   SAVES.forEach(s=>{const cb=v('save_'+s);if(cb)data.saveProf[s]=cb.checked;});
@@ -936,6 +990,7 @@ function isSheetMeaningful(data){
   if(data.inspiration) return true;
   if(data.attacks && data.attacks.some(a=>Object.values(a||{}).some(v=>String(v||'').trim()!=='' && String(v)!=='0'))) return true;
   if(data.inventory && data.inventory.some(it=>String((it&&it.name)||'').trim()!=='' || String((it&&it.qty)||'1')!=='1' || String((it&&it.wt)||'0')!=='0')) return true;
+  if(data.abilities && data.abilities.some(a=>String((a&&a.name)||'').trim()!=='' || String((a&&a.desc)||'').trim()!=='')) return true;
   if(data.knownSpells && data.knownSpells.length) return true;
   if(data.preparedSpells && data.preparedSpells.length) return true;
   if(data.concSpell) return true;
@@ -1060,6 +1115,8 @@ function applySheetData(data){
   (data.attacks||[]).forEach(a=>addAttack(a.name,a.bonus,a.dmg));
   v('invList').innerHTML='';
   (data.inventory||[]).forEach(it=>addInvItem(it.name,it.qty,it.wt));
+  v('abilityList').innerHTML='';
+  (data.abilities||[]).forEach(a=>addAbility(a.name,a.desc));
   knownSpells=new Set(Array.isArray(data.knownSpells)?data.knownSpells:(data.knownSpells?[data.knownSpells]:[]));
   preparedSpells=new Set(Array.isArray(data.preparedSpells)?data.preparedSpells:(data.preparedSpells?[data.preparedSpells]:[]));
   concSpell=data.concSpell||null;
@@ -1074,7 +1131,7 @@ function resetSheet(){
   document.querySelectorAll('input[type=text],input[type=number],textarea').forEach(el=>{
     el.value=el.defaultValue||'';
   });
-  v('attackList').innerHTML='';v('invList').innerHTML='';
+  v('attackList').innerHTML='';v('invList').innerHTML='';v('abilityList').innerHTML='';
   skillProf={};SAVES.forEach(s=>{const cb=v('save_'+s);if(cb)cb.checked=false;});
   v('inspireDot').classList.remove('on');
   STATS.forEach(st=>{statValues[st]=8;asiBonus[st]=0;});
