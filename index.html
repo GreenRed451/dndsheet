@@ -650,6 +650,7 @@ function showTab(id,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   v('tab-'+id).classList.add('active');
   el.classList.add('active');
+  if(id==='abilities')resizeAbilityTextareasSoon();
 }
 
 function toggleDot(el,color){
@@ -903,6 +904,10 @@ function autoResizeTextarea(el){
   el.style.height=el.scrollHeight+'px';
 }
 
+function resizeAbilityTextareasSoon(){
+  requestAnimationFrame(()=>document.querySelectorAll('#abilityList textarea').forEach(autoResizeTextarea));
+}
+
 // ---- SAVE / LOAD JSON ----
 function getSheetData(){
   const attacks=[];
@@ -1133,6 +1138,7 @@ function applySheetData(data){
   applyDotStates('.death-saves .saves-group:last-child .dot', data.deathSaves?.failure||[]);
   applyDotMap(data.resourceDots||{});
   applyDotMap(data.spellSlotDots||{});
+  resizeAbilityTextareasSoon();
 }
 
 function resetSheet(){
