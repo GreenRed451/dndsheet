@@ -883,6 +883,7 @@ function addAbility(name='',desc=''){
   const descInput=document.createElement('textarea');
   descInput.placeholder='Краткое описание, условия использования, количество раз, восстановление...';
   descInput.value=desc;
+  descInput.oninput=function(){autoResizeTextarea(this);};
   const removeBtn=document.createElement('button');
   removeBtn.className='remove-btn';
   removeBtn.type='button';
@@ -892,7 +893,14 @@ function addAbility(name='',desc=''){
   row.appendChild(descInput);
   row.appendChild(removeBtn);
   list.appendChild(row);
+  autoResizeTextarea(descInput);
   fbSync();
+}
+
+function autoResizeTextarea(el){
+  if(!el)return;
+  el.style.height='auto';
+  el.style.height=el.scrollHeight+'px';
 }
 
 // ---- SAVE / LOAD JSON ----
