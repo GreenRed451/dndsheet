@@ -23,7 +23,8 @@ body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a18;min-heigh
 .field input,.field select,.field textarea{background:#f5f4f0;border:1px solid #e0ddd4;border-radius:8px;padding:6px 8px;font-size:13px;color:#1a1a18;font-family:inherit;width:100%}
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid #7F77DD;outline-offset:-1px}
 .level-field{flex:0 0 132px!important;max-width:132px;min-width:132px;position:relative;z-index:1}
-.race-field{flex:1 1 150px;min-width:150px}
+.race-field{flex:1 1 260px;min-width:230px}
+.race-field.custom-race{flex:2 1 320px;min-width:280px}
 .level-field + .race-field{margin-left:6px}
 .level-stepper{display:grid;grid-template-columns:34px minmax(42px,1fr) 34px;gap:4px;align-items:center}
 .level-btn{height:34px;border:1px solid #ccc;border-radius:8px;background:#fff;color:#534AB7;font-size:18px;font-weight:700;line-height:1;cursor:pointer;transition:all .15s}
@@ -96,7 +97,8 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 @media(max-width:900px){
   .field-row .field[style*="flex:2"]{flex:1 1 100%}
   .level-field{flex:0 0 132px!important;max-width:132px!important;min-width:132px!important}
-  .race-field{flex:1 1 170px;min-width:170px}
+  .race-field{flex:1 1 220px;min-width:220px}
+  .race-field.custom-race{flex:1 1 280px;min-width:260px}
 }
 @media(max-width:600px){
   body{overflow-x:hidden}
@@ -109,7 +111,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
   .field-row .field[style*="flex:2"]{flex-basis:100%;min-width:100%}
   .field-row .field[style*="max-width"]{max-width:none!important}
   .level-field{flex:1 1 calc(50% - 4px)!important;max-width:none!important;min-width:calc(50% - 4px)!important}
-  .race-field{flex:1 1 calc(50% - 4px)!important;min-width:calc(50% - 4px)!important}
+  .race-field,.race-field.custom-race{flex:1 1 100%!important;min-width:100%!important}
   .level-field + .race-field{margin-left:0}
   .stats-grid{grid-template-columns:repeat(auto-fit,minmax(86px,1fr))!important;gap:6px!important}
   .stat-box{padding:7px 3px}
@@ -240,12 +242,11 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
           <button type="button" class="level-btn" onclick="adjustLevel(1)" aria-label="Повысить уровень">+</button>
         </div>
       </div>
-      <div class="field race-field"><label>Раса</label><input type="text" id="race" placeholder="Эльф, Гном..."></div>
-      <div class="field" style="flex:1 1 220px;min-width:220px"><label>Пресет расы</label>
-        <div style="display:flex;gap:4px">
-          <select id="racePresetSelect" style="min-width:0;flex:1"></select>
-          <button type="button" class="btn" onclick="applyRacePreset()" style="padding:6px 9px">✓</button>
-          <button type="button" class="btn" onclick="clearRacePreset()" style="padding:6px 9px">×</button>
+      <div class="field race-field"><label>Раса</label>
+        <select id="racePresetSelect" onchange="onRacePresetChange()"></select>
+        <div id="raceCustomWrap" style="display:none;gap:4px;width:100%">
+          <input type="text" id="race" placeholder="Своя раса..." style="min-width:0;flex:1">
+          <button type="button" class="btn" onclick="showRacePresetSelect()" style="padding:6px 9px">Список</button>
         </div>
       </div>
       <div class="field"><label>Предыстория</label><input type="text" id="background" placeholder="Солдат..."></div>
@@ -767,14 +768,77 @@ function adjustASI(st, delta){
 function buildRacePresetSelect(){
   const sel=v('racePresetSelect');
   if(!sel)return;
-  sel.innerHTML='<option value="">Без пресета</option>';
+  sel.innerHTML='<option value="">Выберите расу</option>';
   Object.entries(RACE_PRESETS).forEach(([key,preset])=>{
     const opt=document.createElement('option');
     opt.value=key;
     opt.textContent=preset.name;
     sel.appendChild(opt);
   });
-  sel.value=appliedRacePreset||'';
+  sel.insertAdjacentHTML('beforeend','<option value="custom">Создать свою</option>');
+  syncRaceFieldUI();
+}
+
+function syncRaceFieldUI(){
+  const sel=v('racePresetSelect');
+  const input=v('race');
+  const customWrap=v('raceCustomWrap');
+  const raceField=customWrap&&customWrap.closest('.race-field');
+  if(!sel||!input)return;
+  const raceName=input.value.trim();
+  const matchingKey=Object.entries(RACE_PRESETS).find(([,preset])=>preset.name===raceName)?.[0]||'';
+  if(appliedRacePreset&&RACE_PRESETS[appliedRacePreset])sel.value=appliedRacePreset;
+  else if(sel.value==='custom'&&!raceName)sel.value='custom';
+  else if(raceName&&matchingKey)sel.value=matchingKey;
+  else if(raceName)sel.value='custom';
+  else sel.value='';
+  const custom=sel.value==='custom';
+  sel.style.display=custom?'none':'';
+  if(customWrap)customWrap.style.display=custom?'flex':'none';
+  if(raceField)raceField.classList.toggle('custom-race', custom);
+}
+
+function onRacePresetChange(){
+  const sel=v('racePresetSelect');
+  const input=v('race');
+  const key=sel&&sel.value;
+  if(key==='custom'){
+    if(input)input.value='';
+    clearRacePreset(false);
+    if(sel)sel.value='custom';
+    if(input){
+      syncRaceFieldUI();
+      input.focus();
+    }
+    fbSync();
+    return;
+  }
+  if(!key){
+    clearRacePreset(false);
+    if(input){
+      input.value='';
+      syncRaceFieldUI();
+    }
+    fbSync();
+    return;
+  }
+  applyRacePreset();
+}
+
+function showRacePresetSelect(){
+  const sel=v('racePresetSelect');
+  const input=v('race');
+  if(input)input.value='';
+  if(sel){
+    sel.value='';
+    sel.style.display='';
+  }
+  const wrap=v('raceCustomWrap');
+  if(wrap)wrap.style.display='none';
+  const raceField=wrap&&wrap.closest('.race-field');
+  if(raceField)raceField.classList.remove('custom-race');
+  clearRacePreset(false);
+  fbSync();
 }
 
 function racePresetBlock(name, lines){
@@ -818,7 +882,8 @@ function applyRacePreset(){
     statBonus[st]=(statBonus[st]||0)+(parseInt(bonus,10)||0);
   });
 
-  if(!v('race').value.trim())v('race').value=preset.name;
+  v('race').value=preset.name;
+  syncRaceFieldUI();
   if(preset.speed)v('speed').value=preset.speed;
   addRacePresetAbilities(preset);
   appendPresetBlock('profs', racePresetBlock(preset.name, preset.profs||[]));
@@ -836,6 +901,7 @@ function clearRacePreset(sync=true){
   appliedRaceStatBonus={};
   const sel=v('racePresetSelect');
   if(sel)sel.value='';
+  syncRaceFieldUI();
   ['features','profs'].forEach(id=>{
     const el=v(id);
     if(el)el.value=removeRacePresetBlocks(el.value);
@@ -1419,8 +1485,7 @@ function applySheetData(data){
   levelHpRolls=(data.levelHpRolls&&typeof data.levelHpRolls==='object')?Object.assign({},data.levelHpRolls):{};
   appliedRacePreset=data.appliedRacePreset||null;
   appliedRaceStatBonus=(data.appliedRaceStatBonus&&typeof data.appliedRaceStatBonus==='object')?Object.assign({},data.appliedRaceStatBonus):{};
-  const racePresetSelect=v('racePresetSelect');
-  if(racePresetSelect)racePresetSelect.value=appliedRacePreset||'';
+  syncRaceFieldUI();
   v('attackList').innerHTML='';
   (data.attacks||[]).forEach(a=>addAttack(a.name,a.bonus,a.dmg));
   v('invList').innerHTML='';
@@ -1447,7 +1512,7 @@ function resetSheet(){
   setInspiration(0, false);
   STATS.forEach(st=>{statValues[st]=8;statBonus[st]=0;asiBonus[st]=0;});
   levelHpRolls={};appliedRacePreset=null;appliedRaceStatBonus={};
-  const racePresetSelect=v('racePresetSelect');if(racePresetSelect)racePresetSelect.value='';
+  syncRaceFieldUI();
   knownSpells=new Set();preparedSpells=new Set();concSpell=null;
   buildSkillList();buildSaveList();buildStatsGrid();
   renderClass();updateAll();updateHpBar();updateConcBar();renderSpellBook();
