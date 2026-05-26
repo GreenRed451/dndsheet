@@ -23,8 +23,8 @@ body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a18;min-heigh
 .field input,.field select,.field textarea{background:#f5f4f0;border:1px solid #e0ddd4;border-radius:8px;padding:6px 8px;font-size:13px;color:#1a1a18;font-family:inherit;width:100%}
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid #7F77DD;outline-offset:-1px}
 .level-field{flex:0 0 132px!important;max-width:132px;min-width:132px;position:relative;z-index:1}
-.race-field{flex:1 1 260px;min-width:230px}
-.race-field.custom-race{flex:2 1 320px;min-width:280px}
+.race-field{flex:0 1 210px;min-width:190px;max-width:260px}
+.race-field.custom-race{flex:0 1 270px;min-width:230px;max-width:340px}
 .level-field + .race-field{margin-left:6px}
 .level-stepper{display:grid;grid-template-columns:34px minmax(42px,1fr) 34px;gap:4px;align-items:center}
 .level-btn{height:34px;border:1px solid #ccc;border-radius:8px;background:#fff;color:#534AB7;font-size:18px;font-weight:700;line-height:1;cursor:pointer;transition:all .15s}
@@ -34,6 +34,8 @@ body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a18;min-heigh
 .level-stepper input[type=number]{-moz-appearance:textfield}
 .field-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .field-row .field{flex:1;min-width:90px}
+.field-row .race-field{flex:0 1 210px!important;min-width:190px!important;max-width:260px!important}
+.field-row .race-field.custom-race{flex:0 1 270px!important;min-width:230px!important;max-width:340px!important}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;max-width:100%}
@@ -97,8 +99,10 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 @media(max-width:900px){
   .field-row .field[style*="flex:2"]{flex:1 1 100%}
   .level-field{flex:0 0 132px!important;max-width:132px!important;min-width:132px!important}
-  .race-field{flex:1 1 220px;min-width:220px}
-  .race-field.custom-race{flex:1 1 280px;min-width:260px}
+  .race-field{flex:0 1 200px;min-width:180px;max-width:240px}
+  .race-field.custom-race{flex:0 1 250px;min-width:220px;max-width:320px}
+  .field-row .race-field{flex:0 1 200px!important;min-width:180px!important;max-width:240px!important}
+  .field-row .race-field.custom-race{flex:0 1 250px!important;min-width:220px!important;max-width:320px!important}
 }
 @media(max-width:600px){
   body{overflow-x:hidden}
@@ -112,6 +116,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
   .field-row .field[style*="max-width"]{max-width:none!important}
   .level-field{flex:1 1 calc(50% - 4px)!important;max-width:none!important;min-width:calc(50% - 4px)!important}
   .race-field,.race-field.custom-race{flex:1 1 100%!important;min-width:100%!important}
+  .field-row .race-field,.field-row .race-field.custom-race{flex:1 1 100%!important;min-width:100%!important}
   .level-field + .race-field{margin-left:0}
   .stats-grid{grid-template-columns:repeat(auto-fit,minmax(86px,1fr))!important;gap:6px!important}
   .stat-box{padding:7px 3px}
@@ -218,7 +223,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 
   <div class="section">
     <div class="field-row">
-      <div class="field" style="flex:2"><label>Имя персонажа</label><input type="text" id="charName" placeholder="Имя героя"></div>
+      <div class="field" style="flex:2"><label>Имя</label><input type="text" id="charName" placeholder="Имя героя"></div>
       <div class="field" style="max-width:160px"><label>Класс</label>
         <select id="classSelect" onchange="onClassChange()">
           <option value="barbarian">Варвар</option>
