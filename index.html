@@ -241,6 +241,13 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
         </div>
       </div>
       <div class="field race-field"><label>Раса</label><input type="text" id="race" placeholder="Эльф, Гном..."></div>
+      <div class="field" style="flex:1 1 220px;min-width:220px"><label>Пресет расы</label>
+        <div style="display:flex;gap:4px">
+          <select id="racePresetSelect" style="min-width:0;flex:1"></select>
+          <button type="button" class="btn" onclick="applyRacePreset()" style="padding:6px 9px">✓</button>
+          <button type="button" class="btn" onclick="clearRacePreset()" style="padding:6px 9px">×</button>
+        </div>
+      </div>
       <div class="field"><label>Предыстория</label><input type="text" id="background" placeholder="Солдат..."></div>
       <div class="field"><label>Мировоззрение</label><input type="text" id="alignment" placeholder="Нейтральное добро"></div>
       <div class="field"><label>Игрок</label><input type="text" id="playerName" placeholder="Имя игрока"></div>
@@ -316,6 +323,8 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
             <div class="field"><label>Всего КХ</label><input type="number" id="hdTotal" value="1" readonly style="color:#888;text-align:center"></div>
             <div class="field"><label>Осталось</label><input type="number" id="hdCur" value="1" min="0" style="text-align:center"></div>
           </div>
+          <button class="add-btn" id="levelHpRollBtn" onclick="rollLevelHp()" style="margin-top:8px">Бросить ХП за уровень</button>
+          <div id="levelHpRollInfo" style="font-size:12px;color:#888;margin-top:5px;text-align:center"></div>
         </div>
       </div>
       <div>
@@ -509,6 +518,27 @@ const SKILLS=[
 const SAVES=["str","dex","con","int","wis","cha"];
 const SAVE_NAMES={str:"Сила",dex:"Ловкость",con:"Телосложение",int:"Интеллект",wis:"Мудрость",cha:"Харизма"};
 const HIT_DICE={barbarian:"d12",bard:"d8",cleric:"d8",druid:"d8",fighter:"d10",monk:"d8",paladin:"d10",ranger:"d10",rogue:"d8",sorcerer:"d6",warlock:"d8",wizard:"d6"};
+const RACE_PRESETS={
+  human:{name:"Человек",statBonus:{str:1,dex:1,con:1,int:1,wis:1,cha:1},speed:"30 фт.",traits:["Универсальность: +1 ко всем характеристикам"],profs:["Языки: Общий и ещё один на выбор"]},
+  variantHuman:{name:"Вариант человека",statBonus:{},speed:"30 фт.",traits:["Две характеристики на выбор получают +1","Одна черта на выбор","Один навык на выбор"],profs:["Языки: Общий и ещё один на выбор"]},
+  dwarf:{name:"Дварф",statBonus:{con:2},speed:"25 фт.",traits:["Тёмное зрение 60 фт.","Преимущество против яда и сопротивление урону ядом"],profs:["Языки: Общий, Дварфийский","Владение: боевой топор, ручной топор, лёгкий молот, боевой молот","Инструменты: один набор ремесленника на выбор"]},
+  hillDwarf:{name:"Холмовой дварф",statBonus:{con:2,wis:1},speed:"25 фт.",traits:["Тёмное зрение 60 фт.","Преимущество против яда и сопротивление урону ядом","Дварфская стойкость: максимум хитов увеличивается на 1 за уровень"],profs:["Языки: Общий, Дварфийский","Владение: боевой топор, ручной топор, лёгкий молот, боевой молот","Инструменты: один набор ремесленника на выбор"]},
+  mountainDwarf:{name:"Горный дварф",statBonus:{con:2,str:2},speed:"25 фт.",traits:["Тёмное зрение 60 фт.","Преимущество против яда и сопротивление урону ядом"],profs:["Языки: Общий, Дварфийский","Владение: боевой топор, ручной топор, лёгкий молот, боевой молот","Доспехи: лёгкие и средние","Инструменты: один набор ремесленника на выбор"]},
+  elf:{name:"Эльф",statBonus:{dex:2},speed:"30 фт.",traits:["Тёмное зрение 60 фт.","Преимущество против очарования","Магия не может усыпить"],profs:["Языки: Общий, Эльфийский","Навык: Внимательность"]},
+  highElf:{name:"Высший эльф",statBonus:{dex:2,int:1},speed:"30 фт.",traits:["Тёмное зрение 60 фт.","Преимущество против очарования","Магия не может усыпить","Один заговор волшебника на выбор"],profs:["Языки: Общий, Эльфийский и ещё один на выбор","Владение: длинный меч, короткий меч, длинный лук, короткий лук","Навык: Внимательность"]},
+  woodElf:{name:"Лесной эльф",statBonus:{dex:2,wis:1},speed:"35 фт.",traits:["Тёмное зрение 60 фт.","Преимущество против очарования","Магия не может усыпить","Можно прятаться при лёгкой природной заслонённости"],profs:["Языки: Общий, Эльфийский","Владение: длинный меч, короткий меч, длинный лук, короткий лук","Навык: Внимательность"]},
+  drow:{name:"Дроу",statBonus:{dex:2,cha:1},speed:"30 фт.",traits:["Превосходное тёмное зрение 120 фт.","Преимущество против очарования","Магия не может усыпить","Чувствительность к солнечному свету","Магия дроу"],profs:["Языки: Общий, Эльфийский","Владение: рапира, короткий меч, ручной арбалет","Навык: Внимательность"]},
+  halfling:{name:"Полурослик",statBonus:{dex:2},speed:"25 фт.",traits:["Удача: переброс 1 на d20","Преимущество против испуга","Можно проходить через пространство существ большего размера"],profs:["Языки: Общий, Полуросликов"]},
+  lightfootHalfling:{name:"Легконогий полурослик",statBonus:{dex:2,cha:1},speed:"25 фт.",traits:["Удача: переброс 1 на d20","Преимущество против испуга","Можно проходить через пространство существ большего размера","Можно прятаться за существами на размер больше"],profs:["Языки: Общий, Полуросликов"]},
+  stoutHalfling:{name:"Коренастый полурослик",statBonus:{dex:2,con:1},speed:"25 фт.",traits:["Удача: переброс 1 на d20","Преимущество против испуга","Можно проходить через пространство существ большего размера","Преимущество против яда и сопротивление урону ядом"],profs:["Языки: Общий, Полуросликов"]},
+  gnome:{name:"Гном",statBonus:{int:2},speed:"25 фт.",traits:["Тёмное зрение 60 фт.","Преимущество на спасброски Интеллекта, Мудрости и Харизмы против магии"],profs:["Языки: Общий, Гномий"]},
+  forestGnome:{name:"Лесной гном",statBonus:{int:2,dex:1},speed:"25 фт.",traits:["Тёмное зрение 60 фт.","Преимущество на спасброски Интеллекта, Мудрости и Харизмы против магии","Заговор Малая иллюзия","Общение с маленькими зверями"],profs:["Языки: Общий, Гномий"]},
+  rockGnome:{name:"Скальный гном",statBonus:{int:2,con:1},speed:"25 фт.",traits:["Тёмное зрение 60 фт.","Преимущество на спасброски Интеллекта, Мудрости и Харизмы против магии","Знание механизмов","Создание маленького заводного устройства"],profs:["Языки: Общий, Гномий","Инструменты: инструменты ремесленника"]},
+  halfElf:{name:"Полуэльф",statBonus:{cha:2},speed:"30 фт.",traits:["Тёмное зрение 60 фт.","Преимущество против очарования","Магия не может усыпить","Две характеристики на выбор получают +1"],profs:["Языки: Общий, Эльфийский и ещё один на выбор","Два навыка на выбор"]},
+  halfOrc:{name:"Полуорк",statBonus:{str:2,con:1},speed:"30 фт.",traits:["Тёмное зрение 60 фт.","Когда хиты падают до 0, раз за долгий отдых можно остаться с 1 хитом","Дополнительная кость урона при критическом попадании оружием ближнего боя"],profs:["Языки: Общий, Орочий","Навык: Запугивание"]},
+  tiefling:{name:"Тифлинг",statBonus:{cha:2,int:1},speed:"30 фт.",traits:["Тёмное зрение 60 фт.","Сопротивление урону огнём","Инфернальное наследие: Чудотворство, затем Адское возмездие и Тьма"],profs:["Языки: Общий, Инфернальный"]},
+  dragonborn:{name:"Драконорождённый",statBonus:{str:2,cha:1},speed:"30 фт.",traits:["Драконье наследие: выберите тип дракона","Оружие дыхания по выбранному наследию","Сопротивление урону выбранного наследия"],profs:["Языки: Общий, Драконий"]}
+};
 const CLASS_DATA={
   barbarian:{resources:[{id:"rage",label:"Ярость",color:"#D85A30",perLevel:[2,2,3,3,3,4,4,4,4,4,4,5,5,5,5,5,6,6,6,null]}]},
   bard:{resources:[{id:"inspiration",label:"Бардовское вдохновение",color:"#7F77DD",perLevel:[2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4]}]},
@@ -547,13 +577,18 @@ const BASE_POINTS=27;
 const ASI_LEVELS=[4,8,12,16,19];
 
 let statValues={str:8,dex:8,con:8,int:8,wis:8,cha:8};
+let statBonus={str:0,dex:0,con:0,int:0,wis:0,cha:0}; // racial, background, item or custom bonuses
 let asiBonus={str:0,dex:0,con:0,int:0,wis:0,cha:0}; // total ASI added per stat
 let asiPool=0; // remaining ASI points to assign
+let levelHpRolls={}; // one hit point roll per character level
+let appliedRacePreset=null;
+let appliedRaceStatBonus={};
 
 function v(id){return document.getElementById(id)}
 function getLevel(){return Math.min(20,Math.max(1,parseInt(v('levelInput').value)||1))}
 function getPB(l){return Math.floor((l-1)/4)+2}
-function getMod(stat){return Math.floor(((statValues[stat]||10)-10)/2)}
+function getStatTotal(st){return (statValues[st]||8)+(statBonus[st]||0)+(asiBonus[st]||0);}
+function getMod(stat){return Math.floor((getStatTotal(stat)-10)/2)}
 function fmtMod(n){return(n>=0?'+':'')+n}
 
 function pointCost(val){
@@ -596,6 +631,24 @@ function buildStatsGrid(){
     const row=document.createElement('div');
     row.style.cssText='display:flex;align-items:center;justify-content:center;gap:4px;margin:4px 0';
     row.appendChild(minusBtn);row.appendChild(valSpan);row.appendChild(plusBtn);
+    const bonusMinusBtn=document.createElement('button');
+    bonusMinusBtn.textContent='\u2212';
+    bonusMinusBtn.title='Уменьшить расовый/прочий бонус';
+    bonusMinusBtn.style.cssText='width:20px;height:20px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;font-size:12px;line-height:1;padding:0';
+    bonusMinusBtn.onclick=()=>adjustStatBonus(st,-1);
+    const bonusPlusBtn=document.createElement('button');
+    bonusPlusBtn.textContent='+';
+    bonusPlusBtn.title='Увеличить расовый/прочий бонус';
+    bonusPlusBtn.style.cssText='width:20px;height:20px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;font-size:12px;line-height:1;padding:0';
+    bonusPlusBtn.onclick=()=>adjustStatBonus(st,+1);
+    const bonusVal=document.createElement('span');
+    bonusVal.id=st+'_bonus';
+    bonusVal.style.cssText='font-size:12px;font-weight:700;min-width:18px;text-align:center;color:#534AB7';
+    bonusVal.textContent='0';
+    const bonusRow=document.createElement('div');
+    bonusRow.style.cssText='display:flex;align-items:center;justify-content:center;gap:4px;margin:2px 0';
+    bonusRow.innerHTML='<span style="font-size:11px;color:#888;min-width:38px;text-align:right">Бонус</span>';
+    bonusRow.appendChild(bonusMinusBtn);bonusRow.appendChild(bonusVal);bonusRow.appendChild(bonusPlusBtn);
     const asiDiv=document.createElement('div');
     asiDiv.id=st+'_asi';
     asiDiv.style.cssText='font-size:11px;color:#aaa;margin-bottom:2px';
@@ -605,7 +658,7 @@ function buildStatsGrid(){
     modDiv.textContent=fmtMod(getMod(st));
     const lbl=document.createElement('label');
     lbl.textContent=STAT_NAMES[st];
-    box.appendChild(lbl);box.appendChild(row);box.appendChild(asiDiv);box.appendChild(modDiv);
+    box.appendChild(lbl);box.appendChild(row);box.appendChild(bonusRow);box.appendChild(asiDiv);box.appendChild(modDiv);
     grid.appendChild(box);
   });
 }
@@ -617,6 +670,15 @@ function adjustStat(st, delta){
   const newSpent=totalSpent()-pointCost(cur)+pointCost(newVal);
   if(newSpent>BASE_POINTS)return;
   statValues[st]=newVal;
+  refreshStats();
+  fbSync();
+}
+
+function adjustStatBonus(st, delta){
+  const cur=statBonus[st]||0;
+  const next=Math.max(-10,Math.min(20,cur+delta));
+  if(next===cur)return;
+  statBonus[st]=next;
   refreshStats();
   fbSync();
 }
@@ -641,11 +703,19 @@ function refreshStats(){
   }
 
   STATS.forEach(st=>{
-    const total=statValues[st]+asiBonus[st];
+    const total=getStatTotal(st);
     v(st+'_val').textContent=total;
+    const bonusEl=v(st+'_bonus');
+    if(bonusEl){
+      const bonus=statBonus[st]||0;
+      bonusEl.textContent=bonus>0?'+'+bonus:String(bonus);
+      bonusEl.style.color=bonus===0?'#aaa':bonus>0?'#534AB7':'#993C1D';
+    }
     const asiEl=v(st+'_asi');
-    if(asiBonus[st]>0){asiEl.textContent='('+statValues[st]+' + ASI '+asiBonus[st]+')';}
-    else{asiEl.textContent='';}
+    const parts=['база '+statValues[st]];
+    if(statBonus[st])parts.push('бонус '+fmtMod(statBonus[st]));
+    if(asiBonus[st]>0)parts.push('ASI +'+asiBonus[st]);
+    asiEl.textContent=parts.join(' · ');
     v(st+'Mod').textContent=fmtMod(Math.floor((total-10)/2));
 
     // colour the box if capped or free
@@ -671,7 +741,7 @@ function refreshStats(){
 function buildASIButtons(){
   const btns=v('asiButtons');btns.innerHTML='';
   STATS.forEach(st=>{
-    const total=statValues[st]+asiBonus[st];
+    const total=getStatTotal(st);
     const canAdd=asiPool>0&&total<20;
     const canRemove=asiBonus[st]>0;
     const row=document.createElement('div');
@@ -686,12 +756,96 @@ function buildASIButtons(){
 }
 
 function adjustASI(st, delta){
-  const total=statValues[st]+asiBonus[st];
+  const total=getStatTotal(st);
   if(delta>0&&(asiPool<=0||total>=20))return;
   if(delta<0&&asiBonus[st]<=0)return;
   asiBonus[st]+=delta;
   refreshStats();
   fbSync();
+}
+
+function buildRacePresetSelect(){
+  const sel=v('racePresetSelect');
+  if(!sel)return;
+  sel.innerHTML='<option value="">Без пресета</option>';
+  Object.entries(RACE_PRESETS).forEach(([key,preset])=>{
+    const opt=document.createElement('option');
+    opt.value=key;
+    opt.textContent=preset.name;
+    sel.appendChild(opt);
+  });
+  sel.value=appliedRacePreset||'';
+}
+
+function racePresetBlock(name, lines){
+  return `[Пресет расы: ${name}]\n${lines.map(line=>'- '+line).join('\n')}\n[/Пресет расы]`;
+}
+
+function removeRacePresetBlocks(text){
+  return String(text||'')
+    .replace(/\n?\[Пресет расы:[^\]]+\][\s\S]*?\[\/Пресет расы\]\n?/g,'\n')
+    .replace(/\n{3,}/g,'\n\n')
+    .trim();
+}
+
+function appendPresetBlock(id, block){
+  const el=v(id);
+  if(!el)return;
+  const base=removeRacePresetBlocks(el.value);
+  el.value=base ? base+'\n\n'+block : block;
+}
+
+function addRacePresetAbilities(preset){
+  (preset.traits||[]).forEach(trait=>{
+    const parts=String(trait).split(':');
+    const name=parts.length>1?parts.shift().trim():String(trait).trim();
+    const desc=parts.length?parts.join(':').trim():'Расовая особенность: '+trait;
+    addAbility(name, desc, 'racePreset');
+  });
+}
+
+function applyRacePreset(){
+  const sel=v('racePresetSelect');
+  const key=sel&&sel.value;
+  if(!key||!RACE_PRESETS[key])return;
+  if(appliedRacePreset&&appliedRacePreset!==key&&!confirm('Заменить уже применённый расовый пресет?'))return;
+  clearRacePreset(false);
+
+  const preset=RACE_PRESETS[key];
+  appliedRacePreset=key;
+  appliedRaceStatBonus=Object.assign({},preset.statBonus||{});
+  Object.entries(appliedRaceStatBonus).forEach(([st,bonus])=>{
+    statBonus[st]=(statBonus[st]||0)+(parseInt(bonus,10)||0);
+  });
+
+  if(!v('race').value.trim())v('race').value=preset.name;
+  if(preset.speed)v('speed').value=preset.speed;
+  addRacePresetAbilities(preset);
+  appendPresetBlock('profs', racePresetBlock(preset.name, preset.profs||[]));
+  if(sel)sel.value=key;
+  refreshStats();
+  fbSync();
+  showSaveToast('Пресет расы применён: '+preset.name);
+}
+
+function clearRacePreset(sync=true){
+  Object.entries(appliedRaceStatBonus||{}).forEach(([st,bonus])=>{
+    statBonus[st]=(statBonus[st]||0)-(parseInt(bonus,10)||0);
+  });
+  appliedRacePreset=null;
+  appliedRaceStatBonus={};
+  const sel=v('racePresetSelect');
+  if(sel)sel.value='';
+  ['features','profs'].forEach(id=>{
+    const el=v(id);
+    if(el)el.value=removeRacePresetBlocks(el.value);
+  });
+  document.querySelectorAll('#abilityList .ability-row[data-source="racePreset"]').forEach(row=>row.remove());
+  refreshStats();
+  if(sync){
+    fbSync();
+    showSaveToast('Расовый пресет снят');
+  }
 }
 
 function showTab(id,el){
@@ -714,9 +868,8 @@ function updateAll(){
   v('levelBadge').textContent='Ур. '+lvl;
   v('profBonusDisplay').textContent='+'+pb;
   refreshStats();
+  updateLevelHpRollUI();
 }
-
-function getStatTotal(st){return (statValues[st]||8)+(asiBonus[st]||0);}
 
 function updateSkills(){
   const pb=getPB(getLevel());
@@ -755,6 +908,56 @@ function updateHpBar(){
   const pct=Math.max(0,Math.min(100,(cur/mx)*100));
   v('hpFill').style.width=pct+'%';
   v('hpFill').style.background=pct>50?'#639922':pct>25?'#BA7517':'#993C1D';
+}
+
+function updateLevelHpRollUI(){
+  const btn=v('levelHpRollBtn');
+  const info=v('levelHpRollInfo');
+  if(!btn||!info)return;
+  const lvl=getLevel();
+  if(lvl<=1){
+    btn.disabled=true;
+    btn.style.opacity=0.45;
+    btn.style.cursor='default';
+    info.textContent='На 1 уровне хиты обычно берутся максимальные.';
+    return;
+  }
+  const roll=levelHpRolls[lvl];
+  if(roll){
+    btn.disabled=true;
+    btn.style.opacity=0.45;
+    btn.style.cursor='default';
+    info.textContent=`Уровень ${lvl}: уже добавлено ${fmtMod(roll.gain)} ХП (${roll.die}: ${roll.roll} ${fmtMod(roll.conMod)} Тел).`;
+  } else {
+    btn.disabled=false;
+    btn.style.opacity=1;
+    btn.style.cursor='pointer';
+    info.textContent=`Для ${lvl} уровня: бросок ${v('hitDie').value} + Тел ${fmtMod(getMod('con'))}.`;
+  }
+}
+
+function rollLevelHp(){
+  const lvl=getLevel();
+  if(lvl<=1)return;
+  if(levelHpRolls[lvl]){
+    alert('Для этого уровня бросок ХП уже сделан.');
+    updateLevelHpRollUI();
+    return;
+  }
+  const dieText=v('hitDie').value||HIT_DICE[v('classSelect').value]||'d8';
+  const sides=parseInt(String(dieText).replace(/[^0-9]/g,''),10)||8;
+  const roll=Math.floor(Math.random()*sides)+1;
+  const conMod=getMod('con');
+  const gain=Math.max(1,roll+conMod);
+  const hpMax=v('hpMax');
+  const hpCur=v('hpCur');
+  hpMax.value=(parseInt(hpMax.value,10)||0)+gain;
+  hpCur.value=(parseInt(hpCur.value,10)||0)+gain;
+  levelHpRolls[lvl]={die:dieText,roll,conMod,gain};
+  updateHpBar();
+  updateLevelHpRollUI();
+  fbSync();
+  showSaveToast(`ХП за уровень: ${roll} ${fmtMod(conMod)} = +${gain}`);
 }
 
 function getInspirationCount(){
@@ -810,7 +1013,7 @@ function onLevelChange(){
   v('levelInput').value=val;
   v('hitDie').value=HIT_DICE[v('classSelect').value];
   v('hdTotal').value=val;
-  renderClass();updateAll();renderSpellBook();
+  renderClass();updateAll();updateLevelHpRollUI();renderSpellBook();
 }
 
 function renderClass(){
@@ -818,6 +1021,7 @@ function renderClass(){
   const lvl=getLevel();
   v('hitDie').value=HIT_DICE[cls];
   v('hdTotal').value=lvl;
+  updateLevelHpRollUI();
   renderClassResources(cls,lvl);
   renderSpellSlots(cls,lvl);
 }
@@ -948,9 +1152,10 @@ function addInvItem(name='',qty='1',wt='0'){
   fbSync();
 }
 
-function addAbility(name='',desc=''){
+function addAbility(name='',desc='',source=''){
   const list=v('abilityList');
   const row=document.createElement('div');row.className='ability-row';
+  if(source)row.dataset.source=source;
   const nameInput=document.createElement('input');
   nameInput.type='text';
   nameInput.placeholder='Божественное чувство';
@@ -998,7 +1203,8 @@ function getSheetData(){
   document.querySelectorAll('.ability-row').forEach(r=>{
     const name=r.querySelector('input')?.value||'';
     const desc=r.querySelector('textarea')?.value||'';
-    abilities.push({name,desc});
+    const source=r.dataset.source||'';
+    abilities.push(source?{name,desc,source}:{name,desc});
   });
   const fields=['charName','classSelect','levelInput','race','background','alignment','playerName',
     'hpMax','hpCur','hpTemp','ac','initField','speed','hdCur',
@@ -1007,6 +1213,7 @@ function getSheetData(){
   const data={};
   fields.forEach(f=>{const el=v(f);if(el)data[f]=el.value;});
   data.statValues=Object.assign({},statValues);
+  data.statBonus=Object.assign({},statBonus);
   data.asiBonus=Object.assign({},asiBonus);
   data.attacks=attacks;
   data.inventory=inventory;
@@ -1016,6 +1223,9 @@ function getSheetData(){
   SAVES.forEach(s=>{const cb=v('save_'+s);if(cb)data.saveProf[s]=cb.checked;});
   data.inspirationCount=getInspirationCount();
   data.inspiration=data.inspirationCount>0; // совместимость со старыми JSON
+  data.levelHpRolls=Object.assign({},levelHpRolls);
+  data.appliedRacePreset=appliedRacePreset;
+  data.appliedRaceStatBonus=Object.assign({},appliedRaceStatBonus);
   data.knownSpells=[...knownSpells];
   data.preparedSpells=[...preparedSpells];
   data.concSpell=concSpell;
@@ -1072,7 +1282,10 @@ function isSheetMeaningful(data){
   if((parseInt(data.hdCur)||1)!==1) return true;
   if(['pp','gp','ep','sp','cp'].some(f=>(parseFloat(data[f])||0)!==0)) return true;
   if(data.statValues && STATS.some(st=>(parseInt(data.statValues[st])||8)!==8)) return true;
+  if(data.statBonus && STATS.some(st=>(parseInt(data.statBonus[st])||0)!==0)) return true;
   if(data.asiBonus && STATS.some(st=>(parseInt(data.asiBonus[st])||0)!==0)) return true;
+  if(data.levelHpRolls && Object.keys(data.levelHpRolls).length) return true;
+  if(data.appliedRacePreset) return true;
   if(data.skillProf && Object.values(data.skillProf).some(Boolean)) return true;
   if(data.saveProf && Object.values(data.saveProf).some(Boolean)) return true;
   if((parseInt(data.inspirationCount)||0)>0 || data.inspiration) return true;
@@ -1187,7 +1400,9 @@ function applySheetData(data){
     'features','profs','spells','personality','ideals','bonds','flaws','backstory','notes','allies',
     'pp','gp','ep','sp','cp'];
   fields.forEach(f=>{const el=v(f);if(el&&data[f]!==undefined)el.value=data[f];});
+  STATS.forEach(st=>{statValues[st]=8;statBonus[st]=0;asiBonus[st]=0;});
   if(data.statValues)Object.assign(statValues,data.statValues);
+  if(data.statBonus)Object.assign(statBonus,data.statBonus);
   if(data.asiBonus)Object.assign(asiBonus,data.asiBonus);
   if(data.skillProf){
     Object.assign(skillProf,data.skillProf);
@@ -1201,12 +1416,17 @@ function applySheetData(data){
   } else if(data.inspiration!==undefined){
     setInspiration(data.inspiration ? 1 : 0, false);
   }
+  levelHpRolls=(data.levelHpRolls&&typeof data.levelHpRolls==='object')?Object.assign({},data.levelHpRolls):{};
+  appliedRacePreset=data.appliedRacePreset||null;
+  appliedRaceStatBonus=(data.appliedRaceStatBonus&&typeof data.appliedRaceStatBonus==='object')?Object.assign({},data.appliedRaceStatBonus):{};
+  const racePresetSelect=v('racePresetSelect');
+  if(racePresetSelect)racePresetSelect.value=appliedRacePreset||'';
   v('attackList').innerHTML='';
   (data.attacks||[]).forEach(a=>addAttack(a.name,a.bonus,a.dmg));
   v('invList').innerHTML='';
   (data.inventory||[]).forEach(it=>addInvItem(it.name,it.qty,it.wt));
   v('abilityList').innerHTML='';
-  (data.abilities||[]).forEach(a=>addAbility(a.name,a.desc));
+  (data.abilities||[]).forEach(a=>addAbility(a.name,a.desc,a.source||''));
   knownSpells=new Set(Array.isArray(data.knownSpells)?data.knownSpells:(data.knownSpells?[data.knownSpells]:[]));
   preparedSpells=new Set(Array.isArray(data.preparedSpells)?data.preparedSpells:(data.preparedSpells?[data.preparedSpells]:[]));
   concSpell=data.concSpell||null;
@@ -1225,7 +1445,9 @@ function resetSheet(){
   v('attackList').innerHTML='';v('invList').innerHTML='';v('abilityList').innerHTML='';
   skillProf={};SAVES.forEach(s=>{const cb=v('save_'+s);if(cb)cb.checked=false;});
   setInspiration(0, false);
-  STATS.forEach(st=>{statValues[st]=8;asiBonus[st]=0;});
+  STATS.forEach(st=>{statValues[st]=8;statBonus[st]=0;asiBonus[st]=0;});
+  levelHpRolls={};appliedRacePreset=null;appliedRaceStatBonus={};
+  const racePresetSelect=v('racePresetSelect');if(racePresetSelect)racePresetSelect.value='';
   knownSpells=new Set();preparedSpells=new Set();concSpell=null;
   buildSkillList();buildSaveList();buildStatsGrid();
   renderClass();updateAll();updateHpBar();updateConcBar();renderSpellBook();
@@ -2326,6 +2548,7 @@ function hookFbSync(){
 
 // ============ INIT ============
 window.addEventListener('DOMContentLoaded', function(){
+  buildRacePresetSelect();
   buildSkillList();
   buildSaveList();
   buildStatsGrid();
