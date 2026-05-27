@@ -1769,6 +1769,15 @@
       warlock: ["cha", "con", "dex", "wis", "int", "str"],
       wizard: ["int", "con", "dex", "wis", "cha", "str"]
     };
+    const WIZARD_STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
+    const WIZARD_STAT_TEMPLATES = {
+      class: { name: "По классу", desc: "Главные характеристики класса получают лучшие значения.", order: null },
+      balanced: { name: "Сбалансированный", desc: "Без сильных провалов, удобно для новичка.", values: { str: 13, dex: 14, con: 15, int: 12, wis: 10, cha: 8 } },
+      physical: { name: "Сила и выносливость", desc: "Для передней линии, тяжёлого оружия и живучести.", order: ["str", "con", "dex", "wis", "cha", "int"] },
+      agile: { name: "Ловкость и реакция", desc: "Для скрытности, дальнего боя и инициативы.", order: ["dex", "con", "wis", "cha", "int", "str"] },
+      mental: { name: "Маг и мыслитель", desc: "Для заклинателей и персонажей знания.", order: ["int", "wis", "con", "dex", "cha", "str"] },
+      social: { name: "Лицо группы", desc: "Для переговоров, обмана, вдохновения и харизмы.", order: ["cha", "dex", "con", "wis", "int", "str"] }
+    };
     const WIZARD_CLASS_SAVE_PROFS = {
       barbarian: ["str", "con"], bard: ["dex", "cha"], cleric: ["wis", "cha"], druid: ["int", "wis"],
       fighter: ["str", "con"], monk: ["str", "dex"], paladin: ["wis", "cha"], ranger: ["str", "dex"],
@@ -3102,6 +3111,9 @@
         raceKey: 'human',
         customRace: '',
         alignment: 'Нейтральное добро',
+        statMode: 'template',
+        statTemplate: 'class',
+        statAssignments: {},
         backgroundKey: 'folkHero',
         backgroundMode: 'pick',
         lifeRolls: null,
@@ -3235,13 +3247,48 @@
         </div>`;
     }
 
-    function getWizardStats(classKey) {
-      const values = [15, 14, 13, 12, 10, 8];
+    function wizardStatsFromOrder(order) {
       const stats = { str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8 };
-      (WIZARD_CLASS_PRIORITIES[classKey] || WIZARD_CLASS_PRIORITIES.fighter).forEach((stat, i) => {
-        stats[stat] = values[i];
+      (order || WIZARD_CLASS_PRIORITIES.fighter).forEach((stat, i) => {
+        stats[stat] = WIZARD_STANDARD_ARRAY[i];
       });
       return stats;
+    }
+
+    function getWizardStats(classKey, state = characterWizard) {
+      if (state && state.statMode === 'manual') {
+        const manual = {};
+        let complete = true;
+        STATS.forEach(st => {
+          const val = parseInt(state.statAssignments && state.statAssignments[st], 10);
+          if (WIZARD_STANDARD_ARRAY.includes(val)) manual[st] = val;
+          else complete = false;
+        });
+        if (complete && new Set(Object.values(manual)).size === WIZARD_STANDARD_ARRAY.length) return manual;
+      }
+      const template = WIZARD_STAT_TEMPLATES[(state && state.statTemplate) || 'class'] || WIZARD_STAT_TEMPLATES.class;
+      if (template.values) return Object.assign({}, template.values);
+      return wizardStatsFromOrder(template.order || WIZARD_CLASS_PRIORITIES[classKey] || WIZARD_CLASS_PRIORITIES.fighter);
+    }
+
+    function wizardSetStatMode(mode) {
+      if (!characterWizard) return;
+      characterWizard.statMode = mode;
+      if (mode === 'manual' && !Object.keys(characterWizard.statAssignments || {}).length) characterWizard.statAssignments = {};
+      renderCharacterWizard();
+    }
+
+    function wizardSetStatTemplate(key) {
+      if (!characterWizard) return;
+      characterWizard.statTemplate = key;
+      renderCharacterWizard();
+    }
+
+    function wizardSetManualStat(stat, value) {
+      if (!characterWizard) return;
+      if (!characterWizard.statAssignments) characterWizard.statAssignments = {};
+      characterWizard.statAssignments[stat] = parseInt(value, 10);
+      renderCharacterWizard();
     }
 
     function renderWizardStats() {
@@ -3253,12 +3300,54 @@
         const total = stats[st] + bonus;
         return `<div class="wizard-summary-row"><b>${STAT_NAMES[st]}</b>: база ${stats[st]}${bonus ? ` + раса ${fmtMod(bonus)}` : ''} = <b>${total}</b> (${fmtMod(Math.floor((total - 10) / 2))})</div>`;
       }).join('');
+      const templateCards = Object.entries(WIZARD_STAT_TEMPLATES).map(([key, tpl]) => `
+        <div class="wizard-choice${characterWizard.statTemplate === key ? ' active' : ''}" onclick="wizardSetStatTemplate('${key}')">
+          <strong>${wizardEscape(tpl.name)}</strong>
+          <span>${wizardEscape(tpl.desc)}</span>
+        </div>`).join('');
+      const usedManualValues = new Set(Object.values(characterWizard.statAssignments || {}).map(Number).filter(v => WIZARD_STANDARD_ARRAY.includes(v)));
+      const manualRows = STATS.map(st => {
+        const current = parseInt(characterWizard.statAssignments && characterWizard.statAssignments[st], 10) || '';
+        const options = ['<option value="">—</option>'].concat(WIZARD_STANDARD_ARRAY.map(val => {
+          const usedElsewhere = usedManualValues.has(val) && current !== val;
+          return `<option value="${val}"${current === val ? ' selected' : ''}${usedElsewhere ? ' disabled' : ''}>${val}${usedElsewhere ? ' занято' : ''}</option>`;
+        })).join('');
+        const bonus = parseInt(bonuses[st], 10) || 0;
+        const hasValue = WIZARD_STANDARD_ARRAY.includes(current);
+        const total = hasValue ? current + bonus : null;
+        return `
+          <div class="field">
+            <label>${STAT_NAMES[st]}</label>
+            <select onchange="wizardSetManualStat('${st}',this.value)">${options}</select>
+            <div style="font-size:12px;color:#888;margin-top:3px">Итог: ${hasValue ? total + (bonus ? ` (${current} ${fmtMod(bonus)})` : '') : 'не выбрано'}</div>
+          </div>`;
+      }).join('');
+      const modeControls = `
+        <div class="wizard-full" style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn${characterWizard.statMode === 'template' ? ' primary' : ''}" onclick="wizardSetStatMode('template')">Шаблон</button>
+          <button type="button" class="btn${characterWizard.statMode === 'manual' ? ' primary' : ''}" onclick="wizardSetStatMode('manual')">Распределить самому</button>
+        </div>`;
+      if (characterWizard.statMode === 'manual') {
+        const complete = STATS.every(st => WIZARD_STANDARD_ARRAY.includes(parseInt(characterWizard.statAssignments && characterWizard.statAssignments[st], 10)))
+          && new Set(STATS.map(st => parseInt(characterWizard.statAssignments[st], 10))).size === WIZARD_STANDARD_ARRAY.length;
+        return `
+          <div class="wizard-grid">
+            ${modeControls}
+            <div class="wizard-full wizard-summary-row">Распределите стандартный массив <b>15, 14, 13, 12, 10, 8</b>. Каждое число можно использовать один раз.${complete ? '' : ' Сейчас распределение неполное, при создании будет использован шаблон по классу.'}</div>
+            ${manualRows}
+            <div class="wizard-full wizard-summary">${rows}</div>
+          </div>`;
+      }
       return `
-        <div class="wizard-summary">
+        <div class="wizard-grid">
+          ${modeControls}
+          <div class="wizard-full wizard-choice-list">${templateCards}</div>
+          <div class="wizard-full wizard-summary">
           <div class="wizard-summary-row">
-            Используется стандартный массив <b>15, 14, 13, 12, 10, 8</b>. Он распределяется по важности для класса: ${wizardEscape(WIZARD_CLASS_LABELS[characterWizard.classKey])}.
+            Используется стандартный массив <b>15, 14, 13, 12, 10, 8</b>. Выбран шаблон: ${wizardEscape(WIZARD_STAT_TEMPLATES[characterWizard.statTemplate]?.name || 'По классу')}.
           </div>
           ${rows}
+          </div>
         </div>`;
     }
 
@@ -3634,7 +3723,11 @@
       const warnings = [];
       const skillData = WIZARD_CLASS_SKILLS[characterWizard.classKey];
       const spellData = WIZARD_SPELL_LIMITS[characterWizard.classKey];
+      const manualStatsComplete = characterWizard.statMode !== 'manual'
+        || (STATS.every(st => WIZARD_STANDARD_ARRAY.includes(parseInt(characterWizard.statAssignments && characterWizard.statAssignments[st], 10)))
+          && new Set(STATS.map(st => parseInt(characterWizard.statAssignments[st], 10))).size === WIZARD_STANDARD_ARRAY.length);
       if (!String(characterWizard.name || '').trim()) warnings.push('не заполнено имя персонажа');
+      if (!manualStatsComplete) warnings.push('ручное распределение характеристик не завершено');
       if (skillData && (characterWizard.classSkills || []).length < skillData.count) warnings.push('выбраны не все навыки класса');
       if (spellData && (characterWizard.cantrips || []).length < spellData.cantrips) warnings.push('выбраны не все заговоры');
       if (spellData && (characterWizard.spells || []).length < spellData.spells) warnings.push('выбраны не все заклинания 1 круга');
