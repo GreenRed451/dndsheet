@@ -1461,12 +1461,32 @@
             <div class="section-title">Боевые показатели</div>
             <div class="field-row">
               <div class="field center-section"><label>КД</label><input type="number" id="ac" value="10"
-                  style="text-align:center;font-size:20px;font-weight:600"></div>
+                  style="text-align:center;font-size:20px;font-weight:600" readonly></div>
               <div class="field center-section"><label>Инициатива</label><input type="text" id="initField" value="+0"
                   style="text-align:center;font-size:20px;font-weight:600"></div>
               <div class="field center-section"><label>Скорость</label><input type="text" id="speed" value="30 фт."
                   style="text-align:center"></div>
             </div>
+            <div class="field-row" style="margin-top:6px">
+              <div class="field" style="flex:2"><label>Броня</label>
+                <select id="armorSelect" onchange="updateArmorClass();fbSync()"></select>
+              </div>
+              <div class="field center-section" style="max-width:80px"><label>Щит</label>
+                <select id="shieldEquipped" onchange="updateArmorClass();fbSync()">
+                  <option value="0">Нет</option>
+                  <option value="1">Да</option>
+                </select>
+              </div>
+              <div class="field center-section" style="max-width:110px"><label>Бонус КД</label>
+                <input type="number" id="acBonus" value="0" oninput="updateArmorClass();fbSync()"
+                  style="text-align:center">
+              </div>
+              <div class="field center-section" style="max-width:120px"><label>КД вручную</label>
+                <input type="number" id="acManual" value="" placeholder="Авто" oninput="updateArmorClass();fbSync()"
+                  style="text-align:center">
+              </div>
+            </div>
+            <div id="armorHint" style="font-size:12px;color:#888;margin-top:4px;text-align:center"></div>
             <div class="field-row" style="margin-top:6px">
               <div class="field"><label>Кость хитов</label><input type="text" id="hitDie" value="d8" readonly
                   style="color:#888;text-align:center"></div>
@@ -1505,6 +1525,22 @@
 
       <div class="section">
         <div class="section-title">Атаки и оружие</div>
+        <div class="field-row" style="margin-bottom:10px">
+          <div class="field" style="flex:2"><label>Оружие</label>
+            <select id="weaponSelect"></select>
+          </div>
+          <div class="field" style="max-width:140px"><label>Характеристика</label>
+            <select id="weaponStat">
+              <option value="">Авто</option>
+              <option value="str">Сила</option>
+              <option value="dex">Ловкость</option>
+            </select>
+          </div>
+          <div class="field" style="max-width:100px"><label>Маг. бонус</label>
+            <input type="number" id="weaponMagicBonus" value="0" style="text-align:center">
+          </div>
+        </div>
+        <button class="add-btn" onclick="addWeaponAttack()" style="margin-bottom:8px">+ Добавить атаку из оружия</button>
         <div class="attack-header">
           <div class="col-label">Название</div>
           <div class="col-label">Бонус атаки</div>
@@ -1728,6 +1764,116 @@
     const SAVES = ["str", "dex", "con", "int", "wis", "cha"];
     const SAVE_NAMES = { str: "Сила", dex: "Ловкость", con: "Телосложение", int: "Интеллект", wis: "Мудрость", cha: "Харизма" };
     const HIT_DICE = { barbarian: "d12", bard: "d8", cleric: "d8", druid: "d8", fighter: "d10", monk: "d8", paladin: "d10", ranger: "d10", rogue: "d8", sorcerer: "d6", warlock: "d8", wizard: "d6" };
+    const ARMOR_DB = {
+      none: { name: "Без брони", base: 10, dex: true, dexMax: null, type: "none" },
+      padded: { name: "Стёганый доспех", base: 11, dex: true, dexMax: null, stealth: true, type: "light" },
+      leather: { name: "Кожаный доспех", base: 11, dex: true, dexMax: null, type: "light" },
+      studded: { name: "Проклёпанная кожа", base: 12, dex: true, dexMax: null, type: "light" },
+      hide: { name: "Шкурный доспех", base: 12, dex: true, dexMax: 2, type: "medium" },
+      chainShirt: { name: "Кольчужная рубаха", base: 13, dex: true, dexMax: 2, type: "medium" },
+      scale: { name: "Чешуйчатый доспех", base: 14, dex: true, dexMax: 2, stealth: true, type: "medium" },
+      breastplate: { name: "Кираса", base: 14, dex: true, dexMax: 2, type: "medium" },
+      halfPlate: { name: "Полулаты", base: 15, dex: true, dexMax: 2, stealth: true, type: "medium" },
+      ring: { name: "Колечный доспех", base: 14, dex: false, stealth: true, type: "heavy" },
+      chain: { name: "Кольчуга", base: 16, dex: false, strReq: 13, stealth: true, type: "heavy" },
+      splint: { name: "Наборный доспех", base: 17, dex: false, strReq: 15, stealth: true, type: "heavy" },
+      plate: { name: "Латы", base: 18, dex: false, strReq: 15, stealth: true, type: "heavy" },
+      mageArmor: { name: "Доспехи мага", base: 13, dex: true, dexMax: null, type: "magic" },
+      barbarian: { name: "Защита без доспехов: варвар", base: 10, dex: true, con: true, dexMax: null, type: "feature" },
+      monk: { name: "Защита без доспехов: монах", base: 10, dex: true, wis: true, dexMax: null, type: "feature" },
+      custom: { name: "Своя броня / особый случай", base: 10, dex: false, type: "custom" }
+    };
+    const WEAPON_DB = {
+      custom: { name: "Своя атака / особый случай", dmg: "", type: "", stat: "str", custom: true },
+      unarmed: { name: "Безоружный удар", dmg: "1", type: "дробящий", stat: "str" },
+      improvised: { name: "Импровизированное оружие", dmg: "1к4", type: "по ситуации", stat: "str" },
+      club: { name: "Дубинка", dmg: "1к4", type: "дробящий", stat: "str" },
+      dagger: { name: "Кинжал", dmg: "1к4", type: "колющий", stat: "str", finesse: true, thrown: true },
+      greatclub: { name: "Палица", dmg: "1к8", type: "дробящий", stat: "str" },
+      handaxe: { name: "Ручной топор", dmg: "1к6", type: "рубящий", stat: "str", thrown: true },
+      javelin: { name: "Метательное копьё", dmg: "1к6", type: "колющий", stat: "str", thrown: true },
+      lightHammer: { name: "Лёгкий молот", dmg: "1к4", type: "дробящий", stat: "str", thrown: true },
+      mace: { name: "Булава", dmg: "1к6", type: "дробящий", stat: "str" },
+      quarterstaff: { name: "Боевой посох", dmg: "1к6", type: "дробящий", stat: "str" },
+      sickle: { name: "Серп", dmg: "1к4", type: "рубящий", stat: "str" },
+      spear: { name: "Копьё", dmg: "1к6", type: "колющий", stat: "str", thrown: true },
+      lightCrossbow: { name: "Лёгкий арбалет", dmg: "1к8", type: "колющий", stat: "dex", ranged: true },
+      dart: { name: "Дротик", dmg: "1к4", type: "колющий", stat: "dex", ranged: true, thrown: true },
+      shortbow: { name: "Короткий лук", dmg: "1к6", type: "колющий", stat: "dex", ranged: true },
+      sling: { name: "Праща", dmg: "1к4", type: "дробящий", stat: "dex", ranged: true },
+      battleaxe: { name: "Боевой топор", dmg: "1к8", type: "рубящий", stat: "str" },
+      flail: { name: "Цеп", dmg: "1к8", type: "дробящий", stat: "str" },
+      glaive: { name: "Глефа", dmg: "1к10", type: "рубящий", stat: "str" },
+      greataxe: { name: "Секира", dmg: "1к12", type: "рубящий", stat: "str" },
+      greatsword: { name: "Двуручный меч", dmg: "2к6", type: "рубящий", stat: "str" },
+      halberd: { name: "Алебарда", dmg: "1к10", type: "рубящий", stat: "str" },
+      lance: { name: "Пика", dmg: "1к12", type: "колющий", stat: "str" },
+      longsword: { name: "Длинный меч", dmg: "1к8", type: "рубящий", stat: "str" },
+      maul: { name: "Молот", dmg: "2к6", type: "дробящий", stat: "str" },
+      morningstar: { name: "Моргенштерн", dmg: "1к8", type: "колющий", stat: "str" },
+      pike: { name: "Длинное копьё", dmg: "1к10", type: "колющий", stat: "str" },
+      rapier: { name: "Рапира", dmg: "1к8", type: "колющий", stat: "dex", finesse: true },
+      scimitar: { name: "Скимитар", dmg: "1к6", type: "рубящий", stat: "dex", finesse: true },
+      shortsword: { name: "Короткий меч", dmg: "1к6", type: "колющий", stat: "dex", finesse: true },
+      trident: { name: "Трезубец", dmg: "1к6", type: "колющий", stat: "str", thrown: true },
+      warPick: { name: "Боевая кирка", dmg: "1к8", type: "колющий", stat: "str" },
+      warhammer: { name: "Боевой молот", dmg: "1к8", type: "дробящий", stat: "str" },
+      whip: { name: "Кнут", dmg: "1к4", type: "рубящий", stat: "dex", finesse: true },
+      blowgun: { name: "Духовая трубка", dmg: "1", type: "колющий", stat: "dex", ranged: true },
+      handCrossbow: { name: "Ручной арбалет", dmg: "1к6", type: "колющий", stat: "dex", ranged: true },
+      heavyCrossbow: { name: "Тяжёлый арбалет", dmg: "1к10", type: "колющий", stat: "dex", ranged: true },
+      longbow: { name: "Длинный лук", dmg: "1к8", type: "колющий", stat: "dex", ranged: true },
+      net: { name: "Сеть", dmg: "", type: "особое", stat: "dex", ranged: true }
+    };
+    const WEAPON_NAME_TO_KEY = {
+      "Безоружный удар": "unarmed",
+      "Импровизированное оружие": "improvised",
+      "Дубинка": "club",
+      "Кинжал": "dagger",
+      "Палица": "greatclub",
+      "Ручной топор": "handaxe",
+      "Боевой топор": "battleaxe",
+      "Метательное копьё": "javelin",
+      "Метательное копье": "javelin",
+      "Лёгкий молот": "lightHammer",
+      "Легкий молот": "lightHammer",
+      "Булава": "mace",
+      "Посох": "quarterstaff",
+      "Боевой посох": "quarterstaff",
+      "Серп": "sickle",
+      "Копьё": "spear",
+      "Копье": "spear",
+      "Лёгкий арбалет": "lightCrossbow",
+      "Легкий арбалет": "lightCrossbow",
+      "Дротик": "dart",
+      "Короткий лук": "shortbow",
+      "Праща": "sling",
+      "Цеп": "flail",
+      "Глефа": "glaive",
+      "Секира": "greataxe",
+      "Двуручный меч": "greatsword",
+      "Алебарда": "halberd",
+      "Пика": "lance",
+      "Длинный меч": "longsword",
+      "Молот": "maul",
+      "Моргенштерн": "morningstar",
+      "Длинное копьё": "pike",
+      "Длинное копье": "pike",
+      "Рапира": "rapier",
+      "Скимитар": "scimitar",
+      "Короткий меч": "shortsword",
+      "Трезубец": "trident",
+      "Боевая кирка": "warPick",
+      "Боевой молот": "warhammer",
+      "Кнут": "whip",
+      "Духовая трубка": "blowgun",
+      "Ручной арбалет": "handCrossbow",
+      "Тяжёлый арбалет": "heavyCrossbow",
+      "Тяжелый арбалет": "heavyCrossbow",
+      "Длинный лук": "longbow",
+      "Сеть": "net",
+      "Простой клинок": "shortsword"
+    };
     const RACE_PRESETS = {
       human: { name: "Человек", statBonus: { str: 1, dex: 1, con: 1, int: 1, wis: 1, cha: 1 }, speed: "30 фт.", traits: ["Универсальность: все характеристики увеличиваются на 1."], profs: ["Языки: Общий и ещё один на выбор"] },
       dwarf: { name: "Дварф", statBonus: { con: 2 }, speed: "25 фт.", traits: ["Тёмное зрение: вы видите в темноте на 60 футов, как при тусклом свете.", "Дварфская стойкость: у вас преимущество на спасброски против яда и сопротивление урону ядом."], profs: ["Языки: Общий, Дварфийский", "Владение: боевой топор, ручной топор, лёгкий молот, боевой молот", "Инструменты: один набор ремесленника на выбор"] },
@@ -1870,7 +2016,7 @@
       wizard: { cantrips: ["Огненный снаряд", "Волшебная рука", "Починка"], spells: ["Доспехи мага", "Щит", "Магическая стрела", "Обнаружение магии", "Сон", "Огненные ладони"] }
     };
     const WIZARD_CLASS_START = {
-      barbarian: { ac: "10 + Лов + Тел", attack: ["Боевой топор", "+СИЛ + мастерство", "1к12 рубящий"], items: ["Боевой топор", "Два ручных топора", "Набор путешественника", "4 метательных копья"], ability: ["Ярость", "Бонусным действием входите в ярость. В ближнем бою вы наносите больше урона, лучше проходите проверки Силы и получаете меньше дробящего, колющего и рубящего урона."] },
+      barbarian: { ac: "10 + Лов + Тел", attack: ["Секира", "+СИЛ + мастерство", "1к12 рубящий"], items: ["Секира", "Два ручных топора", "Набор путешественника", "4 метательных копья"], ability: ["Ярость", "Бонусным действием входите в ярость. В ближнем бою вы наносите больше урона, лучше проходите проверки Силы и получаете меньше дробящего, колющего и рубящего урона."] },
       bard: { ac: "Лёгкий доспех", attack: ["Рапира", "+ЛОВ + мастерство", "1к8 колющий"], items: ["Рапира", "Лёгкий доспех", "Лютня", "Набор артиста"], ability: ["Бардовское вдохновение", "Бонусным действием дайте союзнику кость вдохновения. Он сможет добавить её к проверке, атаке или спасброску."] },
       cleric: { ac: "Доспех и щит", attack: ["Булава", "+СИЛ + мастерство", "1к6 дробящий"], items: ["Булава", "Чешуйчатый доспех", "Щит", "Священный символ", "Набор священника"], ability: ["Использование заклинаний", "Вы готовите заклинания жреца после долгого отдыха и творите их через священный символ."] },
       druid: { ac: "Щит и доспех", attack: ["Посох", "+СИЛ + мастерство", "1к6 дробящий"], items: ["Деревянный щит", "Посох", "Кожаный доспех", "Фокус друида", "Набор путешественника"], ability: ["Друидский язык", "Вы знаете тайный язык друидов и можете оставлять скрытые сообщения для других друидов."] },
@@ -1885,7 +2031,7 @@
     };
     const WIZARD_EQUIPMENT_VARIANTS = {
       barbarian: [
-        { key: "recommended", name: "Рекомендовано", acMode: "barbarian", acNote: "10 + Лов + Тел", attack: ["Боевой топор", "+СИЛ + мастерство", "1к12 рубящий"], items: ["Боевой топор", "Два ручных топора", "Набор путешественника", "4 метательных копья"] },
+        { key: "recommended", name: "Рекомендовано", acMode: "barbarian", acNote: "10 + Лов + Тел", attack: ["Секира", "+СИЛ + мастерство", "1к12 рубящий"], items: ["Секира", "Два ручных топора", "Набор путешественника", "4 метательных копья"] },
         { key: "shield", name: "Топор и щит", acMode: "barbarianShield", acNote: "10 + Лов + Тел + щит", attack: ["Боевой топор", "+СИЛ + мастерство", "1к8 рубящий"], items: ["Боевой топор", "Щит", "Набор путешественника", "4 метательных копья"] }
       ],
       bard: [
@@ -1932,6 +2078,18 @@
         { key: "recommended", name: "Книга и фокус", acMode: "none", acNote: "без доспеха", attack: ["Кинжал", "+ЛОВ + мастерство", "1к4 колющий"], items: ["Книга заклинаний", "Магическая фокусировка", "Набор учёного", "Кинжал"] },
         { key: "component", name: "Книга и компоненты", acMode: "none", acNote: "без доспеха", attack: ["Кинжал", "+ЛОВ + мастерство", "1к4 колющий"], items: ["Книга заклинаний", "Мешочек компонентов", "Набор учёного", "Кинжал"] }
       ]
+    };
+    const WIZARD_AC_MODE_TO_ARMOR = {
+      none: { armor: 'none', shield: '0' },
+      leather: { armor: 'leather', shield: '0' },
+      leatherShield: { armor: 'leather', shield: '1' },
+      scale: { armor: 'scale', shield: '0' },
+      scaleShield: { armor: 'scale', shield: '1' },
+      chain: { armor: 'chain', shield: '0' },
+      chainShield: { armor: 'chain', shield: '1' },
+      barbarian: { armor: 'barbarian', shield: '0' },
+      barbarianShield: { armor: 'barbarian', shield: '1' },
+      monk: { armor: 'monk', shield: '0' }
     };
     const WIZARD_BACKGROUNDS = {
       soldier: { name: "Солдат", skills: ["Атлетика", "Запугивание"], gp: 10, items: ["Знак отличия", "Игральные кости", "Обычная одежда"], personality: "Я говорю прямо и привык действовать в команде.", ideals: "Долг. Если я дал слово, я его держу.", bonds: "Я всё ещё защищаю тех, кто был рядом со мной на войне.", flaws: "Иногда я слишком быстро решаю вопрос силой.", backstory: "Вы служили в отряде, гарнизоне или наёмной роте. Приключения стали продолжением вашей службы, только теперь приказы отдаёте себе вы." },
@@ -2316,6 +2474,8 @@
       }
 
       updateSkills(); updateSaves(); updatePassive();
+      updateArmorClass();
+      updateWeaponAttacks();
     }
 
     function buildASIButtons() {
@@ -2513,7 +2673,168 @@
       v('levelBadge').textContent = 'Ур. ' + lvl;
       v('profBonusDisplay').textContent = '+' + pb;
       refreshStats();
+      updateArmorClass();
+      updateWeaponAttacks();
       updateLevelHpRollUI();
+    }
+
+    function buildArmorSelect() {
+      const sel = v('armorSelect');
+      if (!sel) return;
+      sel.innerHTML = '';
+      Object.entries(ARMOR_DB).forEach(([key, armor]) => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = armor.name;
+        sel.appendChild(opt);
+      });
+    }
+
+    function calculateArmorClass() {
+      const manual = parseInt(v('acManual')?.value, 10);
+      if (!Number.isNaN(manual) && manual > 0) return { ac: manual, manual: true, hint: 'КД задана вручную.' };
+      const key = v('armorSelect')?.value || 'none';
+      const armor = ARMOR_DB[key] || ARMOR_DB.none;
+      const dex = getMod('dex');
+      let ac = armor.base || 10;
+      const parts = [armor.name + ': ' + ac];
+      if (armor.dex) {
+        const dexPart = armor.dexMax === null || armor.dexMax === undefined ? dex : Math.min(dex, armor.dexMax);
+        ac += dexPart;
+        parts.push('Лов ' + fmtMod(dexPart));
+      }
+      if (armor.con) {
+        const con = getMod('con');
+        ac += con;
+        parts.push('Тел ' + fmtMod(con));
+      }
+      if (armor.wis) {
+        const wis = getMod('wis');
+        ac += wis;
+        parts.push('Мдр ' + fmtMod(wis));
+      }
+      if (v('shieldEquipped')?.value === '1') {
+        ac += 2;
+        parts.push('щит +2');
+      }
+      const bonus = parseInt(v('acBonus')?.value, 10) || 0;
+      if (bonus) {
+        ac += bonus;
+        parts.push('бонус ' + fmtMod(bonus));
+      }
+      const notes = [];
+      if (armor.stealth) notes.push('помеха к Скрытности');
+      if (armor.strReq) notes.push('треб. Силы ' + armor.strReq);
+      if (key === 'custom') notes.push('для особой брони лучше указать КД вручную');
+      return { ac, manual: false, hint: parts.join(' · ') + (notes.length ? ' · ' + notes.join(', ') : '') };
+    }
+
+    function updateArmorClass() {
+      const acEl = v('ac');
+      if (!acEl) return;
+      const result = calculateArmorClass();
+      acEl.value = result.ac;
+      const hint = v('armorHint');
+      if (hint) hint.textContent = result.hint;
+    }
+
+    function buildWeaponSelect() {
+      const sel = v('weaponSelect');
+      if (!sel) return;
+      sel.innerHTML = '';
+      Object.entries(WEAPON_DB).forEach(([key, weapon]) => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = weapon.name;
+        sel.appendChild(opt);
+      });
+    }
+
+    function resolveWeaponStat(weapon, preferredStat = '') {
+      if (preferredStat) return preferredStat;
+      if (!weapon) return 'str';
+      if (weapon.finesse) return getMod('dex') >= getMod('str') ? 'dex' : 'str';
+      return weapon.stat || 'str';
+    }
+
+    function makeWeaponAttack(weaponKey, preferredStat = '', magicBonus = 0, displayName = '') {
+      const weapon = WEAPON_DB[weaponKey] || WEAPON_DB.custom;
+      if (weapon.custom) return { name: displayName || '', bonus: '', dmg: '' };
+      const stat = resolveWeaponStat(weapon, preferredStat);
+      const statMod = getMod(stat);
+      const magic = parseInt(magicBonus, 10) || 0;
+      const attackBonus = getPB(getLevel()) + statMod + magic;
+      const damageBonus = statMod + magic;
+      const name = displayName || weapon.name;
+      const damage = [weapon.dmg, damageBonus ? fmtMod(damageBonus) : '', weapon.type].filter(Boolean).join(' ');
+      return { name: magic ? `${name} +${magic}` : name, bonus: fmtMod(attackBonus), dmg: damage };
+    }
+
+    function weaponMetaFromRow(row) {
+      if (!row || !row.dataset.weaponKey) return null;
+      return {
+        weaponKey: row.dataset.weaponKey,
+        weaponStat: row.dataset.weaponStat || '',
+        weaponMagic: parseInt(row.dataset.weaponMagic, 10) || 0
+      };
+    }
+
+    function inferWeaponMetaFromAttack(attack) {
+      const rawName = String((attack && attack.name) || '').replace(/\s+\+\d+$/, '').trim();
+      const weaponKey = WEAPON_NAME_TO_KEY[rawName];
+      if (!weaponKey) return null;
+      const bonusText = String((attack && attack.bonus) || '').toLowerCase();
+      return {
+        weaponKey,
+        weaponStat: bonusText.includes('лов') ? 'dex' : bonusText.includes('сил') ? 'str' : '',
+        weaponMagic: 0
+      };
+    }
+
+    function updateWeaponAttacks() {
+      document.querySelectorAll('.attack-row[data-weapon-key]').forEach(row => {
+        const meta = weaponMetaFromRow(row);
+        if (!meta) return;
+        const inputs = row.querySelectorAll('input');
+        if (inputs.length < 3) return;
+        const recalculated = makeWeaponAttack(meta.weaponKey, meta.weaponStat, meta.weaponMagic, inputs[0].value);
+        inputs[1].value = recalculated.bonus;
+        inputs[2].value = recalculated.dmg;
+      });
+    }
+
+    function addWeaponAttackByKey(weaponKey, preferredStat = '', magicBonus = 0, displayName = '') {
+      const attack = makeWeaponAttack(weaponKey, preferredStat, magicBonus, displayName);
+      addAttack(attack.name, attack.bonus, attack.dmg, {
+        weaponKey,
+        weaponStat: preferredStat,
+        weaponMagic: parseInt(magicBonus, 10) || 0
+      });
+    }
+
+    function addWeaponAttack() {
+      const weaponKey = v('weaponSelect')?.value || 'custom';
+      const stat = v('weaponStat')?.value || '';
+      const magic = parseInt(v('weaponMagicBonus')?.value, 10) || 0;
+      addWeaponAttackByKey(weaponKey, stat, magic);
+      fbSync();
+    }
+
+    function wizardAttackPreferredStat(attack) {
+      const text = String((attack && attack[1]) || '').toLowerCase();
+      if (text.includes('лов')) return 'dex';
+      if (text.includes('сил')) return 'str';
+      return '';
+    }
+
+    function addWizardWeaponAttack(attack) {
+      if (!attack) return;
+      const weaponKey = WEAPON_NAME_TO_KEY[attack[0]];
+      if (weaponKey) {
+        addWeaponAttackByKey(weaponKey, wizardAttackPreferredStat(attack), 0, attack[0]);
+      } else {
+        addAttack(attack[0], attack[1], attack[2]);
+      }
     }
 
     function updateSkills() {
@@ -2736,9 +3057,14 @@
       });
     }
 
-    function addAttack(name = '', bonus = '', dmg = '') {
+    function addAttack(name = '', bonus = '', dmg = '', weaponMeta = null) {
       const list = v('attackList');
       const row = document.createElement('div'); row.className = 'attack-row';
+      if (weaponMeta && weaponMeta.weaponKey && WEAPON_DB[weaponMeta.weaponKey] && !WEAPON_DB[weaponMeta.weaponKey].custom) {
+        row.dataset.weaponKey = weaponMeta.weaponKey;
+        row.dataset.weaponStat = weaponMeta.weaponStat || '';
+        row.dataset.weaponMagic = parseInt(weaponMeta.weaponMagic, 10) || 0;
+      }
       const nameInput = document.createElement('input');
       nameInput.type = 'text';
       nameInput.placeholder = 'Длинный меч';
@@ -2837,7 +3163,10 @@
       const attacks = [];
       document.querySelectorAll('.attack-row').forEach(r => {
         const ins = r.querySelectorAll('input');
-        attacks.push({ name: ins[0].value, bonus: ins[1].value, dmg: ins[2].value });
+        const attack = { name: ins[0].value, bonus: ins[1].value, dmg: ins[2].value };
+        const weapon = weaponMetaFromRow(r);
+        if (weapon) attack.weapon = weapon;
+        attacks.push(attack);
       });
       const inventory = [];
       document.querySelectorAll('.inv-item').forEach(r => {
@@ -2852,7 +3181,7 @@
         abilities.push(source ? { name, desc, source } : { name, desc });
       });
       const fields = ['charName', 'classSelect', 'levelInput', 'race', 'background', 'alignment', 'playerName',
-        'hpMax', 'hpCur', 'hpTemp', 'ac', 'initField', 'speed', 'hdCur',
+        'hpMax', 'hpCur', 'hpTemp', 'ac', 'armorSelect', 'shieldEquipped', 'acBonus', 'acManual', 'initField', 'speed', 'hdCur',
         'features', 'profs', 'spells', 'personality', 'ideals', 'bonds', 'flaws', 'backstory', 'notes', 'allies',
         'pp', 'gp', 'ep', 'sp', 'cp'];
       const data = {};
@@ -2923,7 +3252,7 @@
       if ((data.classSelect || 'barbarian') !== 'barbarian') return true;
       if ((parseInt(data.levelInput) || 1) !== 1) return true;
       if ((parseInt(data.hpMax) || 8) !== 8 || (parseInt(data.hpCur) || 8) !== 8 || (parseInt(data.hpTemp) || 0) !== 0) return true;
-      if ((parseInt(data.ac) || 10) !== 10 || String(data.initField || '+0') !== '+0' || String(data.speed || '30 фт.') !== '30 фт.') return true;
+      if ((parseInt(data.ac) || 10) !== 10 || String(data.armorSelect || 'none') !== 'none' || String(data.shieldEquipped || '0') !== '0' || (parseInt(data.acBonus) || 0) !== 0 || String(data.acManual || '').trim() !== '' || String(data.initField || '+0') !== '+0' || String(data.speed || '30 фт.') !== '30 фт.') return true;
       if ((parseInt(data.hdCur) || 1) !== 1) return true;
       if (['pp', 'gp', 'ep', 'sp', 'cp'].some(f => (parseFloat(data[f]) || 0) !== 0)) return true;
       if (data.statValues && STATS.some(st => (parseInt(data.statValues[st]) || 8) !== 8)) return true;
@@ -3041,7 +3370,7 @@
 
     function applySheetData(data) {
       const fields = ['charName', 'classSelect', 'levelInput', 'race', 'background', 'alignment', 'playerName',
-        'hpMax', 'hpCur', 'hpTemp', 'ac', 'initField', 'speed', 'hdCur',
+        'hpMax', 'hpCur', 'hpTemp', 'ac', 'armorSelect', 'shieldEquipped', 'acBonus', 'acManual', 'initField', 'speed', 'hdCur',
         'features', 'profs', 'spells', 'personality', 'ideals', 'bonds', 'flaws', 'backstory', 'notes', 'allies',
         'pp', 'gp', 'ep', 'sp', 'cp'];
       fields.forEach(f => { const el = v(f); if (el && data[f] !== undefined) el.value = data[f]; });
@@ -3066,7 +3395,7 @@
       appliedRaceStatBonus = (data.appliedRaceStatBonus && typeof data.appliedRaceStatBonus === 'object') ? Object.assign({}, data.appliedRaceStatBonus) : {};
       syncRaceFieldUI();
       v('attackList').innerHTML = '';
-      (data.attacks || []).forEach(a => addAttack(a.name, a.bonus, a.dmg));
+      (data.attacks || []).forEach(a => addAttack(a.name, a.bonus, a.dmg, a.weapon || inferWeaponMetaFromAttack(a)));
       v('invList').innerHTML = '';
       (data.inventory || []).forEach(it => addInvItem(it.name, it.qty, it.wt));
       v('abilityList').innerHTML = '';
@@ -3074,7 +3403,7 @@
       knownSpells = new Set(Array.isArray(data.knownSpells) ? data.knownSpells : (data.knownSpells ? [data.knownSpells] : []));
       preparedSpells = new Set(Array.isArray(data.preparedSpells) ? data.preparedSpells : (data.preparedSpells ? [data.preparedSpells] : []));
       concSpell = data.concSpell || null;
-      renderClass(); updateAll(); updateHpBar(); updateConcBar(); renderSpellBook();
+      renderClass(); updateAll(); updateArmorClass(); updateHpBar(); updateConcBar(); renderSpellBook();
       applyDotStates('.death-saves .saves-group:first-child .dot', data.deathSaves?.success || []);
       applyDotStates('.death-saves .saves-group:last-child .dot', data.deathSaves?.failure || []);
       applyDotMap(data.resourceDots || {});
@@ -3094,6 +3423,8 @@
       syncRaceFieldUI();
       knownSpells = new Set(); preparedSpells = new Set(); concSpell = null;
       buildSkillList(); buildSaveList(); buildStatsGrid();
+      const armorSelect = v('armorSelect');
+      if (armorSelect) armorSelect.value = 'none';
       renderClass(); updateAll(); updateHpBar(); updateConcBar(); renderSpellBook();
       clearLocalDraft();
       fbSync();
@@ -3855,7 +4186,12 @@
       v('hdTotal').value = 1;
       v('hdCur').value = 1;
       v('hitDie').value = HIT_DICE[cls] || 'd8';
-      v('ac').value = wizardAcFromMode(equipment.acMode, true);
+      const armorChoice = WIZARD_AC_MODE_TO_ARMOR[equipment.acMode] || WIZARD_AC_MODE_TO_ARMOR.none;
+      if (v('armorSelect')) v('armorSelect').value = armorChoice.armor;
+      if (v('shieldEquipped')) v('shieldEquipped').value = armorChoice.shield;
+      if (v('acBonus')) v('acBonus').value = 0;
+      if (v('acManual')) v('acManual').value = '';
+      updateArmorClass();
       v('initField').value = fmtMod(getMod('dex'));
 
       (WIZARD_CLASS_SAVE_PROFS[cls] || []).forEach(st => {
@@ -3882,7 +4218,7 @@
       (bg.items || []).forEach(item => addInvItem(item, '1', '0'));
       if (equipment.attack || classStart.attack) {
         const attack = equipment.attack || classStart.attack;
-        addAttack(attack[0], attack[1], attack[2]);
+        addWizardWeaponAttack(attack);
       }
       classFeatures.forEach(feature => addAbility(feature[0], feature[1], 'wizardClass'));
       (completedSpells.cantrips || []).forEach(name => knownSpells.add(name));
@@ -5023,6 +5359,8 @@
     // ============ INIT ============
     window.addEventListener('DOMContentLoaded', function () {
       buildRacePresetSelect();
+      buildArmorSelect();
+      buildWeaponSelect();
       buildSkillList();
       buildSaveList();
       buildStatsGrid();
