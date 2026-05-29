@@ -996,6 +996,13 @@
       min-height: 96px
     }
 
+    .wizard-life-textarea {
+      min-height: 34px !important;
+      resize: none;
+      overflow: hidden;
+      line-height: 1.35
+    }
+
     .wizard-full {
       grid-column: 1 / -1
     }
@@ -1302,6 +1309,7 @@
       <span id="fbConfigHint" class="fb-config-hint" style="display:none">⚠ Нужна настройка Firebase</span>
     </div>
     <button class="btn primary" onclick="openCharacterWizard()">Создать персонажа</button>
+    <button class="btn" onclick="openLevelUpWizard()">Повысить уровень</button>
     <button class="btn" onclick="saveJSON()" title="Скачать JSON">💾</button>
     <label class="btn" style="cursor:pointer" title="Загрузить JSON">📂<input type="file" accept=".json"
         onchange="loadJSON(event)" style="display:none"></label>
@@ -1317,7 +1325,7 @@
     style="display:none;align-items:center;gap:10px;background:#EEF8E8;border-bottom:1px solid #C0DD97;padding:8px 20px;flex-wrap:wrap">
   </div>
 
-  <div id="characterWizardModal" class="wizard-overlay" onclick="if(event.target===this)closeCharacterWizard()">
+  <div id="characterWizardModal" class="wizard-overlay">
     <div class="wizard-panel" role="dialog" aria-modal="true" aria-labelledby="characterWizardTitle">
       <div class="wizard-head">
         <div>
@@ -1335,6 +1343,29 @@
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
           <button type="button" class="btn" onclick="closeCharacterWizard()">Отмена</button>
           <button type="button" class="btn primary" id="characterWizardNext" onclick="wizardNext()">Дальше</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="levelUpWizardModal" class="wizard-overlay">
+    <div class="wizard-panel" role="dialog" aria-modal="true" aria-labelledby="levelUpWizardTitle">
+      <div class="wizard-head">
+        <div>
+          <div class="wizard-title" id="levelUpWizardTitle">Повышение уровня</div>
+          <div class="wizard-subtitle" id="levelUpWizardSubtitle">Поднимем персонажа на следующий уровень</div>
+        </div>
+        <button type="button" class="wizard-close" onclick="closeLevelUpWizard()" aria-label="Закрыть">×</button>
+      </div>
+      <div class="wizard-body">
+        <div class="wizard-steps" id="levelUpWizardSteps"></div>
+        <div id="levelUpWizardBody"></div>
+      </div>
+      <div class="wizard-footer">
+        <button type="button" class="btn" id="levelUpWizardBack" onclick="levelWizardBack()">Назад</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+          <button type="button" class="btn" onclick="closeLevelUpWizard()">Отмена</button>
+          <button type="button" class="btn primary" id="levelUpWizardNext" onclick="levelWizardNext()">Дальше</button>
         </div>
       </div>
     </div>
@@ -1386,7 +1417,7 @@
         </div>
         <div class="field"><label>Предыстория</label><input type="text" id="background" placeholder="Солдат..."></div>
         <div class="field"><label>Мировоззрение</label><input type="text" id="alignment"
-            placeholder="Нейтральное добро"></div>
+            placeholder="Нейтральный добрый"></div>
         <div class="field"><label>Игрок</label><input type="text" id="playerName" placeholder="Имя игрока"></div>
       </div>
     </div>
@@ -1587,6 +1618,16 @@
       </div>
       <div id="spellSection" class="section hidden">
         <div class="section-title">Ячейки заклинаний</div>
+        <div id="spellStatsBlock" style="display:none;margin-bottom:10px">
+          <div class="field-row">
+            <div class="field center-section"><label>Характеристика</label><input type="text" id="spellAbility"
+                value="" readonly style="text-align:center;font-weight:600"></div>
+            <div class="field center-section"><label>Атака заклинанием</label><input type="text" id="spellAttackBonus"
+                value="" readonly style="text-align:center;font-size:18px;font-weight:600"></div>
+            <div class="field center-section"><label>Сл спасброска</label><input type="text" id="spellSaveDc" value=""
+                readonly style="text-align:center;font-size:18px;font-weight:600"></div>
+          </div>
+        </div>
         <div id="spellSlots"></div>
       </div>
       <!-- SPELL SYSTEM -->
@@ -1606,6 +1647,8 @@
           <button class="spell-vtab active" id="svt-all" onclick="setSpellTab('all',this)">Все заклинания</button>
           <button class="spell-vtab" id="svt-known" onclick="setSpellTab('known',this)">Изученные <span
               id="knownBadge"></span></button>
+          <button class="spell-vtab" id="svt-extra" onclick="setSpellTab('extra',this)">Дополнительно <span
+              id="extraBadge"></span></button>
           <button class="spell-vtab" id="svt-prepared" onclick="setSpellTab('prepared',this)">Подготовленные <span
               id="prepBadge"></span></button>
         </div>
@@ -1658,7 +1701,7 @@
       </div>
       <!-- Spell detail popup -->
       <div id="spellPopup" onclick="if(event.target===this)closeSpellPopup()"
-        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;align-items:flex-start;justify-content:center;padding-top:60px">
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1100;align-items:flex-start;justify-content:center;padding-top:60px">
         <div
           style="background:#fff;border-radius:12px;padding:20px 22px;max-width:460px;width:92%;max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.18)">
           <button onclick="closeSpellPopup()"
@@ -1895,12 +1938,58 @@
       dragonborn: { name: "Драконорождённый", statBonus: { str: 2, cha: 1 }, speed: "30 фт.", traits: ["Драконье наследие: выберите тип дракона, который определяет стихию дыхания и сопротивления.", "Оружие дыхания: действием вы выдыхаете энергию своего наследия; цель делает спасбросок, получая урон при провале.", "Сопротивление наследия: вы получаете сопротивление виду урона, связанному с выбранным драконом."], profs: ["Языки: Общий, Драконий"] },
       tabaxi: { name: "Табакси", statBonus: { dex: 2, cha: 1 }, speed: "30 фт.", traits: ["Превосходное тёмное зрение: вы видите в темноте на 120 футов.", "Кошачье проворство: Ваши рефлексы и проворство позволяют вам двигаться с увеличением скорости. Когда вы двигаетесь в бою в свой ход, вы можете удвоить свою скорость до конца хода. Использовав эту особенность, вы не можете использовать её снова, до тех пор пока вы не переместитесь на 0 футов в один из ваших ходов.", "Кошачьи когти: Из-за ваших когтей у вас есть скорость лазания 20 футов. Кроме того, ваши когти — это природное оружие, которое вы можете использовать, совершая безоружные удары. Если вы совершаете атаку ими, вы наносите рубящий урон, равный 1к4 + ваш модификатор Силы, вместо дробящего урона, обычного для безоружного удара."], profs: ["Языки: Общий, язык животных"] }
     };
-    const WIZARD_STEPS = ["Основы", "Характеристики", "Предыстория", "Навыки", "История", "Снаряжение", "Заклинания", "Итог"];
+    const WIZARD_RACE_DESCRIPTIONS = {
+      human: "Люди — самые разнообразные и гибкие жители фэнтезийных миров. Они быстро учатся, легко приспосабливаются и могут стать кем угодно.",
+      dwarf: "Дварфы — крепкие подземные мастера, воины и ремесленники. Они ценят род, честь, труд и хорошо держатся там, где другим уже тяжело.",
+      hillDwarf: "Холмовые дварфы чаще живут ближе к поверхности и славятся стойкостью, здравым смыслом и крепким телом.",
+      mountainDwarf: "Горные дварфы выросли среди крепостей, кузниц и каменных залов. Обычно они сильнее, суровее и привычнее к доспехам.",
+      elf: "Эльфы — долгоживущие, изящные и внимательные создания, связанные с магией, природой, древними традициями и тонким восприятием мира.",
+      highElf: "Высшие эльфы ближе к магии, знаниям и древним городам. Им хорошо подходят образы учёных, дуэлянтов и благородных магов.",
+      woodElf: "Лесные эльфы живут в гармонии с дикой природой. Они быстры, наблюдательны и отлично чувствуют себя в лесах и на тропах.",
+      drow: "Дроу — тёмные эльфы подземного мира. У них драматичная репутация, сильная магическая наследственность и хорошие зацепки для сложной истории.",
+      halfling: "Полурослики — маленький, храбрый и удивительно удачливый народ. Они часто выглядят мирными, но в приключениях проявляют огромную стойкость.",
+      lightfootHalfling: "Легконогие полурослики общительны, ловки и незаметны. Им легко быть обаятельными плутами, бардами или хитрыми путешественниками.",
+      stoutHalfling: "Коренастые полурослики крепче и выносливее своих родичей. Они хорошо подходят для героев, которые не сдаются даже в большой опасности.",
+      gnome: "Гномы — маленькие, живые и любопытные создания с острым умом. Они любят загадки, магию, механизмы и странные идеи.",
+      forestGnome: "Лесные гномы ближе к природе и иллюзиям. Они тихие, хитрые, дружат с малыми зверями и отлично подходят для сказочных персонажей.",
+      rockGnome: "Скальные гномы — мастера механизмов, ремёсел и причудливых изобретений. Хороший выбор для любознательного технаря или мага-исследователя.",
+      halfElf: "Полуэльфы стоят между двумя мирами: человеческой переменчивостью и эльфийской утончённостью. Они гибкие, харизматичные и часто ищут своё место.",
+      halfOrc: "Полуорки сильны, прямолинейны и привыкли доказывать себе и другим, что они больше, чем чужие ожидания.",
+      tiefling: "Тифлинги несут адское наследие: рога, хвост, необычный вид и след древней сделки в крови. Отличны для драматичных и харизматичных героев.",
+      dragonborn: "Драконорождённые похожи на гуманоидных драконов. Они горды, сильны, связаны со стихией своего предка и часто живут понятиями чести.",
+      tabaxi: "Табакси — кошачий народ странников, рассказчиков и охотников за редкостями. Они быстры, любопытны и любят необычные истории."
+    };
+    const WIZARD_STEPS = ["Основы", "Класс", "Раса", "Мировоззрение", "Характеристики", "Предыстория", "Навыки", "История", "Снаряжение", "Заклинания", "Итог"];
     const WIZARD_CLASS_LABELS = {
       barbarian: "Варвар", bard: "Бард", cleric: "Жрец", druid: "Друид", fighter: "Воин",
       monk: "Монах", paladin: "Паладин", ranger: "Следопыт", rogue: "Плут",
       sorcerer: "Чародей", warlock: "Колдун", wizard: "Волшебник"
     };
+    const WIZARD_CLASS_DESCRIPTIONS = {
+      barbarian: "Живучий боец передней линии. Врывается в бой, входит в ярость и принимает удары на себя.",
+      bard: "Гибкий герой поддержки. Помогает союзникам вдохновением, магией, навыками и переговорами.",
+      cleric: "Священный заклинатель. Лечит, защищает, усиливает союзников и карает врагов силой веры.",
+      druid: "Маг природы. Управляет стихиями, лечит, говорит с миром дикой природы и позже меняет облик.",
+      fighter: "Самый прямой мастер оружия. Прост в освоении, надёжен в бою и хорошо держит любую роль в драке.",
+      monk: "Быстрый рукопашный боец. Сражается без тяжёлой брони, много двигается и полагается на Ловкость и Мудрость.",
+      paladin: "Святой воин. Носит тяжёлую броню, лечит касанием и превращает попадания в мощные божественные удары.",
+      ranger: "Следопыт и охотник. Хорош в путешествиях, выслеживании, дальнем бою и выживании вне города.",
+      rogue: "Ловкий специалист. Скрытность, ловушки, обман, взлом и сильный точечный урон через Скрытую атаку.",
+      sorcerer: "Врождённый маг. Заклинаний меньше, но магия гибкая и яркая, сила чаще всего идёт от Харизмы.",
+      warlock: "Маг договора. Получает силу от покровителя, быстро восстанавливает ячейки и отлично стреляет магией.",
+      wizard: "Книжный маг. Знает много заклинаний, решает задачи подготовкой и со временем становится очень гибким."
+    };
+    const WIZARD_ALIGNMENTS = [
+      { name: "Законопослушный добрый", role: "защитник, рыцарь, честный страж", desc: "Верит, что справедливые правила помогают защищать людей. Старается поступать правильно и держать слово." },
+      { name: "Нейтральный добрый", role: "лекарь, спасатель, добрый странник", desc: "Главное — помогать и уменьшать страдания. Законы полезны, но не важнее живых людей." },
+      { name: "Хаотичный добрый", role: "народный мститель, бунтарь, свободный герой", desc: "Делает добро по совести, даже если приходится спорить с властью, традициями или приказами." },
+      { name: "Законопослушный нейтральный", role: "судья, чиновник, хранитель порядка", desc: "Ставит порядок, долг и правила выше личных чувств. Может быть справедливым, строгим или холодным." },
+      { name: "Истинно нейтральный", role: "мудрец, друид, прагматик, наблюдатель", desc: "Ищет баланс или просто действует по обстоятельствам. Не спешит выбирать сторону без причины." },
+      { name: "Хаотичный нейтральный", role: "бродяга, авантюрист, свободный наёмник", desc: "Ценит свободу и личный выбор. Может помогать, рисковать или нарушать правила, если так велит момент." },
+      { name: "Законопослушный злой", role: "тиран, инквизитор, жестокий командир", desc: "Использует порядок, договоры и иерархию для власти. Опасен тем, что действует системно и законно." },
+      { name: "Нейтральный злой", role: "наёмный убийца, предатель, корыстный маг", desc: "Ставит свою выгоду выше чужой жизни. Следует правилам или ломает их только если это удобно." },
+      { name: "Хаотичный злой", role: "разрушитель, маньяк, демонопоклонник", desc: "Живёт жаждой насилия, власти или хаоса. Для игровых героев обычно требует согласования с мастером." }
+    ];
     const WIZARD_CLASS_PRIORITIES = {
       barbarian: ["str", "con", "dex", "wis", "cha", "int"],
       bard: ["cha", "dex", "con", "wis", "int", "str"],
@@ -1916,6 +2005,7 @@
       wizard: ["int", "con", "dex", "wis", "cha", "str"]
     };
     const WIZARD_STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
+    const LEVEL_WIZARD_STEPS = ["Особенности", "Характеристики", "Заклинания", "Итог", "Хиты"];
     const WIZARD_STAT_TEMPLATES = {
       class: { name: "По классу", desc: "Главные характеристики класса получают лучшие значения.", order: null },
       balanced: { name: "Сбалансированный", desc: "Без сильных провалов, удобно для новичка.", values: { str: 13, dex: 14, con: 15, int: 12, wis: 10, cha: 8 } },
@@ -1999,6 +2089,133 @@
       warlock: [["Покровитель", "Вы заключили сделку с могущественной сущностью. Она даёт вам магию и может требовать ответных услуг."], ["Магия договора", "Ваши ячейки заклинаний восстанавливаются после короткого или долгого отдыха. Харизма — ваша характеристика заклинаний."]],
       wizard: [["Магическая книга", "Ваша книга хранит известные заклинания. После долгого отдыха вы выбираете, какие из них подготовить."], ["Магическое восстановление", "Раз в день после короткого отдыха вы можете восстановить часть потраченных ячеек заклинаний."]]
     };
+    const LEVEL_CLASS_FEATURES = {
+      barbarian: {
+        2: [{ name: "Безрассудная атака", desc: "В начале хода можно получить преимущество на атаки Силой в ближнем бою, но атаки по вам тоже получают преимущество до вашего следующего хода." }, { name: "Чувство опасности", desc: "Вы лучше реагируете на видимые опасности и получаете преимущество на спасброски Ловкости против них." }],
+        3: [{ name: "Путь варвара", desc: "Выберите первобытный путь. Он задаёт стиль ярости и новые особенности подкласса." }],
+        5: [{ name: "Дополнительная атака", desc: "Когда вы совершаете действие Атака, вы можете атаковать дважды." }, { name: "Быстрое передвижение", desc: "Если вы без тяжёлого доспеха, ваша скорость увеличивается на 10 футов." }],
+        7: [{ name: "Дикий инстинкт", desc: "Вы получаете преимущество на инициативу и лучше начинаете бой, если входите в ярость сразу." }],
+        9: [{ name: "Брутальный крит", desc: "При критическом попадании оружием ближнего боя добавьте ещё одну кость урона оружия." }],
+        11: [{ name: "Неослабевающая ярость", desc: "Когда хиты падают до 0 во время ярости, можно попытаться остаться с 1 хитом." }],
+        15: [{ name: "Постоянная ярость", desc: "Ваша ярость не заканчивается раньше времени, пока вы сознательны." }],
+        18: [{ name: "Неукротимая мощь", desc: "Если проверка Силы меньше вашего значения Силы, можно использовать значение Силы вместо результата." }],
+        20: [{ name: "Первобытный чемпион", desc: "Сила и Телосложение увеличиваются на 4, а их максимум становится 24. Внесите это вручную, если используете лимиты выше 20." }]
+      },
+      bard: {
+        2: [{ name: "Мастер на все руки", desc: "К проверкам характеристик без владения добавляется половина бонуса мастерства." }, { name: "Песнь отдыха", desc: "После короткого отдыха союзники восстанавливают немного больше хитов." }],
+        3: [{ name: "Коллегия барда", desc: "Выберите коллегию барда. Она даст новые способы использовать вдохновение и роль в группе." }, { name: "Компетентность", desc: "Выберите два владения навыками: бонус мастерства для них удваивается." }],
+        5: [{ name: "Источник вдохновения", desc: "Бардовское вдохновение восстанавливается после короткого или долгого отдыха." }],
+        6: [{ name: "Контрочарование", desc: "Действием помогайте союзникам сопротивляться испугу и очарованию." }],
+        10: [{ name: "Магические секреты", desc: "Выберите заклинания из списков других классов и добавьте их к заклинаниям барда." }],
+        15: [{ name: "Бардовское вдохновение d12", desc: "Кость бардовского вдохновения становится d12." }],
+        20: [{ name: "Превосходное вдохновение", desc: "Если при броске инициативы у вас нет вдохновения, вы восстанавливаете одно использование." }]
+      },
+      cleric: {
+        2: [{ name: "Канал божественности", desc: "Вы получаете особые божественные эффекты, включая Изгнание нежити и вариант домена." }],
+        5: [{ name: "Уничтожение нежити", desc: "Изгнанная нежить слабой опасности уничтожается, если проваливает спасбросок." }],
+        8: [{ name: "Особенность домена", desc: "Ваш домен усиливает атаки, заклинания или защиту. Уточните эффект выбранного домена." }],
+        10: [{ name: "Божественное вмешательство", desc: "Можно просить божество о прямой помощи. Шанс успеха зависит от уровня жреца." }],
+        17: [{ name: "Высшая особенность домена", desc: "Ваш домен раскрывается сильнее. Уточните эффект выбранного домена." }],
+        20: [{ name: "Улучшенное божественное вмешательство", desc: "Божественное вмешательство автоматически успешно, если оно доступно." }]
+      },
+      druid: {
+        2: [{ name: "Дикий облик", desc: "Вы можете превращаться в зверей. Ограничения зависят от уровня и круга друида." }, { name: "Круг друидов", desc: "Выберите круг друида. Он определит связь с природой и дополнительные возможности." }],
+        4: [{ name: "Улучшение Дикого облика", desc: "Ограничения звериных форм становятся мягче. Проверьте доступные формы для вашего уровня." }],
+        8: [{ name: "Улучшение Дикого облика", desc: "Вы получаете доступ к более сильным формам и новым вариантам передвижения." }],
+        18: [{ name: "Вечное тело", desc: "Вы стареете гораздо медленнее." }, { name: "Заклинания зверя", desc: "В Диком облике можно накладывать многие заклинания друида." }],
+        20: [{ name: "Архидруид", desc: "Вы можете использовать Дикий облик без ограничений по количеству раз." }]
+      },
+      fighter: {
+        2: [{ name: "Всплеск действий", desc: "Раз за отдых можно совершить дополнительное действие в свой ход." }],
+        3: [{ name: "Воинский архетип", desc: "Выберите архетип: он задаёт особые приёмы, магию или стиль боя." }],
+        5: [{ name: "Дополнительная атака", desc: "Когда вы совершаете действие Атака, вы можете атаковать дважды." }],
+        9: [{ name: "Упорный", desc: "Можно перебросить проваленный спасбросок." }],
+        11: [{ name: "Дополнительная атака x2", desc: "Когда вы совершаете действие Атака, вы можете атаковать трижды." }],
+        13: [{ name: "Упорный x2", desc: "Вы получаете дополнительное использование переброса спасброска." }],
+        17: [{ name: "Всплеск действий x2", desc: "Вы получаете второе использование Всплеска действий между отдыхами." }, { name: "Упорный x3", desc: "Вы получаете третье использование переброса спасброска." }],
+        20: [{ name: "Дополнительная атака x3", desc: "Когда вы совершаете действие Атака, вы можете атаковать четыре раза." }]
+      },
+      monk: {
+        2: [{ name: "Ци", desc: "Вы получаете очки ци для приёмов монаха: Шквал ударов, Защита терпением, Порыв ветра." }, { name: "Движение без доспехов", desc: "Скорость увеличивается, если вы без доспеха и щита." }],
+        3: [{ name: "Монастырская традиция", desc: "Выберите традицию монаха. Она даст особые техники." }, { name: "Отражение снарядов", desc: "Реакцией уменьшайте урон от дальнобойной атаки оружием." }],
+        5: [{ name: "Дополнительная атака", desc: "Когда вы совершаете действие Атака, вы можете атаковать дважды." }, { name: "Ошеломляющий удар", desc: "Потратьте ци после попадания, чтобы попытаться ошеломить цель." }],
+        6: [{ name: "Ци-удары", desc: "Ваши безоружные удары считаются магическими для преодоления сопротивлений." }],
+        7: [{ name: "Увёртливость", desc: "При спасбросках Ловкости вы получаете меньше урона от областей." }, { name: "Спокойствие разума", desc: "Действием можно прекратить на себе испуг или очарование." }],
+        10: [{ name: "Чистота тела", desc: "Вы получаете иммунитет к болезням и ядам." }],
+        14: [{ name: "Алмазная душа", desc: "Вы получаете владение всеми спасбросками и можете перебрасывать провалы за ци." }],
+        18: [{ name: "Пустое тело", desc: "Вы можете становиться невидимым и получать сопротивление многим видам урона." }],
+        20: [{ name: "Совершенное я", desc: "Если при инициативе у вас мало ци, вы восстанавливаете часть очков." }]
+      },
+      paladin: {
+        2: [{ name: "Боевой стиль", desc: "Выберите стиль боя паладина." }, { name: "Использование заклинаний", desc: "Вы получаете заклинания паладина. Харизма — ваша характеристика заклинаний." }, { name: "Божественная кара", desc: "После попадания оружием можно потратить ячейку, чтобы нанести дополнительный урон излучением." }],
+        3: [{ name: "Божественное здоровье", desc: "Вы получаете иммунитет к болезням." }, { name: "Священная клятва", desc: "Выберите клятву паладина. Она даст принципы, заклинания и Канал божественности." }],
+        5: [{ name: "Дополнительная атака", desc: "Когда вы совершаете действие Атака, вы можете атаковать дважды." }],
+        6: [{ name: "Аура защиты", desc: "Вы и союзники рядом добавляете ваш модификатор Харизмы к спасброскам." }],
+        10: [{ name: "Аура отваги", desc: "Вы и союзники рядом не можете быть испуганы, пока вы в сознании." }],
+        11: [{ name: "Улучшенная божественная кара", desc: "Ваши атаки ближнего боя оружием наносят дополнительный урон излучением." }],
+        14: [{ name: "Очищающее касание", desc: "Действием можно закончить заклинание на себе или согласном существе." }],
+        18: [{ name: "Улучшение аур", desc: "Дальность ваших аур увеличивается." }],
+        20: [{ name: "Высшая особенность клятвы", desc: "Ваша священная клятва даёт мощную финальную особенность. Уточните её по клятве." }]
+      },
+      ranger: {
+        2: [{ name: "Боевой стиль", desc: "Выберите стиль боя следопыта." }, { name: "Использование заклинаний", desc: "Вы получаете заклинания следопыта. Мудрость — ваша характеристика заклинаний." }],
+        3: [{ name: "Архетип следопыта", desc: "Выберите архетип охотника, зверолова или другой вариант кампании." }, { name: "Изначальная осведомлённость", desc: "Можно тратить ячейки, чтобы чувствовать определённые виды существ поблизости." }],
+        5: [{ name: "Дополнительная атака", desc: "Когда вы совершаете действие Атака, вы можете атаковать дважды." }],
+        8: [{ name: "Сухопутный шаг", desc: "Вам проще двигаться по труднопроходимой немагической местности и растениям." }],
+        10: [{ name: "Маскировка на виду", desc: "Можно создать камуфляж и получить большой бонус к Скрытности, если не двигаться." }],
+        14: [{ name: "Исчезновение", desc: "Можно прятаться бонусным действием, и вас труднее выслеживать." }],
+        18: [{ name: "Дикие чувства", desc: "Вы лучше обнаруживаете невидимых существ рядом." }],
+        20: [{ name: "Убийца врагов", desc: "Раз в ход можно добавить модификатор Мудрости к атаке или урону по избранному врагу." }]
+      },
+      rogue: {
+        2: [{ name: "Хитрое действие", desc: "Бонусным действием можно Рывок, Отход или Засаду." }],
+        3: [{ name: "Плутовской архетип", desc: "Выберите архетип плута: вор, убийца, мистический ловкач или другой вариант." }],
+        5: [{ name: "Невероятное уклонение", desc: "Реакцией можно уменьшить вдвое урон от атаки, которая по вам попала." }],
+        7: [{ name: "Увёртливость", desc: "При спасбросках Ловкости вы получаете меньше урона от областей." }],
+        11: [{ name: "Надёжный талант", desc: "Для проверок с владением результат d20 ниже 10 считается как 10." }],
+        14: [{ name: "Слепое чутьё", desc: "Вы замечаете скрытых или невидимых существ рядом, если можете слышать." }],
+        15: [{ name: "Скользкий ум", desc: "Вы получаете владение спасбросками Мудрости." }],
+        18: [{ name: "Неуловимость", desc: "Атаки по вам не получают преимущество, пока вы дееспособны." }],
+        20: [{ name: "Удача", desc: "Раз за отдых можно превратить промах в попадание или провал проверки в 20." }]
+      },
+      sorcerer: {
+        2: [{ name: "Источник магии", desc: "Вы получаете очки чародейства и можете превращать их в ячейки или наоборот." }],
+        3: [{ name: "Метамагия", desc: "Выберите варианты метамагии, чтобы менять способ применения заклинаний." }],
+        10: [{ name: "Дополнительная метамагия", desc: "Выберите ещё один вариант метамагии." }],
+        17: [{ name: "Дополнительная метамагия", desc: "Выберите ещё один вариант метамагии." }],
+        20: [{ name: "Чародейское восстановление", desc: "После короткого отдыха вы восстанавливаете часть очков чародейства." }]
+      },
+      warlock: {
+        2: [{ name: "Таинственные воззвания", desc: "Выберите воззвания, которые дают постоянные магические улучшения." }],
+        3: [{ name: "Дар договора", desc: "Выберите дар: цепь, клинок, книга или другой вариант кампании." }],
+        11: [{ name: "Мистический арканум 6 круга", desc: "Выберите одно заклинание 6 круга, которое можно применять раз за долгий отдых." }],
+        13: [{ name: "Мистический арканум 7 круга", desc: "Выберите одно заклинание 7 круга, которое можно применять раз за долгий отдых." }],
+        15: [{ name: "Мистический арканум 8 круга", desc: "Выберите одно заклинание 8 круга, которое можно применять раз за долгий отдых." }],
+        17: [{ name: "Мистический арканум 9 круга", desc: "Выберите одно заклинание 9 круга, которое можно применять раз за долгий отдых." }],
+        20: [{ name: "Мистический мастер", desc: "Раз за долгий отдых можно быстро восстановить все ячейки Магии договора." }]
+      },
+      wizard: {
+        2: [{ name: "Магическая традиция", desc: "Выберите школу или традицию волшебника. Она даст специализацию и особенности." }],
+        18: [{ name: "Мастерство заклинателя", desc: "Выберите заклинания 1 и 2 круга, которые можно применять без траты ячеек." }],
+        20: [{ name: "Фирменные заклинания", desc: "Выберите два заклинания 3 круга, которые всегда подготовлены и доступны раз за отдых." }]
+      }
+    };
+    const LEVEL_RACE_FEATURES = {
+      hillDwarf: { every: [{ name: "Дварфская живучесть", desc: "Ваш максимум хитов дополнительно увеличивается на 1 за этот уровень.", hpBonus: 1 }] },
+      drow: {
+        3: [{ name: "Магия дроу: Огонь фей", desc: "Вы можете накладывать Огонь фей за счёт расовой магии. Уточните восстановление и характеристику с мастером." }],
+        5: [{ name: "Магия дроу: Тьма", desc: "Вы можете накладывать Тьму за счёт расовой магии. Уточните восстановление и характеристику с мастером." }]
+      },
+      tiefling: {
+        3: [{ name: "Инфернальное наследие: Адское возмездие", desc: "Вы можете накладывать Адское возмездие за счёт расовой магии." }],
+        5: [{ name: "Инфернальное наследие: Тьма", desc: "Вы можете накладывать Тьму за счёт расовой магии." }]
+      },
+      dragonborn: {
+        6: [{ name: "Оружие дыхания усиливается", desc: "Урон дыхания драконорождённого увеличивается. Проверьте значение урона для вашей версии правил." }],
+        11: [{ name: "Оружие дыхания усиливается", desc: "Урон дыхания драконорождённого снова увеличивается." }],
+        16: [{ name: "Оружие дыхания усиливается", desc: "Урон дыхания драконорождённого достигает максимального значения для базовой версии расы." }]
+      }
+    };
     const WIZARD_SPELL_LIMITS = {
       bard: { cantrips: 2, spells: 4, prepares: false },
       cleric: { cantrips: 3, spells: 3, prepares: true },
@@ -2006,6 +2223,35 @@
       sorcerer: { cantrips: 4, spells: 2, prepares: false },
       warlock: { cantrips: 2, spells: 2, prepares: false },
       wizard: { cantrips: 3, spells: 6, prepares: true }
+    };
+    const SPELL_LEARN_LIMITS = {
+      bard: {
+        cantrips: [2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+        known: [4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 15, 16, 18, 19, 19, 20, 22, 22, 22]
+      },
+      cleric: {
+        cantrips: [3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+        prepares: 'level+wis'
+      },
+      druid: {
+        cantrips: [2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+        prepares: 'level+wis'
+      },
+      paladin: { prepares: 'half+cha' },
+      ranger: { known: [0, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11] },
+      sorcerer: {
+        cantrips: [4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+        known: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 13, 13, 14, 14, 15, 15, 15, 15]
+      },
+      warlock: {
+        cantrips: [2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+        known: [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15]
+      },
+      wizard: {
+        cantrips: [3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+        known: Array.from({ length: 20 }, (_, i) => 6 + i * 2),
+        prepares: 'level+int'
+      }
     };
     const WIZARD_SPELL_RECOMMENDATIONS = {
       bard: { cantrips: ["Волшебная рука", "Шёпот тьмы"], spells: ["Лечащее слово", "Очарование личности", "Героизм", "Сон"] },
@@ -2302,6 +2548,16 @@
       ranger: [null, [2], [3], [3], [4, 2], [4, 2], [4, 3], [4, 3], [4, 3, 2], [4, 3, 2], [4, 3, 3], [4, 3, 3], [4, 3, 3, 1], [4, 3, 3, 1], [4, 3, 3, 2], [4, 3, 3, 2], [4, 3, 3, 3, 1], [4, 3, 3, 3, 1], [4, 3, 3, 3, 2], [4, 3, 3, 3, 2]]
     };
     const SPELLCASTERS = ["bard", "cleric", "druid", "sorcerer", "warlock", "wizard", "paladin", "ranger"];
+    const SPELLCASTING_STATS = {
+      bard: "cha",
+      cleric: "wis",
+      druid: "wis",
+      paladin: "cha",
+      ranger: "wis",
+      sorcerer: "cha",
+      warlock: "cha",
+      wizard: "int"
+    };
     const ORDINALS = ["1-й", "2-й", "3-й", "4-й", "5-й", "6-й", "7-й", "8-й", "9-й"];
 
     let skillProf = {};
@@ -2476,6 +2732,7 @@
       updateSkills(); updateSaves(); updatePassive();
       updateArmorClass();
       updateWeaponAttacks();
+      updateSpellStats();
     }
 
     function buildASIButtons() {
@@ -2675,6 +2932,7 @@
       refreshStats();
       updateArmorClass();
       updateWeaponAttacks();
+      updateSpellStats();
       updateLevelHpRollUI();
     }
 
@@ -3019,11 +3277,21 @@
     function renderSpellSlots(cls, lvl) {
       const sec = v('spellSection');
       const el = v('spellSlots');
-      if (!SPELLCASTERS.includes(cls)) { sec.classList.add('hidden'); return; }
+      const statsBlock = v('spellStatsBlock');
+      if (!SPELLCASTERS.includes(cls)) {
+        sec.classList.add('hidden');
+        if (statsBlock) statsBlock.style.display = 'none';
+        return;
+      }
       const slots = SPELL_SLOTS[cls];
       const slotData = slots && slots[lvl - 1];
-      if (!slotData) { sec.classList.add('hidden'); return; }
+      if (!slotData) {
+        sec.classList.add('hidden');
+        if (statsBlock) statsBlock.style.display = 'none';
+        return;
+      }
       sec.classList.remove('hidden');
+      updateSpellStats();
       el.innerHTML = '';
       if (cls === 'warlock') {
         const slotLevel = slotData[0];
@@ -3055,6 +3323,28 @@
           dots.appendChild(d);
         }
       });
+    }
+
+    function updateSpellStats() {
+      const block = v('spellStatsBlock');
+      if (!block) return;
+      const cls = v('classSelect')?.value;
+      const stat = SPELLCASTING_STATS[cls];
+      const slots = SPELL_SLOTS[cls];
+      const slotData = slots && slots[getLevel() - 1];
+      if (!stat || !slotData) {
+        block.style.display = 'none';
+        return;
+      }
+      const pb = getPB(getLevel());
+      const mod = getMod(stat);
+      const ability = v('spellAbility');
+      const attack = v('spellAttackBonus');
+      const dc = v('spellSaveDc');
+      if (ability) ability.value = STAT_NAMES[stat] || stat.toUpperCase();
+      if (attack) attack.value = fmtMod(pb + mod);
+      if (dc) dc.value = 8 + pb + mod;
+      block.style.display = '';
     }
 
     function addAttack(name = '', bonus = '', dmg = '', weaponMeta = null) {
@@ -3201,6 +3491,7 @@
       data.appliedRacePreset = appliedRacePreset;
       data.appliedRaceStatBonus = Object.assign({}, appliedRaceStatBonus);
       data.knownSpells = [...knownSpells];
+      data.extraKnownSpells = [...extraKnownSpells];
       data.preparedSpells = [...preparedSpells];
       data.concSpell = concSpell;
       data.deathSaves = {
@@ -3267,6 +3558,7 @@
       if (data.inventory && data.inventory.some(it => String((it && it.name) || '').trim() !== '' || String((it && it.qty) || '1') !== '1' || String((it && it.wt) || '0') !== '0')) return true;
       if (data.abilities && data.abilities.some(a => String((a && a.name) || '').trim() !== '' || String((a && a.desc) || '').trim() !== '')) return true;
       if (data.knownSpells && data.knownSpells.length) return true;
+      if (data.extraKnownSpells && data.extraKnownSpells.length) return true;
       if (data.preparedSpells && data.preparedSpells.length) return true;
       if (data.concSpell) return true;
       if (data.deathSaves && ([...(data.deathSaves.success || []), ...(data.deathSaves.failure || [])].some(Boolean))) return true;
@@ -3401,6 +3693,7 @@
       v('abilityList').innerHTML = '';
       (data.abilities || []).forEach(a => addAbility(a.name, a.desc, a.source || ''));
       knownSpells = new Set(Array.isArray(data.knownSpells) ? data.knownSpells : (data.knownSpells ? [data.knownSpells] : []));
+      extraKnownSpells = new Set(Array.isArray(data.extraKnownSpells) ? data.extraKnownSpells : (data.extraKnownSpells ? [data.extraKnownSpells] : []));
       preparedSpells = new Set(Array.isArray(data.preparedSpells) ? data.preparedSpells : (data.preparedSpells ? [data.preparedSpells] : []));
       concSpell = data.concSpell || null;
       renderClass(); updateAll(); updateArmorClass(); updateHpBar(); updateConcBar(); renderSpellBook();
@@ -3421,7 +3714,7 @@
       STATS.forEach(st => { statValues[st] = 8; statBonus[st] = 0; asiBonus[st] = 0; });
       levelHpRolls = {}; appliedRacePreset = null; appliedRaceStatBonus = {};
       syncRaceFieldUI();
-      knownSpells = new Set(); preparedSpells = new Set(); concSpell = null;
+      knownSpells = new Set(); extraKnownSpells = new Set(); preparedSpells = new Set(); concSpell = null;
       buildSkillList(); buildSaveList(); buildStatsGrid();
       const armorSelect = v('armorSelect');
       if (armorSelect) armorSelect.value = 'none';
@@ -3441,7 +3734,7 @@
         classKey: 'fighter',
         raceKey: 'human',
         customRace: '',
-        alignment: 'Нейтральное добро',
+        alignment: 'Нейтральный добрый',
         statMode: 'template',
         statTemplate: 'class',
         statAssignments: {},
@@ -3496,7 +3789,7 @@
         rollWizardBackground();
         return;
       }
-      if (['name', 'playerName', 'customRace', 'alignment', 'lifeNote'].includes(field)) return;
+      if (['name', 'playerName', 'customRace', 'lifeNote'].includes(field)) return;
       renderCharacterWizard();
     }
 
@@ -3533,18 +3826,29 @@
       if (subtitle) subtitle.textContent = wizardStepSubtitle(characterWizard.step);
 
       if (characterWizard.step === 0) body.innerHTML = renderWizardBasics();
-      if (characterWizard.step === 1) body.innerHTML = renderWizardStats();
-      if (characterWizard.step === 2) body.innerHTML = renderWizardBackground();
-      if (characterWizard.step === 3) body.innerHTML = renderWizardClassSkills();
-      if (characterWizard.step === 4) body.innerHTML = renderWizardLife();
-      if (characterWizard.step === 5) body.innerHTML = renderWizardEquipment();
-      if (characterWizard.step === 6) body.innerHTML = renderWizardSpells();
-      if (characterWizard.step === 7) body.innerHTML = renderWizardSummary();
+      if (characterWizard.step === 1) body.innerHTML = renderWizardClassChoice();
+      if (characterWizard.step === 2) body.innerHTML = renderWizardRaceChoice();
+      if (characterWizard.step === 3) body.innerHTML = renderWizardAlignmentChoice();
+      if (characterWizard.step === 4) body.innerHTML = renderWizardStats();
+      if (characterWizard.step === 5) body.innerHTML = renderWizardBackground();
+      if (characterWizard.step === 6) body.innerHTML = renderWizardClassSkills();
+      if (characterWizard.step === 7) body.innerHTML = renderWizardLife();
+      if (characterWizard.step === 8) body.innerHTML = renderWizardEquipment();
+      if (characterWizard.step === 9) body.innerHTML = renderWizardSpells();
+      if (characterWizard.step === 10) body.innerHTML = renderWizardSummary();
+      resizeWizardTextareasSoon();
+    }
+
+    function resizeWizardTextareasSoon() {
+      requestAnimationFrame(() => document.querySelectorAll('.wizard-auto-textarea').forEach(autoResizeTextarea));
     }
 
     function wizardStepSubtitle(step) {
       return [
-        'Имя, класс, раса и базовые данные',
+        'Имя игрока, имя героя и базовый тон персонажа',
+        'Выберите стиль игры и главные классовые особенности',
+        'Выберите происхождение и расовые особенности',
+        'Выберите моральный компас персонажа',
         'Стандартный массив распределится под выбранный класс',
         'Можно выбрать, описать самому или бросить случайный вариант',
         'Выберите навыки, которые даёт класс',
@@ -3556,12 +3860,62 @@
     }
 
     function renderWizardBasics() {
-      const classOptions = Object.entries(WIZARD_CLASS_LABELS).map(([key, name]) =>
-        `<option value="${key}"${wizardSelected(key, characterWizard.classKey)}>${name}</option>`
-      ).join('');
-      const raceOptions = Object.entries(RACE_PRESETS).map(([key, preset]) =>
-        `<option value="${key}"${wizardSelected(key, characterWizard.raceKey)}>${wizardEscape(preset.name)}</option>`
-      ).join('') + `<option value="custom"${wizardSelected('custom', characterWizard.raceKey)}>Своя раса</option>`;
+      return `
+        <div class="wizard-grid">
+          <div class="field"><label>Имя</label><input type="text" value="${wizardEscape(characterWizard.name)}" placeholder="Имя героя" oninput="wizardUpdate('name',this.value)"></div>
+          <div class="field"><label>Игрок</label><input type="text" value="${wizardEscape(characterWizard.playerName)}" placeholder="Имя игрока" oninput="wizardUpdate('playerName',this.value)"></div>
+        </div>`;
+    }
+
+    function wizardClassSpellText(key) {
+      const stat = SPELLCASTING_STATS[key];
+      if (!stat) return 'Без стартовой магии';
+      if (key === 'paladin' || key === 'ranger') return 'Магия с 2 уровня';
+      return 'Магия: ' + (STAT_NAMES[stat] || stat.toUpperCase());
+    }
+
+    function renderWizardClassChoice() {
+      const cards = Object.entries(WIZARD_CLASS_LABELS).map(([key, name]) => {
+        const features = (WIZARD_CLASS_FEATURES[key] || []).slice(0, 3).map(feature => feature[0]).join(', ');
+        return `
+          <div class="wizard-choice${characterWizard.classKey === key ? ' active' : ''}" onclick="wizardUpdate('classKey','${key}')">
+            <strong>${wizardEscape(name)}</strong>
+            <span>${wizardEscape(WIZARD_CLASS_DESCRIPTIONS[key] || '')}</span>
+            <span style="display:block;margin-top:6px"><b>Кость хитов:</b> ${wizardEscape(HIT_DICE[key] || 'd8')} · <b>${wizardEscape(wizardClassSpellText(key))}</b></span>
+            <span style="display:block;margin-top:4px"><b>Особенности:</b> ${wizardEscape(features || 'уточняются мастером')}</span>
+            <span style="display:block;margin-top:4px"><b>Оружие:</b> ${wizardEscape(WIZARD_CLASS_WEAPON_PROFS[key] || 'уточните вручную')}</span>
+          </div>`;
+      }).join('');
+      return `
+        <div class="wizard-grid">
+          <div class="wizard-full wizard-summary-row">
+            Выберите класс по тому, как персонаж действует в приключении. Подробности можно будет поправить вручную после создания листа.
+          </div>
+          <div class="wizard-full wizard-choice-list" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">${cards}</div>
+        </div>`;
+    }
+
+    function wizardStatBonusText(bonuses) {
+      const parts = STATS.map(st => {
+        const bonus = parseInt((bonuses || {})[st], 10) || 0;
+        return bonus ? `${STAT_NAMES[st]} ${fmtMod(bonus)}` : '';
+      }).filter(Boolean);
+      return parts.length ? parts.join(', ') : 'нет фиксированных бонусов';
+    }
+
+    function renderWizardRaceChoice() {
+      const raceCards = Object.entries(RACE_PRESETS).map(([key, preset]) => {
+        const traits = (preset.traits || []).slice(0, 3).map(text => text.split(':')[0]).join(', ');
+        const profs = (preset.profs || []).slice(0, 2).join('; ');
+        return `
+          <div class="wizard-choice${characterWizard.raceKey === key ? ' active' : ''}" onclick="wizardUpdate('raceKey','${key}')">
+            <strong>${wizardEscape(preset.name)}</strong>
+            <span style="display:block;margin-bottom:6px">${wizardEscape(WIZARD_RACE_DESCRIPTIONS[key] || 'Краткое описание для этой расы пока не добавлено.')}</span>
+            <span style="display:block"><b>Характеристики:</b> ${wizardEscape(wizardStatBonusText(preset.statBonus))} · <b>Скорость:</b> ${wizardEscape(preset.speed || '30 фт.')}</span>
+            <span style="display:block;margin-top:5px"><b>Особенности:</b> ${wizardEscape(traits || 'нет краткого описания')}</span>
+            <span style="display:block;margin-top:4px"><b>Владения:</b> ${wizardEscape(profs || 'нет дополнительных владений')}</span>
+          </div>`;
+      }).join('');
       const customRace = characterWizard.raceKey === 'custom' ? `
         <div class="field wizard-full">
           <label>Своя раса</label>
@@ -3569,12 +3923,34 @@
         </div>` : '';
       return `
         <div class="wizard-grid">
-          <div class="field"><label>Имя</label><input type="text" value="${wizardEscape(characterWizard.name)}" placeholder="Имя героя" oninput="wizardUpdate('name',this.value)"></div>
-          <div class="field"><label>Игрок</label><input type="text" value="${wizardEscape(characterWizard.playerName)}" placeholder="Имя игрока" oninput="wizardUpdate('playerName',this.value)"></div>
-          <div class="field"><label>Класс</label><select onchange="wizardUpdate('classKey',this.value)">${classOptions}</select></div>
-          <div class="field"><label>Раса</label><select onchange="wizardUpdate('raceKey',this.value)">${raceOptions}</select></div>
+          <div class="wizard-full wizard-summary-row">
+            Выберите расовый пресет, чтобы лист сам добавил скорость, бонусы характеристик, языки и особенности. Для домашнего варианта выберите «Своя раса».
+          </div>
+          <div class="wizard-full wizard-choice-list" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">
+            ${raceCards}
+            <div class="wizard-choice${characterWizard.raceKey === 'custom' ? ' active' : ''}" onclick="wizardUpdate('raceKey','custom')">
+              <strong>Своя раса</strong>
+              <span>Для домашних народов, гибридов, особых наследий и любых вариантов вашей кампании.</span>
+              <span style="display:block;margin-top:5px">Бонусы и особенности можно будет вписать вручную после создания листа.</span>
+            </div>
+          </div>
           ${customRace}
-          <div class="field wizard-full"><label>Мировоззрение</label><input type="text" value="${wizardEscape(characterWizard.alignment)}" placeholder="Нейтральное добро" oninput="wizardUpdate('alignment',this.value)"></div>
+        </div>`;
+    }
+
+    function renderWizardAlignmentChoice() {
+      const cards = WIZARD_ALIGNMENTS.map(item => `
+        <div class="wizard-choice${characterWizard.alignment === item.name ? ' active' : ''}" onclick="wizardUpdate('alignment',${wizardJsString(item.name)})">
+          <strong>${wizardEscape(item.name)}</strong>
+          <span>${wizardEscape(item.desc)}</span>
+          <span style="display:block;margin-top:6px"><b>Хорошие роли:</b> ${wizardEscape(item.role)}</span>
+        </div>`).join('');
+      return `
+        <div class="wizard-grid">
+          <div class="wizard-full wizard-summary-row">
+            Мировоззрение — это не клетка, а подсказка для отыгрыша: как персонаж обычно решает спор между законом, свободой, добром и личной выгодой.
+          </div>
+          <div class="wizard-full wizard-choice-list" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">${cards}</div>
         </div>`;
     }
 
@@ -3808,7 +4184,7 @@
           <div class="field wizard-full">
             <label>${wizardEscape(table.label)} <span style="text-transform:none;letter-spacing:0;color:#aaa">(${rollText})</span></label>
             <div style="display:flex;gap:6px;align-items:flex-start">
-              <input type="text" value="${wizardEscape(value)}" placeholder="Впишите сами или бросьте к${table.die}" oninput="wizardSetLifeField('${id}',this.value)" style="min-width:0;flex:1">
+              <textarea class="wizard-life-textarea wizard-auto-textarea" placeholder="Впишите сами или бросьте к${table.die}" oninput="wizardSetLifeField('${id}',this.value);autoResizeTextarea(this)" style="min-width:0;flex:1">${wizardEscape(value)}</textarea>
               <button type="button" class="btn" onclick="rollWizardLifeField('${id}')" style="padding:6px 9px">Бросить</button>
             </div>
           </div>`;
@@ -4221,6 +4597,10 @@
         addWizardWeaponAttack(attack);
       }
       classFeatures.forEach(feature => addAbility(feature[0], feature[1], 'wizardClass'));
+      knownSpells = new Set();
+      extraKnownSpells = new Set();
+      preparedSpells = new Set();
+      concSpell = null;
       (completedSpells.cantrips || []).forEach(name => knownSpells.add(name));
       const preparedLimit = wizardPreparedSpellLimit(cls, true);
       (completedSpells.spells || []).forEach((name, index) => {
@@ -4261,6 +4641,552 @@
       fbSync();
       closeCharacterWizard();
       showSaveToast('Персонаж создан: ' + v('charName').value);
+    }
+
+    // ---- LEVEL UP WIZARD ----
+    let levelWizard = null;
+
+    function levelWizardDefaultState() {
+      const currentLevel = getLevel();
+      const targetLevel = Math.min(20, currentLevel + 1);
+      const hitDie = HIT_DICE[v('classSelect').value] || 'd8';
+      const sides = parseInt(hitDie.replace(/\D/g, ''), 10) || 8;
+      const conMod = getMod('con');
+      const asiAvailable = ASI_LEVELS.includes(targetLevel);
+      return {
+        step: 0,
+        currentLevel,
+        targetLevel,
+        classKey: v('classSelect').value,
+        raceKey: currentRaceKeyForLevelUp(),
+        hitDie,
+        sides,
+        conMod,
+        hpMode: null,
+        hpRoll: null,
+        hpChoiceLocked: false,
+        hpGain: 0,
+        asiAvailable,
+        asiMode: asiAvailable ? 'plus2' : 'none',
+        asiFirst: 'str',
+        asiSecond: 'dex',
+        asiSingle: 'str',
+        knownSpells: [...knownSpells],
+        extraKnownSpells: [...extraKnownSpells],
+        preparedSpells: [...preparedSpells]
+      };
+    }
+
+    function openLevelUpWizard() {
+      if (getLevel() >= 20) {
+        alert('Персонаж уже 20 уровня.');
+        return;
+      }
+      const target = getLevel() + 1;
+      if (levelHpRolls[target] && !confirm('Для следующего уровня уже есть запись ХП. Всё равно открыть мастер повышения?')) return;
+      levelWizard = levelWizardDefaultState();
+      const modal = v('levelUpWizardModal');
+      if (modal) modal.classList.add('show');
+      renderLevelUpWizard();
+    }
+
+    function closeLevelUpWizard() {
+      const modal = v('levelUpWizardModal');
+      if (modal) modal.classList.remove('show');
+    }
+
+    function levelWizardBack() {
+      if (!levelWizard) return;
+      levelWizard.step = Math.max(0, levelWizard.step - 1);
+      renderLevelUpWizard();
+    }
+
+    function levelWizardNext() {
+      if (!levelWizard) return;
+      if (levelWizard.step >= LEVEL_WIZARD_STEPS.length - 1) {
+        applyLevelUpWizard();
+        return;
+      }
+      levelWizard.step += 1;
+      renderLevelUpWizard();
+    }
+
+    function renderLevelUpWizard() {
+      if (!levelWizard) return;
+      const steps = v('levelUpWizardSteps');
+      const body = v('levelUpWizardBody');
+      const back = v('levelUpWizardBack');
+      const next = v('levelUpWizardNext');
+      const subtitle = v('levelUpWizardSubtitle');
+      if (!steps || !body || !back || !next) return;
+      steps.innerHTML = LEVEL_WIZARD_STEPS.map((name, i) =>
+        `<span class="wizard-step-pill${i === levelWizard.step ? ' active' : ''}">${i + 1}. ${name}</span>`
+      ).join('');
+      back.style.visibility = levelWizard.step === 0 ? 'hidden' : 'visible';
+      next.textContent = levelWizard.step === LEVEL_WIZARD_STEPS.length - 1 ? 'Применить' : 'Дальше';
+      if (subtitle) subtitle.textContent = `${WIZARD_CLASS_LABELS[levelWizard.classKey] || 'Персонаж'}: ${levelWizard.currentLevel} → ${levelWizard.targetLevel} уровень`;
+      if (levelWizard.step === 0) body.innerHTML = renderLevelWizardFeatures();
+      if (levelWizard.step === 1) body.innerHTML = renderLevelWizardAsi();
+      if (levelWizard.step === 2) body.innerHTML = renderLevelWizardSpells();
+      if (levelWizard.step === 3) body.innerHTML = renderLevelWizardSummary();
+      if (levelWizard.step === 4) body.innerHTML = renderLevelWizardHp();
+    }
+
+    function currentRaceKeyForLevelUp() {
+      if (appliedRacePreset && RACE_PRESETS[appliedRacePreset]) return appliedRacePreset;
+      const raceName = String(v('race')?.value || '').trim();
+      return Object.entries(RACE_PRESETS).find(([, preset]) => preset.name === raceName)?.[0] || '';
+    }
+
+    function levelFeatureList() {
+      if (!levelWizard) return [];
+      const classItems = (LEVEL_CLASS_FEATURES[levelWizard.classKey] && LEVEL_CLASS_FEATURES[levelWizard.classKey][levelWizard.targetLevel]) || [];
+      const raceTable = LEVEL_RACE_FEATURES[levelWizard.raceKey] || {};
+      const raceItems = []
+        .concat(raceTable.every || [])
+        .concat(raceTable[levelWizard.targetLevel] || []);
+      return [
+        ...classItems.map(item => Object.assign({ source: 'Класс' }, item)),
+        ...raceItems.map(item => Object.assign({ source: 'Раса' }, item))
+      ];
+    }
+
+    function levelFeatureHpBonus() {
+      return levelFeatureList().reduce((sum, item) => sum + (parseInt(item.hpBonus, 10) || 0), 0);
+    }
+
+    function renderLevelWizardFeatures() {
+      const features = levelFeatureList();
+      if (!features.length) {
+        return `
+          <div class="wizard-summary">
+            <div class="wizard-summary-row">
+              Для ${levelWizard.targetLevel} уровня в таблицах пока нет новых классовых или расовых особенностей.
+              Производные значения всё равно пересчитаются после повышения.
+            </div>
+          </div>`;
+      }
+      const cards = features.map(item => `
+        <div class="wizard-choice active">
+          <strong>${wizardEscape(item.name)} <span style="font-size:11px;color:#888;font-weight:400">(${wizardEscape(item.source)})</span></strong>
+          <span>${wizardEscape(item.desc)}</span>
+        </div>`).join('');
+      return `
+        <div class="wizard-grid">
+          <div class="wizard-full wizard-summary-row">
+            Эти особенности будут записаны во вкладку «Умения» после применения уровня. Выборы подкласса, стиля боя, заклинаний и похожие детали можно будет уточнить вручную.
+          </div>
+          <div class="wizard-full wizard-choice-list" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">${cards}</div>
+        </div>`;
+    }
+
+    function levelWizardSetHpMode(mode) {
+      if (!levelWizard) return;
+      if (levelWizard.hpChoiceLocked) {
+        showSaveToast('Выбор ХП уже зафиксирован');
+        return;
+      }
+      levelWizard.hpMode = mode;
+      if (mode === 'average') levelWizard.hpRoll = Math.floor(levelWizard.sides / 2) + 1;
+      levelWizard.hpGain = Math.max(1, (parseInt(levelWizard.hpRoll, 10) || 1) + levelWizard.conMod);
+      levelWizard.hpChoiceLocked = true;
+      renderLevelUpWizard();
+    }
+
+    function levelWizardRollHp() {
+      if (!levelWizard) return;
+      if (levelWizard.hpChoiceLocked) {
+        showSaveToast('Выбор ХП уже зафиксирован');
+        return;
+      }
+      levelWizard.hpMode = 'roll';
+      levelWizard.hpRoll = Math.floor(Math.random() * levelWizard.sides) + 1;
+      levelWizard.hpChoiceLocked = true;
+      levelWizard.hpGain = Math.max(1, levelWizard.hpRoll + levelWizard.conMod);
+      renderLevelUpWizard();
+    }
+
+    function renderLevelWizardHp() {
+      const avg = Math.floor(levelWizard.sides / 2) + 1;
+      const extraHp = levelFeatureHpBonus();
+      return `
+        <div class="wizard-grid">
+          <div class="wizard-full wizard-summary-row">
+            Кость хитов класса: <b>${wizardEscape(levelWizard.hitDie)}</b>. Модификатор Телосложения: <b>${fmtMod(levelWizard.conMod)}</b>.
+            Минимальная прибавка всегда 1 хит.
+          </div>
+          <div class="wizard-choice${levelWizard.hpMode === 'average' ? ' active' : ''}" onclick="levelWizardSetHpMode('average')">
+            <strong>Взять среднее</strong>
+            <span>Надёжный вариант: ${avg} ${fmtMod(levelWizard.conMod)} = <b>+${Math.max(1, avg + levelWizard.conMod)} ХП</b>. Выбор фиксируется сразу.</span>
+          </div>
+          <div class="wizard-choice${levelWizard.hpMode === 'roll' ? ' active' : ''}" onclick="levelWizardRollHp()">
+            <strong>Бросить ${wizardEscape(levelWizard.hitDie)}</strong>
+            <span>${levelWizard.hpMode === 'roll' ? `Выпало ${levelWizard.hpRoll} ${fmtMod(levelWizard.conMod)} = <b>+${levelWizard.hpGain} ХП</b>. Повторный бросок недоступен.` : 'Случайный вариант для тех, кто любит риск. Бросок фиксируется сразу.'}</span>
+          </div>
+          <div class="wizard-full wizard-summary-row">
+            ${levelWizard.hpChoiceLocked ? `Зафиксировано: <b>+${levelWizard.hpGain} максимум ХП</b> и столько же текущих ХП.` : 'Выберите один вариант. После выбора его нельзя изменить, пока мастер открыт.'}
+            ${extraHp ? `<br>Расовая особенность дополнительно добавит <b>+${extraHp} ХП</b>.` : ''}
+          </div>
+        </div>`;
+    }
+
+    function levelWizardSetAsi(field, value) {
+      if (!levelWizard) return;
+      levelWizard[field] = value;
+      renderLevelUpWizard();
+    }
+
+    function levelWizardAsiOption(stat, currentBonus = 0, selectedStat = '') {
+      const total = getStatTotal(stat) + currentBonus;
+      return `<option value="${stat}"${stat === selectedStat ? ' selected' : ''}>${STAT_NAMES[stat]} ${getStatTotal(stat)} → ${Math.min(20, total)}</option>`;
+    }
+
+    function renderLevelWizardAsi() {
+      if (!levelWizard.asiAvailable) {
+        return `
+          <div class="wizard-summary">
+            <div class="wizard-summary-row">
+              На ${levelWizard.targetLevel} уровне обычного повышения характеристик нет. Бонус мастерства, ресурсы, атаки, КД и магические показатели пересчитаются автоматически.
+            </div>
+          </div>`;
+      }
+      const singleOptions = STATS.map(st => levelWizardAsiOption(st, 2, levelWizard.asiSingle)).join('');
+      const firstOptions = STATS.map(st => levelWizardAsiOption(st, 1, levelWizard.asiFirst)).join('');
+      const secondOptions = STATS.map(st => levelWizardAsiOption(st, st === levelWizard.asiFirst ? 2 : 1, levelWizard.asiSecond)).join('');
+      return `
+        <div class="wizard-grid">
+          <div class="wizard-full wizard-summary-row">
+            На ${levelWizard.targetLevel} уровне доступно повышение характеристик. Черты пока не подключены, поэтому мастер предлагает варианты +2 или +1/+1.
+          </div>
+          <div class="wizard-full" style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="btn${levelWizard.asiMode === 'plus2' ? ' primary' : ''}" onclick="levelWizardSetAsi('asiMode','plus2')">+2 к одной</button>
+            <button type="button" class="btn${levelWizard.asiMode === 'split' ? ' primary' : ''}" onclick="levelWizardSetAsi('asiMode','split')">+1 и +1</button>
+            <button type="button" class="btn${levelWizard.asiMode === 'none' ? ' primary' : ''}" onclick="levelWizardSetAsi('asiMode','none')">Заполню вручную</button>
+          </div>
+          ${levelWizard.asiMode === 'plus2' ? `
+            <div class="field wizard-full"><label>Характеристика</label><select onchange="levelWizardSetAsi('asiSingle',this.value)">${singleOptions}</select></div>
+          ` : ''}
+          ${levelWizard.asiMode === 'split' ? `
+            <div class="field"><label>Первый +1</label><select onchange="levelWizardSetAsi('asiFirst',this.value)">${firstOptions}</select></div>
+            <div class="field"><label>Второй +1</label><select onchange="levelWizardSetAsi('asiSecond',this.value)">${secondOptions}</select></div>
+          ` : ''}
+        </div>`;
+    }
+
+    function levelWizardAsiSummary() {
+      if (!levelWizard.asiAvailable || levelWizard.asiMode === 'none') return 'повышение характеристик не применяется автоматически';
+      if (levelWizard.asiMode === 'plus2') return `${STAT_NAMES[levelWizard.asiSingle]} +2`;
+      return `${STAT_NAMES[levelWizard.asiFirst]} +1, ${STAT_NAMES[levelWizard.asiSecond]} +1`;
+    }
+
+    function spellSlotsForLevel(classKey, level) {
+      const slots = SPELL_SLOTS[classKey];
+      return slots && slots[level - 1] ? slots[level - 1] : null;
+    }
+
+    function formatSpellSlots(slotData, classKey = '') {
+      if (!slotData) return 'нет ячеек';
+      if (classKey === 'warlock') return `${slotData[1]} яч. ${slotData[0]} круга`;
+      return slotData.map((count, i) => count ? `${ORDINALS[i]}: ${count}` : '').filter(Boolean).join(', ') || 'нет ячеек';
+    }
+
+    function maxSpellLevelForClassLevel(classKey, level) {
+      const slots = spellSlotsForLevel(classKey, level);
+      if (!slots) return 0;
+      if (classKey === 'warlock') return slots[0] || 0;
+      let max = 0;
+      slots.forEach((count, i) => { if (count) max = i + 1; });
+      return max;
+    }
+
+    function levelWizardPreviewStatTotal(stat) {
+      let total = getStatTotal(stat);
+      if (!levelWizard?.asiAvailable || levelWizard.asiMode === 'none') return total;
+      if (levelWizard.asiMode === 'plus2' && levelWizard.asiSingle === stat) return Math.min(20, total + 2);
+      if (levelWizard.asiMode === 'split') {
+        if (levelWizard.asiFirst === stat) total = Math.min(20, total + 1);
+        if (levelWizard.asiSecond === stat) total = Math.min(20, total + 1);
+      }
+      return total;
+    }
+
+    function levelWizardPreviewMod(stat) {
+      return Math.floor((levelWizardPreviewStatTotal(stat) - 10) / 2);
+    }
+
+    function levelWizardLimitFromTable(value, level) {
+      if (Array.isArray(value)) return value[level - 1] ?? null;
+      return value ?? null;
+    }
+
+    function levelWizardPreparedLimit() {
+      const rule = SPELL_LEARN_LIMITS[levelWizard.classKey]?.prepares;
+      if (!rule) return null;
+      if (rule === 'level+int') return Math.max(1, levelWizard.targetLevel + levelWizardPreviewMod('int'));
+      if (rule === 'level+wis') return Math.max(1, levelWizard.targetLevel + levelWizardPreviewMod('wis'));
+      if (rule === 'half+cha') return Math.max(1, Math.floor(levelWizard.targetLevel / 2) + levelWizardPreviewMod('cha'));
+      return null;
+    }
+
+    function levelWizardSpellLimits() {
+      const table = SPELL_LEARN_LIMITS[levelWizard.classKey] || {};
+      return {
+        cantrips: levelWizardLimitFromTable(table.cantrips, levelWizard.targetLevel),
+        known: levelWizardLimitFromTable(table.known, levelWizard.targetLevel),
+        prepared: levelWizardPreparedLimit()
+      };
+    }
+
+    function levelWizardSpellOptions() {
+      if (!levelWizard) return [];
+      const maxLevel = maxSpellLevelForClassLevel(levelWizard.classKey, levelWizard.targetLevel);
+      if (!maxLevel) return [];
+      return SPELL_DB
+        .filter(sp => (sp.classes || []).includes(levelWizard.classKey) && sp.level <= maxLevel)
+        .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name, 'ru'));
+    }
+
+    function levelWizardSpellByName(name) {
+      return SPELL_DB.find(sp => sp.name === name && (sp.classes || []).includes(levelWizard.classKey)) || null;
+    }
+
+    function levelWizardSpellCounts(known = new Set(levelWizard.knownSpells || []), prepared = new Set(levelWizard.preparedSpells || []), extra = new Set(levelWizard.extraKnownSpells || [])) {
+      let cantrips = 0;
+      let knownLeveled = 0;
+      let preparedLeveled = 0;
+      let extraCantrips = 0;
+      let extraLeveled = 0;
+      const maxLevel = maxSpellLevelForClassLevel(levelWizard.classKey, levelWizard.targetLevel);
+      known.forEach(name => {
+        const sp = levelWizardSpellByName(name);
+        if (!sp || sp.level > maxLevel) return;
+        if (sp.level === 0) cantrips += 1;
+        else knownLeveled += 1;
+      });
+      extra.forEach(name => {
+        const sp = levelWizardSpellByName(name);
+        if (!sp || sp.level > maxLevel) return;
+        if (sp.level === 0) extraCantrips += 1;
+        else extraLeveled += 1;
+      });
+      prepared.forEach(name => {
+        const sp = levelWizardSpellByName(name);
+        if (sp && sp.level > 0 && sp.level <= maxLevel) preparedLeveled += 1;
+      });
+      return { cantrips, knownLeveled, extraCantrips, extraLeveled, preparedLeveled };
+    }
+
+    function levelWizardSpellLimitText(count, limit, label) {
+      if (limit == null) return `${label}: ${count}`;
+      const bad = count > limit;
+      return `<span style="${bad ? 'color:#b33;font-weight:700' : ''}">${label}: ${count} / ${limit}</span>`;
+    }
+
+    function toggleLevelWizardSpell(kind, name) {
+      if (!levelWizard) return;
+      const spell = levelWizardSpellByName(name);
+      if (!spell) return;
+      const spellList = document.querySelector('#levelUpWizardBody .level-wizard-spell-list');
+      const spellScrollTop = spellList ? spellList.scrollTop : 0;
+      const known = new Set(levelWizard.knownSpells || []);
+      const extra = new Set(levelWizard.extraKnownSpells || []);
+      const prepared = new Set(levelWizard.preparedSpells || []);
+      const limits = levelWizardSpellLimits();
+      if (kind === 'known') {
+        if (known.has(name)) {
+          known.delete(name);
+          if (!extra.has(name)) prepared.delete(name);
+        } else {
+          const counts = levelWizardSpellCounts(known, prepared);
+          if (spell.level === 0 && limits.cantrips != null && counts.cantrips >= limits.cantrips) {
+            showSaveToast('Лимит заговоров: ' + limits.cantrips);
+            return;
+          }
+          if (spell.level > 0 && limits.known != null && counts.knownLeveled >= limits.known) {
+            showSaveToast('Лимит изученных заклинаний: ' + limits.known);
+            return;
+          }
+          known.add(name);
+        }
+      } else if (kind === 'extra') {
+        if (extra.has(name)) {
+          extra.delete(name);
+          if (!known.has(name)) prepared.delete(name);
+        } else {
+          extra.add(name);
+        }
+      } else {
+        if (spell.level === 0) return;
+        if (prepared.has(name)) {
+          prepared.delete(name);
+        } else {
+          const counts = levelWizardSpellCounts(known, prepared);
+          if (limits.prepared != null && counts.preparedLeveled >= limits.prepared) {
+            showSaveToast('Лимит подготовленных заклинаний: ' + limits.prepared);
+            return;
+          }
+          if (!known.has(name) && !extra.has(name) && limits.known != null && counts.knownLeveled >= limits.known) {
+            showSaveToast('Сначала освободите место в изученных заклинаниях');
+            return;
+          }
+          if (!known.has(name) && !extra.has(name)) known.add(name);
+          prepared.add(name);
+        }
+      }
+      levelWizard.knownSpells = [...known];
+      levelWizard.extraKnownSpells = [...extra];
+      levelWizard.preparedSpells = [...prepared];
+      renderLevelUpWizard();
+      requestAnimationFrame(() => {
+        const nextList = document.querySelector('#levelUpWizardBody .level-wizard-spell-list');
+        if (nextList) nextList.scrollTop = spellScrollTop;
+      });
+    }
+
+    function renderLevelWizardSpells() {
+      const currentSlots = spellSlotsForLevel(levelWizard.classKey, levelWizard.currentLevel);
+      const targetSlots = spellSlotsForLevel(levelWizard.classKey, levelWizard.targetLevel);
+      if (!targetSlots) {
+        return `
+          <div class="wizard-summary">
+            <div class="wizard-summary-row">
+              На ${levelWizard.targetLevel} уровне у этого класса нет ячеек заклинаний. Список заклинаний не меняется.
+            </div>
+          </div>`;
+      }
+      const options = levelWizardSpellOptions();
+      const known = new Set(levelWizard.knownSpells || []);
+      const extra = new Set(levelWizard.extraKnownSpells || []);
+      const prepared = new Set(levelWizard.preparedSpells || []);
+      const limits = levelWizardSpellLimits();
+      const counts = levelWizardSpellCounts(known, prepared, extra);
+      let lastLevel = -1;
+      const cards = options.map(sp => {
+        const header = sp.level !== lastLevel
+          ? `<div class="wizard-full" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#aaa;margin-top:4px">${sp.level === 0 ? 'Заговоры' : sp.level + '-й круг'}</div>`
+          : '';
+        lastLevel = sp.level;
+        const isKnown = known.has(sp.name);
+        const isExtra = extra.has(sp.name);
+        const isPrepared = prepared.has(sp.name);
+        const knownLimit = sp.level === 0 ? limits.cantrips : limits.known;
+        const knownCount = sp.level === 0 ? counts.cantrips : counts.knownLeveled;
+        const knownDisabled = !isKnown && knownLimit != null && knownCount >= knownLimit;
+        const prepDisabled = sp.level === 0 || (!isPrepared && limits.prepared != null && counts.preparedLeveled >= limits.prepared);
+        const shortDesc = String(sp.desc || '').slice(0, 130) + (String(sp.desc || '').length > 130 ? '...' : '');
+        return `
+          ${header}
+          <div class="wizard-choice${isPrepared ? ' active' : (isKnown || isExtra) ? ' active' : ''}" style="${knownDisabled && !isPrepared && !isExtra ? 'opacity:.58' : ''}" onclick="openSpellPopupByName(${wizardJsString(sp.name)})">
+            <strong>${wizardEscape(sp.name)}</strong>
+            <span>${wizardEscape(sp.school)} · ${wizardEscape(sp.cast)} · ${wizardEscape(sp.range)}</span>
+            <span style="display:block;margin-top:4px">${wizardEscape(shortDesc)}</span>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+              <button type="button" class="btn${isKnown ? ' primary' : ''}" ${knownDisabled ? 'disabled' : ''} onclick="event.stopPropagation();toggleLevelWizardSpell('known',${wizardJsString(sp.name)})">${isKnown ? 'Изучено' : 'Изучить'}</button>
+              ${sp.level > 0 ? `<button type="button" class="btn${isPrepared ? ' primary' : ''}" ${prepDisabled ? 'disabled' : ''} onclick="event.stopPropagation();toggleLevelWizardSpell('prepared',${wizardJsString(sp.name)})">${isPrepared ? 'Подготовлено' : 'Подготовить'}</button>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+      const limitLine = [
+        levelWizardSpellLimitText(counts.cantrips, limits.cantrips, 'Заговоры'),
+        limits.known == null
+          ? 'Изученные заклинания: без отдельного лимита класса'
+          : levelWizardSpellLimitText(counts.knownLeveled, limits.known, 'Изученные заклинания'),
+        limits.prepared == null
+          ? null
+          : levelWizardSpellLimitText(counts.preparedLeveled, limits.prepared, 'Подготовленные заклинания')
+      ].filter(Boolean).join(' · ');
+      return `
+        <div class="wizard-grid">
+          <div class="wizard-full wizard-summary-row">
+            <b>Ячейки:</b> ${wizardEscape(formatSpellSlots(currentSlots, levelWizard.classKey))} → <b>${wizardEscape(formatSpellSlots(targetSlots, levelWizard.classKey))}</b>.
+            Можно обновить изученные и подготовленные заклинания перед применением уровня.
+          </div>
+          <div class="wizard-full wizard-summary-row">
+            ${limitLine}. Для жреца, друида, паладина и следопыта список подготовленных можно менять после отдыха, здесь это просто удобная запись в лист.
+          </div>
+          <div class="wizard-full wizard-choice-list level-wizard-spell-list" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));max-height:440px;overflow-y:auto;padding-right:4px">${cards || '<div class="wizard-summary-row">В базе пока нет подходящих заклинаний для этого класса и уровня.</div>'}</div>
+        </div>`;
+    }
+
+    function renderLevelWizardSummary() {
+      const oldPb = getPB(levelWizard.currentLevel);
+      const newPb = getPB(levelWizard.targetLevel);
+      const pbText = oldPb === newPb ? `остаётся +${newPb}` : `+${oldPb} → +${newPb}`;
+      const features = levelFeatureList();
+      const featureText = features.length ? features.map(item => item.name).join(', ') : 'новых особенностей в таблице нет';
+      const extraHp = levelFeatureHpBonus();
+      const currentSlots = spellSlotsForLevel(levelWizard.classKey, levelWizard.currentLevel);
+      const targetSlots = spellSlotsForLevel(levelWizard.classKey, levelWizard.targetLevel);
+      const spellLimits = levelWizardSpellLimits();
+      const spellCounts = levelWizardSpellCounts();
+      const spellSummary = [
+        levelWizardSpellLimitText(spellCounts.cantrips, spellLimits.cantrips, 'заговоры'),
+        spellLimits.known == null
+          ? `изученные: ${spellCounts.knownLeveled}`
+          : levelWizardSpellLimitText(spellCounts.knownLeveled, spellLimits.known, 'изученные'),
+        spellLimits.prepared == null
+          ? null
+          : levelWizardSpellLimitText(spellCounts.preparedLeveled, spellLimits.prepared, 'подготовленные')
+      ].filter(Boolean).join(', ');
+      return `
+        <div class="wizard-summary">
+          <div class="wizard-summary-row"><b>Уровень:</b> ${levelWizard.currentLevel} → ${levelWizard.targetLevel}</div>
+          <div class="wizard-summary-row"><b>Бонус мастерства:</b> ${pbText}</div>
+          <div class="wizard-summary-row"><b>Особенности:</b> ${wizardEscape(featureText)}</div>
+          <div class="wizard-summary-row"><b>Характеристики:</b> ${wizardEscape(levelWizardAsiSummary())}</div>
+          ${targetSlots ? `<div class="wizard-summary-row"><b>Ячейки заклинаний:</b> ${wizardEscape(formatSpellSlots(currentSlots, levelWizard.classKey))} → <b>${wizardEscape(formatSpellSlots(targetSlots, levelWizard.classKey))}</b>. ${spellSummary}.</div>` : ''}
+          ${extraHp ? `<div class="wizard-summary-row"><b>Дополнительные ХП от расы:</b> +${extraHp} к максимуму и текущим ХП.</div>` : ''}
+          <div class="wizard-summary-row"><b>Последний шаг:</b> выберите ХП. После выбора мастер запишет новый уровень, максимум и текущие ХП, количество костей хитов, особенности и все пересчёты.</div>
+        </div>`;
+    }
+
+    function applyLevelWizardAsi() {
+      if (!levelWizard.asiAvailable || levelWizard.asiMode === 'none') return;
+      if (levelWizard.asiMode === 'plus2') {
+        const st = levelWizard.asiSingle;
+        asiBonus[st] = Math.max(0, Math.min(20 - ((statValues[st] || 8) + (statBonus[st] || 0)), (asiBonus[st] || 0) + 2));
+        return;
+      }
+      [levelWizard.asiFirst, levelWizard.asiSecond].forEach(st => {
+        const currentTotal = getStatTotal(st);
+        if (currentTotal < 20) asiBonus[st] = (asiBonus[st] || 0) + 1;
+      });
+    }
+
+    function applyLevelUpWizard() {
+      if (!levelWizard) return;
+      if (!levelWizard.hpChoiceLocked) {
+        showSaveToast('Сначала выберите, как повысить ХП');
+        return;
+      }
+      v('levelInput').value = levelWizard.targetLevel;
+      const extraHp = levelFeatureHpBonus();
+      v('hpMax').value = (parseInt(v('hpMax').value, 10) || 0) + levelWizard.hpGain + extraHp;
+      v('hpCur').value = (parseInt(v('hpCur').value, 10) || 0) + levelWizard.hpGain + extraHp;
+      v('hdTotal').value = levelWizard.targetLevel;
+      v('hdCur').value = (parseInt(v('hdCur').value, 10) || 0) + 1;
+      levelHpRolls[levelWizard.targetLevel] = {
+        die: levelWizard.hitDie,
+        roll: levelWizard.hpRoll,
+        conMod: levelWizard.conMod,
+        gain: levelWizard.hpGain,
+        mode: levelWizard.hpMode
+      };
+      applyLevelWizardAsi();
+      knownSpells = new Set(levelWizard.knownSpells || []);
+      extraKnownSpells = new Set(levelWizard.extraKnownSpells || []);
+      preparedSpells = new Set(levelWizard.preparedSpells || []);
+      if (concSpell && !preparedSpells.has(concSpell)) concSpell = null;
+      levelFeatureList().forEach(item => addAbility(item.name, item.desc, 'levelUp'));
+      addAbility('Повышение до ' + levelWizard.targetLevel + ' уровня', 'Хиты +' + levelWizard.hpGain + (extraHp ? ', расовый бонус ХП +' + extraHp : '') + '. Бонус мастерства и производные показатели пересчитаны.', 'levelUp');
+      renderClass();
+      updateAll();
+      updateHpBar();
+      updateConcBar();
+      renderSpellBook();
+      fbSync();
+      closeLevelUpWizard();
+      showSaveToast('Уровень повышен до ' + levelWizard.targetLevel);
     }
 
     // ============ SPELL DATABASE ============
@@ -4812,6 +5738,7 @@
 
     // ============ SPELL STATE ============
     let knownSpells = new Set();
+    let extraKnownSpells = new Set();
     let preparedSpells = new Set();
     let concSpell = null;
     let spellTab = 'all';
@@ -4857,7 +5784,8 @@
       const cls = v('classSelect').value;
 
       let spells = SPELL_DB.filter(sp => {
-        if (spellTab === 'known' && !knownSpells.has(sp.name)) return false;
+        if (spellTab === 'known' && !knownSpells.has(sp.name) && !extraKnownSpells.has(sp.name)) return false;
+        if (spellTab === 'extra' && !extraKnownSpells.has(sp.name)) return false;
         if (spellTab === 'prepared' && !preparedSpells.has(sp.name)) return false;
         if (filterClass && !sp.classes.includes(filterClass)) return false;
         if (filterLevel !== '' && sp.level !== parseInt(filterLevel)) return false;
@@ -4889,7 +5817,9 @@
           container.appendChild(hdr);
         }
 
-        const isKnown = knownSpells.has(sp.name);
+        const isKnown = knownSpells.has(sp.name) || extraKnownSpells.has(sp.name);
+        const isRegularKnown = knownSpells.has(sp.name);
+        const isExtraKnown = extraKnownSpells.has(sp.name);
         const isPrep = preparedSpells.has(sp.name);
         const isConc = concSpell === sp.name;
         const isLocked = false; // ограничения по кругу отключены — мастер следит сам
@@ -4932,6 +5862,13 @@
           cb.textContent = '● Активна';
           nameRow.appendChild(cb);
         }
+        if (isExtraKnown) {
+          const eb = document.createElement('span');
+          eb.className = 'spell-badge';
+          eb.style.cssText = 'background:#F2ECFF;color:#5B43B5;border:1px solid #D7CBFF';
+          eb.textContent = 'Доп.';
+          nameRow.appendChild(eb);
+        }
         left.appendChild(nameRow);
 
         const meta = document.createElement('div');
@@ -4942,7 +5879,7 @@
 
         // Right: action buttons
         const btns = document.createElement('div');
-        btns.style.cssText = 'display:flex;gap:5px;align-items:center;flex-shrink:0';
+        btns.style.cssText = 'display:flex;gap:5px;align-items:center;justify-content:flex-end;flex-wrap:wrap;flex-shrink:0';
 
         if (!isLocked) {
           // Info button
@@ -4954,11 +5891,18 @@
 
           // Know toggle
           const knowBtn = document.createElement('button');
-          knowBtn.textContent = isKnown ? '−' : 'Изучить';
-          knowBtn.title = isKnown ? 'Убрать из изученных' : 'Добавить в изученные';
-          knowBtn.style.cssText = 'font-size:11px;padding:3px 8px;border:1px solid ' + (isKnown ? '#C0DD97' : '#ccc') + ';border-radius:6px;background:' + (isKnown ? '#f0fce8' : '#fff') + ';cursor:pointer;color:' + (isKnown ? '#3B6D11' : '#555') + ';white-space:nowrap';
+          knowBtn.textContent = isRegularKnown ? '−' : 'Изучить';
+          knowBtn.title = isRegularKnown ? 'Убрать из обычных изученных' : 'Добавить в обычные изученные';
+          knowBtn.style.cssText = 'font-size:11px;padding:3px 8px;border:1px solid ' + (isRegularKnown ? '#C0DD97' : '#ccc') + ';border-radius:6px;background:' + (isRegularKnown ? '#f0fce8' : '#fff') + ';cursor:pointer;color:' + (isRegularKnown ? '#3B6D11' : '#555') + ';white-space:nowrap';
           knowBtn.onclick = (e) => { e.stopPropagation(); toggleKnown(sp.name); };
           btns.appendChild(knowBtn);
+
+          const extraBtn = document.createElement('button');
+          extraBtn.textContent = isExtraKnown ? 'Доп. −' : 'Доп. изучить';
+          extraBtn.title = isExtraKnown ? 'Убрать из дополнительных изученных' : 'Изучить дополнительно: свиток, стиль боя, черта, дар, покровитель или сюжетная награда';
+          extraBtn.style.cssText = 'font-size:11px;padding:3px 8px;border:1px solid ' + (isExtraKnown ? '#BCAEFF' : '#ccc') + ';border-radius:6px;background:' + (isExtraKnown ? '#F2ECFF' : '#fff') + ';cursor:pointer;color:' + (isExtraKnown ? '#5B43B5' : '#555') + ';white-space:nowrap';
+          extraBtn.onclick = (e) => { e.stopPropagation(); toggleExtraKnown(sp.name); };
+          btns.appendChild(extraBtn);
 
           // Prepare toggle (only if known)
           if (isKnown) {
@@ -4992,18 +5936,35 @@
 
       // Update badges
       const kc = knownSpells.size;
+      const ec = extraKnownSpells.size;
       const pc = preparedSpells.size;
-      v('knownBadge').innerHTML = kc > 0 ? '<span class="vtab-count">' + kc + '</span>' : '';
+      v('knownBadge').innerHTML = (kc + ec) > 0 ? '<span class="vtab-count">' + (kc + ec) + '</span>' : '';
+      v('extraBadge').innerHTML = ec > 0 ? '<span class="vtab-count">' + ec + '</span>' : '';
       v('prepBadge').innerHTML = pc > 0 ? '<span class="vtab-count">' + pc + '</span>' : '';
     }
 
     function toggleKnown(name) {
       if (knownSpells.has(name)) {
         knownSpells.delete(name);
-        preparedSpells.delete(name);
-        if (concSpell === name) concSpell = null;
+        if (!extraKnownSpells.has(name)) preparedSpells.delete(name);
+        if (!extraKnownSpells.has(name) && concSpell === name) concSpell = null;
       } else {
         knownSpells.add(name);
+      }
+      renderSpellBook();
+      updateConcBar();
+      fbSync();
+    }
+
+    function toggleExtraKnown(name) {
+      if (extraKnownSpells.has(name)) {
+        extraKnownSpells.delete(name);
+        if (!knownSpells.has(name)) {
+          preparedSpells.delete(name);
+          if (concSpell === name) concSpell = null;
+        }
+      } else {
+        extraKnownSpells.add(name);
       }
       renderSpellBook();
       updateConcBar();
@@ -5059,9 +6020,15 @@
       <div style="background:#f5f4f0;border-radius:6px;padding:6px 8px"><div style="color:#aaa;margin-bottom:1px">Компоненты</div><div style="font-weight:500">${sp.comp}</div></div>
     </div>
     <div style="font-size:13px;line-height:1.6;color:#333;margin-bottom:14px">${sp.desc}</div>
-    <div style="font-size:11px;color:#aaa">Доступно: ${sp.classes.map(c => ({ bard: 'Бард', cleric: 'Жрец', druid: 'Друид', paladin: 'Паладин', ranger: 'Следопыт', sorcerer: 'Чародей', warlock: 'Колдун', wizard: 'Волшебник' })[c] || c).join(', ')}</div>`;
+      <div style="font-size:11px;color:#aaa">Доступно: ${sp.classes.map(c => ({ bard: 'Бард', cleric: 'Жрец', druid: 'Друид', paladin: 'Паладин', ranger: 'Следопыт', sorcerer: 'Чародей', warlock: 'Колдун', wizard: 'Волшебник' })[c] || c).join(', ')}</div>`;
       const popup = v('spellPopup');
+      if (popup && popup.parentElement !== document.body) document.body.appendChild(popup);
       popup.style.display = 'flex';
+    }
+
+    function openSpellPopupByName(name) {
+      const sp = SPELL_DB.find(item => item.name === name);
+      if (sp) openSpellPopup(sp);
     }
 
     function closeSpellPopup() {
