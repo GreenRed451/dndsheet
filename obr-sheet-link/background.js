@@ -115,15 +115,22 @@ async function redrawOverlays() {
     const link = item.metadata[LINK_KEY];
     const s = summary(link.playerKey, players[link.playerKey]);
     const bounds = await getBounds(item);
-    const width = 88;
-    const barHeight = 14;
+    const width = 96;
+    const barHeight = 18;
     const x = bounds.center.x - width / 2;
-    const y = bounds.center.y + (bounds.height || 90) * 0.27;
+    const y = bounds.center.y + (bounds.height || 90) * 0.24;
     const pct = Math.max(0, Math.min(1, s.hpCur / s.hpMax));
     const color = hpColor(s.hpCur, s.hpMax);
-    const badge = 26;
+    const badge = 30;
     const badgeX = bounds.center.x + (bounds.width || 90) * 0.32;
     const badgeY = bounds.center.y + (bounds.height || 90) * 0.15;
+    const hpTextWidth = 58;
+    const hpTextHeight = 18;
+    const hpTextX = x + width / 2 - hpTextWidth / 2;
+    const hpTextY = y;
+    const acTextSize = 24;
+    const acTextX = badgeX + badge / 2 - acTextSize / 2;
+    const acTextY = badgeY + badge / 2 - acTextSize / 2;
     const metaBase = { [OVERLAY_KEY]: { tokenId: item.id } };
 
     overlays.push(
@@ -158,11 +165,11 @@ async function redrawOverlays() {
         .build(), item.id),
       attachOverlay(buildLabel()
         .plainText(`${s.hpCur}/${s.hpMax}`)
-        .width(width)
-        .height(barHeight)
-        .position({ x, y })
+        .width(hpTextWidth)
+        .height(hpTextHeight)
+        .position({ x: hpTextX, y: hpTextY })
         .padding(0)
-        .fontSize(12)
+        .fontSize(16)
         .fontWeight(800)
         .textAlign("CENTER")
         .textAlignVertical("MIDDLE")
@@ -195,11 +202,11 @@ async function redrawOverlays() {
         .build(), item.id),
       attachOverlay(buildLabel()
         .plainText(String(s.ac))
-        .width(badge)
-        .height(badge)
-        .position({ x: badgeX, y: badgeY })
+        .width(acTextSize)
+        .height(acTextSize)
+        .position({ x: acTextX, y: acTextY })
         .padding(0)
-        .fontSize(11)
+        .fontSize(18)
         .fontWeight(800)
         .textAlign("CENTER")
         .textAlignVertical("MIDDLE")
