@@ -85,29 +85,25 @@ async function redrawOverlays() {
     const link = item.metadata[LINK_KEY];
     const s = summary(link.playerKey, players[link.playerKey]);
     const bounds = await getBounds(item);
-    const width = Math.max(84, Math.min(150, bounds.width || 110));
-    const barHeight = 10;
+    const width = Math.max(58, Math.min(96, (bounds.width || 110) * 0.82));
+    const barHeight = 16;
     const x = bounds.center.x - width / 2;
-    const y = bounds.top - 34;
+    const y = bounds.center.y + (bounds.height || 90) * 0.27;
     const pct = Math.max(0, Math.min(1, s.hpCur / s.hpMax));
     const color = hpColor(s.hpCur, s.hpMax);
+    const badge = Math.max(22, Math.min(30, (bounds.width || 90) * 0.24));
+    const badgeX = bounds.center.x + (bounds.width || 90) * 0.34;
+    const badgeY = bounds.center.y + (bounds.height || 90) * 0.18;
     const metaBase = { [OVERLAY_KEY]: { tokenId: item.id } };
 
     overlays.push(
-      buildLabel()
-        .plainText(`КД ${s.ac} · ${s.hpCur}/${s.hpMax}`)
-        .position({ x, y: y - 22 })
-        .layer("ATTACHMENT")
-        .disableHit(true)
-        .metadata(metaBase)
-        .build(),
       buildShape()
         .shapeType("RECTANGLE")
         .width(width)
         .height(barHeight)
         .position({ x, y })
         .fillColor("#1a1a18")
-        .fillOpacity(0.88)
+        .fillOpacity(0.92)
         .strokeColor("#ffffff")
         .strokeWidth(1)
         .layer("ATTACHMENT")
@@ -122,6 +118,40 @@ async function redrawOverlays() {
         .fillColor(color)
         .fillOpacity(1)
         .strokeWidth(0)
+        .layer("ATTACHMENT")
+        .disableHit(true)
+        .metadata(metaBase)
+        .build(),
+      buildLabel()
+        .plainText(`${s.hpCur}/${s.hpMax}`)
+        .position({ x: bounds.center.x - width * 0.23, y: y - 7 })
+        .layer("ATTACHMENT")
+        .disableHit(true)
+        .metadata(metaBase)
+        .build(),
+      buildLabel()
+        .plainText(s.name)
+        .position({ x: bounds.center.x - width * 0.28, y: y + 13 })
+        .layer("ATTACHMENT")
+        .disableHit(true)
+        .metadata(metaBase)
+        .build(),
+      buildShape()
+        .shapeType("CIRCLE")
+        .width(badge)
+        .height(badge)
+        .position({ x: badgeX, y: badgeY })
+        .fillColor("#7b9bd8")
+        .fillOpacity(0.96)
+        .strokeColor("#ffffff")
+        .strokeWidth(2)
+        .layer("ATTACHMENT")
+        .disableHit(true)
+        .metadata(metaBase)
+        .build(),
+      buildLabel()
+        .plainText(String(s.ac))
+        .position({ x: badgeX + badge * 0.19, y: badgeY + badge * 0.11 })
         .layer("ATTACHMENT")
         .disableHit(true)
         .metadata(metaBase)

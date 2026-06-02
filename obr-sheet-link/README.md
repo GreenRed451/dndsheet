@@ -7,7 +7,7 @@
 После публикации проекта на GitHub Pages добавьте в Owlbear Rodeo URL manifest:
 
 ```text
-https://<ваш-логин>.github.io/<репозиторий>/obr-sheet-link/manifest.json
+https://greenred451.github.io/dndsheet/obr-sheet-link/manifest.json
 ```
 
 ## Как пользоваться
