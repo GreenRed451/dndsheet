@@ -1,4 +1,4 @@
-import OBR, { buildShape, buildText } from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
+import OBR, { buildLabel, buildShape } from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, off } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
@@ -156,11 +156,11 @@ async function redrawOverlays() {
         .zIndex(9001)
         .metadata(metaBase)
         .build(), item.id),
-      attachOverlay(buildText()
+      attachOverlay(buildLabel()
         .plainText(`${s.hpCur}/${s.hpMax}`)
         .width(width)
         .height(barHeight)
-        .position({ x, y: y + 1 })
+        .position({ x, y })
         .padding(0)
         .fontSize(12)
         .fontWeight(800)
@@ -168,7 +168,10 @@ async function redrawOverlays() {
         .textAlignVertical("MIDDLE")
         .fillColor("#ffffff")
         .strokeColor("#1a1a18")
-        .strokeWidth(0.8)
+        .strokeWidth(1)
+        .backgroundOpacity(0)
+        .pointerWidth(0)
+        .pointerHeight(0)
         .layer("ATTACHMENT")
         .disableHit(true)
         .disableAutoZIndex(true)
@@ -190,18 +193,22 @@ async function redrawOverlays() {
         .zIndex(9003)
         .metadata(metaBase)
         .build(), item.id),
-      attachOverlay(buildText()
+      attachOverlay(buildLabel()
         .plainText(String(s.ac))
         .width(badge)
         .height(badge)
-        .position({ x: badgeX, y: badgeY + 1 })
+        .position({ x: badgeX, y: badgeY })
         .padding(0)
         .fontSize(11)
         .fontWeight(800)
         .textAlign("CENTER")
         .textAlignVertical("MIDDLE")
         .fillColor("#ffffff")
-        .strokeWidth(0)
+        .strokeColor("#3f5f9a")
+        .strokeWidth(1)
+        .backgroundOpacity(0)
+        .pointerWidth(0)
+        .pointerHeight(0)
         .layer("ATTACHMENT")
         .disableHit(true)
         .disableAutoZIndex(true)
