@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="D&D Sheet Link">
+  <rect width="64" height="64" rx="14" fill="#534AB7"/>
+  <path d="M17 14h23l7 7v29H17z" fill="#fff" opacity=".96"/>
+  <path d="M39 14v8h8" fill="none" stroke="#534AB7" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M24 31h20M24 39h15" stroke="#534AB7" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="21" cy="31" r="2" fill="#639922"/>
+  <circle cx="21" cy="39" r="2" fill="#BA7517"/>
+</svg>

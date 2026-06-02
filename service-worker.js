@@ -1,7 +1,17 @@
-const CACHE_NAME = 'dnd-sheet-v1';
+const CACHE_NAME = 'dnd-sheet-v18';
 const APP_SHELL = [
   './',
   './index.html',
+  './obr-sheet-link/manifest.json',
+  './obr-sheet-link/index.html',
+  './obr-sheet-link/background.html',
+  './obr-sheet-link/background.js',
+  './obr-sheet-link/main.js',
+  './obr-sheet-link/style.css',
+  './obr-sheet-link/icon.svg',
+  './table.html',
+  './vtt.css',
+  './vtt.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
@@ -34,14 +44,17 @@ self.addEventListener('fetch', event => {
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
+    let fallback = './index.html';
+    if (url.pathname.endsWith('/table.html')) fallback = './table.html';
+    if (url.pathname.endsWith('/obr-sheet-link/index.html')) fallback = './obr-sheet-link/index.html';
     event.respondWith(
       fetch(request)
         .then(response => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
+          caches.open(CACHE_NAME).then(cache => cache.put(fallback, copy));
           return response;
         })
-        .catch(() => caches.match('./index.html'))
+        .catch(() => caches.match(fallback))
     );
     return;
   }
