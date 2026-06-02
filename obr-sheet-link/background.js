@@ -22,6 +22,8 @@ let room = "";
 let players = {};
 let playersRef = null;
 let redrawTimer = null;
+let lastOverlaySignature = "";
+let lastLinkSignature = "";
 
 function initFirebase() {
   if (app) return;
@@ -69,16 +71,44 @@ function scheduleOverlayRedraw() {
   redrawTimer = setTimeout(redrawOverlays, 280);
 }
 
+async function scheduleIfLinksChanged() {
+  if (!OBR.isAvailable || !(await OBR.scene.isReady())) return;
+  const linkedItems = await OBR.scene.items.getItems((item) => {
+    const link = item.metadata?.[LINK_KEY];
+    return Boolean(link?.room && link?.playerKey);
+  });
+  const signature = linkedItems.map((item) => {
+    const link = item.metadata[LINK_KEY];
+    return [item.id, link.room, link.playerKey].join(":");
+  }).sort().join("|");
+  if (signature === lastLinkSignature) return;
+  lastLinkSignature = signature;
+  lastOverlaySignature = "";
+  scheduleOverlayRedraw();
+}
+
 async function redrawOverlays() {
   if (!OBR.isAvailable || !(await OBR.scene.isReady())) return;
-  const old = await OBR.scene.local.getItems((item) => Boolean(item.metadata?.[OVERLAY_KEY]));
-  if (old.length) await OBR.scene.local.deleteItems(old.map((item) => item.id));
-  if (!room) return;
+  if (!room) {
+    await clearOverlays();
+    lastOverlaySignature = "";
+    return;
+  }
 
   const linkedItems = await OBR.scene.items.getItems((item) => {
     const link = item.metadata?.[LINK_KEY];
     return link?.room === room && Boolean(players[link.playerKey]);
   });
+
+  const signature = linkedItems.map((item) => {
+    const link = item.metadata[LINK_KEY];
+    const s = summary(link.playerKey, players[link.playerKey]);
+    return [item.id, link.playerKey, s.ac, s.hpCur, s.hpMax].join(":");
+  }).sort().join("|");
+  if (signature === lastOverlaySignature) return;
+  lastOverlaySignature = signature;
+
+  await clearOverlays();
 
   const overlays = [];
   for (const item of linkedItems) {
@@ -94,11 +124,10 @@ async function redrawOverlays() {
     const badge = Math.max(22, Math.min(30, (bounds.width || 90) * 0.24));
     const badgeX = bounds.center.x + (bounds.width || 90) * 0.34;
     const badgeY = bounds.center.y + (bounds.height || 90) * 0.18;
-    const displayName = compactName(s.name);
     const metaBase = { [OVERLAY_KEY]: { tokenId: item.id } };
 
     overlays.push(
-      buildShape()
+      attachOverlay(buildShape()
         .shapeType("RECTANGLE")
         .width(width)
         .height(barHeight)
@@ -110,8 +139,8 @@ async function redrawOverlays() {
         .layer("ATTACHMENT")
         .disableHit(true)
         .metadata(metaBase)
-        .build(),
-      buildShape()
+        .build(), item.id),
+      attachOverlay(buildShape()
         .shapeType("RECTANGLE")
         .width(Math.max(2, width * pct))
         .height(barHeight)
@@ -122,22 +151,15 @@ async function redrawOverlays() {
         .layer("ATTACHMENT")
         .disableHit(true)
         .metadata(metaBase)
-        .build(),
-      buildLabel()
+        .build(), item.id),
+      attachOverlay(buildLabel()
         .plainText(`${s.hpCur}/${s.hpMax}`)
         .position({ x: bounds.center.x - width * 0.24, y: y - 7 })
         .layer("ATTACHMENT")
         .disableHit(true)
         .metadata(metaBase)
-        .build(),
-      buildLabel()
-        .plainText(displayName)
-        .position({ x: bounds.center.x - width * 0.24, y: y + 13 })
-        .layer("ATTACHMENT")
-        .disableHit(true)
-        .metadata(metaBase)
-        .build(),
-      buildShape()
+        .build(), item.id),
+      attachOverlay(buildShape()
         .shapeType("CIRCLE")
         .width(badge)
         .height(badge)
@@ -149,23 +171,29 @@ async function redrawOverlays() {
         .layer("ATTACHMENT")
         .disableHit(true)
         .metadata(metaBase)
-        .build(),
-      buildLabel()
+        .build(), item.id),
+      attachOverlay(buildLabel()
         .plainText(String(s.ac))
         .position({ x: badgeX + badge * 0.19, y: badgeY + badge * 0.11 })
         .layer("ATTACHMENT")
         .disableHit(true)
         .metadata(metaBase)
-        .build()
+        .build(), item.id)
     );
   }
   if (overlays.length) await OBR.scene.local.addItems(overlays);
 }
 
-function compactName(name) {
-  const value = String(name || "").trim();
-  if (value.length <= 9) return value;
-  return value.slice(0, 8) + "…";
+async function clearOverlays() {
+  const old = await OBR.scene.local.getItems((item) => Boolean(item.metadata?.[OVERLAY_KEY]));
+  if (old.length) await OBR.scene.local.deleteItems(old.map((item) => item.id));
+}
+
+function attachOverlay(item, tokenId) {
+  item.attachedTo = tokenId;
+  item.disableHit = true;
+  item.disableAttachmentBehavior = ["SCALE", "ROTATION"];
+  return item;
 }
 
 async function getBounds(item) {
@@ -200,6 +228,6 @@ if (OBR.isAvailable) {
       else connectRoom("");
     });
     OBR.scene.onMetadataChange((metadata) => connectRoom(metadata[ROOM_KEY] || ""));
-    OBR.scene.items.onChange(scheduleOverlayRedraw);
+    OBR.scene.items.onChange(scheduleIfLinksChanged);
   });
 }
