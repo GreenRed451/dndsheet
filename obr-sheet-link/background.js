@@ -1,4 +1,4 @@
-import OBR, { buildImage } from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
+import OBR, { buildShape, buildText } from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, off } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
@@ -115,29 +115,97 @@ async function redrawOverlays() {
     const link = item.metadata[LINK_KEY];
     const s = summary(link.playerKey, players[link.playerKey]);
     const bounds = await getBounds(item);
+    const width = 88;
+    const barHeight = 14;
+    const x = bounds.center.x - width / 2;
+    const y = bounds.center.y + (bounds.height || 90) * 0.27;
     const pct = Math.max(0, Math.min(1, s.hpCur / s.hpMax));
     const color = hpColor(s.hpCur, s.hpMax);
-    const overlay = buildOverlayImage(s, pct, color);
-    const x = bounds.center.x - overlay.width / 2;
-    const y = bounds.center.y + (bounds.height || 90) * 0.16;
+    const badge = 26;
+    const badgeX = bounds.center.x + (bounds.width || 90) * 0.32;
+    const badgeY = bounds.center.y + (bounds.height || 90) * 0.15;
     const metaBase = { [OVERLAY_KEY]: { tokenId: item.id } };
 
     overlays.push(
-      attachOverlay(buildImage(
-        {
-          width: overlay.width,
-          height: overlay.height,
-          url: overlay.url,
-          mime: "image/svg+xml"
-        },
-        {
-          dpi: 150,
-          offset: { x: overlay.width / 2, y: overlay.height / 2 }
-        }
-      )
+      attachOverlay(buildShape()
+        .shapeType("RECTANGLE")
+        .width(width)
+        .height(barHeight)
         .position({ x, y })
+        .fillColor("#1a1a18")
+        .fillOpacity(0.92)
+        .strokeColor("#ffffff")
+        .strokeWidth(1)
         .layer("ATTACHMENT")
         .disableHit(true)
+        .disableAutoZIndex(true)
+        .zIndex(9000)
+        .metadata(metaBase)
+        .build(), item.id),
+      attachOverlay(buildShape()
+        .shapeType("RECTANGLE")
+        .width(Math.max(2, width * pct))
+        .height(barHeight)
+        .position({ x, y })
+        .fillColor(color)
+        .fillOpacity(1)
+        .strokeWidth(0)
+        .layer("ATTACHMENT")
+        .disableHit(true)
+        .disableAutoZIndex(true)
+        .zIndex(9001)
+        .metadata(metaBase)
+        .build(), item.id),
+      attachOverlay(buildText()
+        .plainText(`${s.hpCur}/${s.hpMax}`)
+        .width(width)
+        .height(barHeight)
+        .position({ x, y: y + 1 })
+        .padding(0)
+        .fontSize(12)
+        .fontWeight(800)
+        .textAlign("CENTER")
+        .textAlignVertical("MIDDLE")
+        .fillColor("#ffffff")
+        .strokeColor("#1a1a18")
+        .strokeWidth(0.8)
+        .layer("ATTACHMENT")
+        .disableHit(true)
+        .disableAutoZIndex(true)
+        .zIndex(9002)
+        .metadata(metaBase)
+        .build(), item.id),
+      attachOverlay(buildShape()
+        .shapeType("CIRCLE")
+        .width(badge)
+        .height(badge)
+        .position({ x: badgeX, y: badgeY })
+        .fillColor("#7b9bd8")
+        .fillOpacity(0.96)
+        .strokeColor("#ffffff")
+        .strokeWidth(2)
+        .layer("ATTACHMENT")
+        .disableHit(true)
+        .disableAutoZIndex(true)
+        .zIndex(9003)
+        .metadata(metaBase)
+        .build(), item.id),
+      attachOverlay(buildText()
+        .plainText(String(s.ac))
+        .width(badge)
+        .height(badge)
+        .position({ x: badgeX, y: badgeY + 1 })
+        .padding(0)
+        .fontSize(11)
+        .fontWeight(800)
+        .textAlign("CENTER")
+        .textAlignVertical("MIDDLE")
+        .fillColor("#ffffff")
+        .strokeWidth(0)
+        .layer("ATTACHMENT")
+        .disableHit(true)
+        .disableAutoZIndex(true)
+        .zIndex(9004)
         .metadata(metaBase)
         .build(), item.id)
     );
@@ -148,37 +216,6 @@ async function redrawOverlays() {
 async function clearOverlays() {
   const old = await OBR.scene.local.getItems((item) => Boolean(item.metadata?.[OVERLAY_KEY]));
   if (old.length) await OBR.scene.local.deleteItems(old.map((item) => item.id));
-}
-
-function buildOverlayImage(s, pct, color) {
-  const width = 132;
-  const height = 56;
-  const fillWidth = Math.max(2, Math.round(88 * pct));
-  const hp = escapeSvg(`${s.hpCur}/${s.hpMax}`);
-  const ac = escapeSvg(String(s.ac));
-  const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-  <rect x="12" y="30" width="88" height="14" rx="2" fill="#1a1a18" fill-opacity="0.92" stroke="#ffffff" stroke-width="2"/>
-  <rect x="12" y="30" width="${fillWidth}" height="14" rx="2" fill="${color}"/>
-  <text x="56" y="41" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="800" fill="#ffffff" stroke="#1a1a18" stroke-width="0.8" paint-order="stroke">${hp}</text>
-  <circle cx="108" cy="22" r="13" fill="#7b9bd8" fill-opacity="0.96" stroke="#ffffff" stroke-width="3"/>
-  <text x="108" y="27" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="800" fill="#ffffff">${ac}</text>
-</svg>`;
-  return {
-    width,
-    height,
-    url: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg.trim())
-  };
-}
-
-function escapeSvg(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  }[ch]));
 }
 
 function attachOverlay(item, tokenId) {
