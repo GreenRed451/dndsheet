@@ -66,7 +66,7 @@ function hpColor(cur, max) {
 
 function scheduleOverlayRedraw() {
   clearTimeout(redrawTimer);
-  redrawTimer = setTimeout(redrawOverlays, 120);
+  redrawTimer = setTimeout(redrawOverlays, 280);
 }
 
 async function redrawOverlays() {
@@ -94,6 +94,7 @@ async function redrawOverlays() {
     const badge = Math.max(22, Math.min(30, (bounds.width || 90) * 0.24));
     const badgeX = bounds.center.x + (bounds.width || 90) * 0.34;
     const badgeY = bounds.center.y + (bounds.height || 90) * 0.18;
+    const displayName = compactName(s.name);
     const metaBase = { [OVERLAY_KEY]: { tokenId: item.id } };
 
     overlays.push(
@@ -124,14 +125,14 @@ async function redrawOverlays() {
         .build(),
       buildLabel()
         .plainText(`${s.hpCur}/${s.hpMax}`)
-        .position({ x: bounds.center.x - width * 0.23, y: y - 7 })
+        .position({ x: bounds.center.x - width * 0.24, y: y - 7 })
         .layer("ATTACHMENT")
         .disableHit(true)
         .metadata(metaBase)
         .build(),
       buildLabel()
-        .plainText(s.name)
-        .position({ x: bounds.center.x - width * 0.28, y: y + 13 })
+        .plainText(displayName)
+        .position({ x: bounds.center.x - width * 0.24, y: y + 13 })
         .layer("ATTACHMENT")
         .disableHit(true)
         .metadata(metaBase)
@@ -159,6 +160,12 @@ async function redrawOverlays() {
     );
   }
   if (overlays.length) await OBR.scene.local.addItems(overlays);
+}
+
+function compactName(name) {
+  const value = String(name || "").trim();
+  if (value.length <= 9) return value;
+  return value.slice(0, 8) + "…";
 }
 
 async function getBounds(item) {

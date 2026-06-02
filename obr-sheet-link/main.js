@@ -216,100 +216,12 @@ function openSheet() {
 }
 
 function scheduleOverlayRedraw() {
+  // The background page owns overlay rendering. The action panel only manages links.
   clearTimeout(redrawTimer);
-  redrawTimer = setTimeout(redrawOverlays, 120);
 }
 
 async function redrawOverlays() {
-  if (!OBR.isAvailable || !(await OBR.scene.isReady())) return;
-  const old = await OBR.scene.local.getItems((item) => Boolean(item.metadata?.[OVERLAY_KEY]));
-  if (old.length) await OBR.scene.local.deleteItems(old.map((item) => item.id));
-  if (!$("overlayToggle").checked || !room) return;
-
-  const linkedItems = await OBR.scene.items.getItems((item) => {
-    const link = item.metadata?.[LINK_KEY];
-    return link?.room === room && Boolean(players[link.playerKey]);
-  });
-
-  const overlays = [];
-  for (const item of linkedItems) {
-    const link = item.metadata[LINK_KEY];
-    const s = summary(link.playerKey, players[link.playerKey]);
-    const bounds = await getBounds(item);
-    const width = Math.max(58, Math.min(96, (bounds.width || 110) * 0.82));
-    const barHeight = 16;
-    const x = bounds.center.x - width / 2;
-    const y = bounds.center.y + (bounds.height || 90) * 0.27;
-    const pct = Math.max(0, Math.min(1, s.hpCur / s.hpMax));
-    const color = hpColor(s.hpCur, s.hpMax);
-    const badge = Math.max(22, Math.min(30, (bounds.width || 90) * 0.24));
-    const badgeX = bounds.center.x + (bounds.width || 90) * 0.34;
-    const badgeY = bounds.center.y + (bounds.height || 90) * 0.18;
-    const metaBase = { [OVERLAY_KEY]: { tokenId: item.id } };
-
-    overlays.push(
-      buildShape()
-        .shapeType("RECTANGLE")
-        .width(width)
-        .height(barHeight)
-        .position({ x, y })
-        .fillColor("#1a1a18")
-        .fillOpacity(0.92)
-        .strokeColor("#ffffff")
-        .strokeWidth(1)
-        .layer("ATTACHMENT")
-        .disableHit(true)
-        .metadata(metaBase)
-        .build(),
-      buildShape()
-        .shapeType("RECTANGLE")
-        .width(Math.max(2, width * pct))
-        .height(barHeight)
-        .position({ x, y })
-        .fillColor(color)
-        .fillOpacity(1)
-        .strokeWidth(0)
-        .layer("ATTACHMENT")
-        .disableHit(true)
-        .metadata(metaBase)
-        .build(),
-      buildLabel()
-        .plainText(`${s.hpCur}/${s.hpMax}`)
-        .position({ x: bounds.center.x - width * 0.23, y: y - 7 })
-        .layer("ATTACHMENT")
-        .disableHit(true)
-        .metadata(metaBase)
-        .build(),
-      buildLabel()
-        .plainText(s.name)
-        .position({ x: bounds.center.x - width * 0.28, y: y + 13 })
-        .layer("ATTACHMENT")
-        .disableHit(true)
-        .metadata(metaBase)
-        .build(),
-      buildShape()
-        .shapeType("CIRCLE")
-        .width(badge)
-        .height(badge)
-        .position({ x: badgeX, y: badgeY })
-        .fillColor("#7b9bd8")
-        .fillOpacity(0.96)
-        .strokeColor("#ffffff")
-        .strokeWidth(2)
-        .layer("ATTACHMENT")
-        .disableHit(true)
-        .metadata(metaBase)
-        .build(),
-      buildLabel()
-        .plainText(String(s.ac))
-        .position({ x: badgeX + badge * 0.19, y: badgeY + badge * 0.11 })
-        .layer("ATTACHMENT")
-        .disableHit(true)
-        .metadata(metaBase)
-        .build()
-    );
-  }
-  if (overlays.length) await OBR.scene.local.addItems(overlays);
+  return Promise.resolve();
 }
 
 async function getBounds(item) {
@@ -353,7 +265,6 @@ function bindUi() {
   $("linkBtn").addEventListener("click", linkSelectedToken);
   $("unlinkBtn").addEventListener("click", unlinkSelectedToken);
   $("openSheetBtn").addEventListener("click", openSheet);
-  $("overlayToggle").addEventListener("change", scheduleOverlayRedraw);
 }
 
 async function initObr() {
