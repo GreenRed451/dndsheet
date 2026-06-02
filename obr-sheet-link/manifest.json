@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "manifest_version": 1,
   "description": "Связывает токены Owlbear Rodeo с вашим листком персонажа.",
-  "icon": "icon.svg",
+  "icon": "https://greenred451.github.io/dndsheet/obr-sheet-link/icon.svg",
   "author": "GreenRed",
-  "background_url": "background.html",
+  "background_url": "https://greenred451.github.io/dndsheet/obr-sheet-link/background.html",
   "action": {
     "title": "D&D Sheet",
-    "icon": "icon.svg",
-    "popover": "index.html",
+    "icon": "https://greenred451.github.io/dndsheet/obr-sheet-link/icon.svg",
+    "popover": "https://greenred451.github.io/dndsheet/obr-sheet-link/index.html",
     "height": 640,
     "width": 420
   }
