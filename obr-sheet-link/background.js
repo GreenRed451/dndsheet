@@ -245,6 +245,8 @@ async function getBounds(item) {
 
 async function loadSceneRoom() {
   if (!(await OBR.scene.isReady())) return;
+  await clearOverlays();
+  lastOverlaySignature = "";
   const metadata = await OBR.scene.getMetadata();
   connectRoom(metadata[ROOM_KEY] || "");
 }
