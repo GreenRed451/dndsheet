@@ -15,7 +15,7 @@ const FB_CONFIG = {
 const ROOM_KEY = "ru.dndsheet.link/room";
 const LINK_KEY = "ru.dndsheet.link/character";
 const OVERLAY_KEY = "ru.dndsheet.link/overlay";
-const TEXT_TILE_URL = new URL("./overlay-text.svg?v=0114", import.meta.url).toString();
+const TEXT_TILE_URL = new URL("./overlay-text.svg?v=0115", import.meta.url).toString();
 
 let app;
 let db;
@@ -223,16 +223,26 @@ function buildOverlayText(text, options) {
     }
   )
     .position({ x: options.x, y: options.y })
-    .plainText(text)
-    .textPadding(0)
-    .fontFamily("Inter, Arial, sans-serif")
-    .fontSize(options.fontSize)
-    .fontWeight(800)
-    .textAlign("CENTER")
-    .textAlignVertical("MIDDLE")
-    .fillColor("#ffffff")
-    .strokeColor(options.strokeColor)
-    .strokeWidth(1)
+    .text({
+      plainText: text,
+      type: "PLAIN",
+      width: options.width,
+      height: options.height,
+      style: {
+        padding: 0,
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: options.fontSize,
+        fontWeight: 800,
+        lineHeight: 1,
+        textAlign: "CENTER",
+        textAlignVertical: "MIDDLE",
+        fillColor: "#ffffff",
+        fillOpacity: 1,
+        strokeColor: options.strokeColor,
+        strokeOpacity: 1,
+        strokeWidth: 1
+      }
+    })
     .layer("ATTACHMENT")
     .disableHit(true)
     .disableAutoZIndex(true)
