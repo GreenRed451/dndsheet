@@ -134,8 +134,8 @@ async function redrawOverlays() {
     const pct = Math.max(0, Math.min(1, s.hpCur / s.hpMax));
     const color = hpColor(s.hpCur, s.hpMax);
     const badge = 34;
-    const badgeX = bounds.center.x + (bounds.width || 90) * 0.30;
-    const badgeY = bounds.center.y + (bounds.height || 90) * 0.14;
+    const badgeCenterX = x + width + 14;
+    const badgeCenterY = y + barHeight / 2 - 2;
     const metaBase = { [OVERLAY_KEY]: { tokenId: item.id } };
 
     overlays.push(
@@ -172,7 +172,7 @@ async function redrawOverlays() {
         .shapeType("CIRCLE")
         .width(badge)
         .height(badge)
-        .position({ x: badgeX, y: badgeY })
+        .position({ x: badgeCenterX, y: badgeCenterY })
         .fillColor("#7b9bd8")
         .fillOpacity(0.96)
         .strokeColor("#ffffff")
@@ -192,8 +192,8 @@ async function redrawOverlays() {
         metadata: metaBase
       }).map((part) => attachOverlay(part, item.id)),
       ...buildSegmentText(String(s.ac), {
-        centerX: badgeX + badge / 2,
-        centerY: badgeY + badge / 2,
+        centerX: badgeCenterX,
+        centerY: badgeCenterY,
         scale: 0.74,
         color: "#ffffff",
         zIndex: 9005,
