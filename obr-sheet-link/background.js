@@ -133,9 +133,9 @@ async function redrawOverlays() {
     const y = bounds.center.y + (bounds.height || 90) * 0.24;
     const pct = Math.max(0, Math.min(1, s.hpCur / s.hpMax));
     const color = hpColor(s.hpCur, s.hpMax);
-    const badge = 30;
-    const badgeX = bounds.center.x + (bounds.width || 90) * 0.32;
-    const badgeY = bounds.center.y + (bounds.height || 90) * 0.15;
+    const badge = 34;
+    const badgeX = bounds.center.x + (bounds.width || 90) * 0.30;
+    const badgeY = bounds.center.y + (bounds.height || 90) * 0.14;
     const metaBase = { [OVERLAY_KEY]: { tokenId: item.id } };
 
     overlays.push(
@@ -194,7 +194,7 @@ async function redrawOverlays() {
       ...buildSegmentText(String(s.ac), {
         centerX: badgeX + badge / 2,
         centerY: badgeY + badge / 2,
-        scale: 1.25,
+        scale: 0.74,
         color: "#ffffff",
         zIndex: 9005,
         metadata: metaBase
