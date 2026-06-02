@@ -115,13 +115,13 @@ async function redrawOverlays() {
     const link = item.metadata[LINK_KEY];
     const s = summary(link.playerKey, players[link.playerKey]);
     const bounds = await getBounds(item);
-    const width = Math.max(58, Math.min(96, (bounds.width || 110) * 0.82));
-    const barHeight = 16;
+    const width = 88;
+    const barHeight = 14;
     const x = bounds.center.x - width / 2;
     const y = bounds.center.y + (bounds.height || 90) * 0.27;
     const pct = Math.max(0, Math.min(1, s.hpCur / s.hpMax));
     const color = hpColor(s.hpCur, s.hpMax);
-    const badge = Math.max(22, Math.min(30, (bounds.width || 90) * 0.24));
+    const badge = 26;
     const badgeX = bounds.center.x + (bounds.width || 90) * 0.34;
     const badgeY = bounds.center.y + (bounds.height || 90) * 0.18;
     const metaBase = { [OVERLAY_KEY]: { tokenId: item.id } };
@@ -154,11 +154,11 @@ async function redrawOverlays() {
         .build(), item.id),
       attachOverlay(buildText()
         .plainText(`${s.hpCur}/${s.hpMax}`)
-        .width(width)
+        .width(44)
         .height(barHeight)
-        .position({ x, y })
+        .position({ x: x + width / 2 - 20, y: y + 1 })
         .padding(0)
-        .fontSize(16)
+        .fontSize(11)
         .fontWeight(800)
         .textAlign("CENTER")
         .textAlignVertical("MIDDLE")
@@ -184,11 +184,11 @@ async function redrawOverlays() {
         .build(), item.id),
       attachOverlay(buildText()
         .plainText(String(s.ac))
-        .width(badge)
-        .height(badge)
-        .position({ x: badgeX, y: badgeY })
+        .width(20)
+        .height(16)
+        .position({ x: badgeX + 3, y: badgeY + 5 })
         .padding(0)
-        .fontSize(15)
+        .fontSize(10)
         .fontWeight(800)
         .textAlign("CENTER")
         .textAlignVertical("MIDDLE")
