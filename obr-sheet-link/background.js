@@ -1,4 +1,4 @@
-import OBR, { buildLabel, buildShape } from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
+import OBR, { buildImage, buildShape } from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, off } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
@@ -15,6 +15,7 @@ const FB_CONFIG = {
 const ROOM_KEY = "ru.dndsheet.link/room";
 const LINK_KEY = "ru.dndsheet.link/character";
 const OVERLAY_KEY = "ru.dndsheet.link/overlay";
+const TEXT_TILE_URL = new URL("./overlay-text.svg?v=0114", import.meta.url).toString();
 
 let app;
 let db;
@@ -163,28 +164,16 @@ async function redrawOverlays() {
         .zIndex(9001)
         .metadata(metaBase)
         .build(), item.id),
-      attachOverlay(buildLabel()
-        .plainText(`${s.hpCur}/${s.hpMax}`)
-        .width(hpTextWidth)
-        .height(hpTextHeight)
-        .position({ x: hpTextX, y: hpTextY })
-        .padding(0)
-        .fontSize(16)
-        .fontWeight(800)
-        .textAlign("CENTER")
-        .textAlignVertical("MIDDLE")
-        .fillColor("#ffffff")
-        .strokeColor("#1a1a18")
-        .strokeWidth(1)
-        .backgroundOpacity(0)
-        .pointerWidth(0)
-        .pointerHeight(0)
-        .layer("ATTACHMENT")
-        .disableHit(true)
-        .disableAutoZIndex(true)
-        .zIndex(9002)
-        .metadata(metaBase)
-        .build(), item.id),
+      attachOverlay(buildOverlayText(`${s.hpCur}/${s.hpMax}`, {
+        width: hpTextWidth,
+        height: hpTextHeight,
+        x: hpTextX,
+        y: hpTextY,
+        fontSize: 16,
+        strokeColor: "#1a1a18",
+        zIndex: 9002,
+        metadata: metaBase
+      }), item.id),
       attachOverlay(buildShape()
         .shapeType("CIRCLE")
         .width(badge)
@@ -200,28 +189,16 @@ async function redrawOverlays() {
         .zIndex(9003)
         .metadata(metaBase)
         .build(), item.id),
-      attachOverlay(buildLabel()
-        .plainText(String(s.ac))
-        .width(acTextSize)
-        .height(acTextSize)
-        .position({ x: acTextX, y: acTextY })
-        .padding(0)
-        .fontSize(18)
-        .fontWeight(800)
-        .textAlign("CENTER")
-        .textAlignVertical("MIDDLE")
-        .fillColor("#ffffff")
-        .strokeColor("#3f5f9a")
-        .strokeWidth(1)
-        .backgroundOpacity(0)
-        .pointerWidth(0)
-        .pointerHeight(0)
-        .layer("ATTACHMENT")
-        .disableHit(true)
-        .disableAutoZIndex(true)
-        .zIndex(9004)
-        .metadata(metaBase)
-        .build(), item.id)
+      attachOverlay(buildOverlayText(String(s.ac), {
+        width: acTextSize,
+        height: acTextSize,
+        x: acTextX,
+        y: acTextY,
+        fontSize: 18,
+        strokeColor: "#3f5f9a",
+        zIndex: 9004,
+        metadata: metaBase
+      }), item.id)
     );
   }
   if (overlays.length) await OBR.scene.local.addItems(overlays);
@@ -230,6 +207,38 @@ async function redrawOverlays() {
 async function clearOverlays() {
   const old = await OBR.scene.local.getItems((item) => Boolean(item.metadata?.[OVERLAY_KEY]));
   if (old.length) await OBR.scene.local.deleteItems(old.map((item) => item.id));
+}
+
+function buildOverlayText(text, options) {
+  return buildImage(
+    {
+      width: options.width,
+      height: options.height,
+      url: TEXT_TILE_URL,
+      mime: "image/svg+xml"
+    },
+    {
+      dpi: 150,
+      offset: { x: options.width / 2, y: options.height / 2 }
+    }
+  )
+    .position({ x: options.x, y: options.y })
+    .plainText(text)
+    .textPadding(0)
+    .fontFamily("Inter, Arial, sans-serif")
+    .fontSize(options.fontSize)
+    .fontWeight(800)
+    .textAlign("CENTER")
+    .textAlignVertical("MIDDLE")
+    .fillColor("#ffffff")
+    .strokeColor(options.strokeColor)
+    .strokeWidth(1)
+    .layer("ATTACHMENT")
+    .disableHit(true)
+    .disableAutoZIndex(true)
+    .zIndex(options.zIndex)
+    .metadata(options.metadata)
+    .build();
 }
 
 function attachOverlay(item, tokenId) {
