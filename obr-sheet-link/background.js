@@ -1,4 +1,4 @@
-import OBR, { buildLabel, buildShape } from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
+import OBR, { buildShape, buildText } from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, off } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
@@ -152,7 +152,7 @@ async function redrawOverlays() {
         .disableHit(true)
         .metadata(metaBase)
         .build(), item.id),
-      attachOverlay(buildLabel()
+      attachOverlay(buildText()
         .plainText(`${s.hpCur}/${s.hpMax}`)
         .width(width)
         .height(barHeight)
@@ -165,7 +165,6 @@ async function redrawOverlays() {
         .fillColor("#ffffff")
         .strokeColor("#1a1a18")
         .strokeWidth(1)
-        .backgroundOpacity(0)
         .layer("ATTACHMENT")
         .disableHit(true)
         .metadata(metaBase)
@@ -183,7 +182,7 @@ async function redrawOverlays() {
         .disableHit(true)
         .metadata(metaBase)
         .build(), item.id),
-      attachOverlay(buildLabel()
+      attachOverlay(buildText()
         .plainText(String(s.ac))
         .width(badge)
         .height(badge)
@@ -196,7 +195,6 @@ async function redrawOverlays() {
         .fillColor("#ffffff")
         .strokeColor("#3f5f9a")
         .strokeWidth(1)
-        .backgroundOpacity(0)
         .layer("ATTACHMENT")
         .disableHit(true)
         .metadata(metaBase)
