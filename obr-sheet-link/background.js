@@ -130,7 +130,7 @@ async function redrawOverlays() {
     const width = 96;
     const barHeight = 18;
     const x = bounds.center.x - width / 2;
-    const y = bounds.center.y + (bounds.height || 90) * 0.24;
+    const y = bounds.center.y + (bounds.height || 90) * 0.34;
     const pct = Math.max(0, Math.min(1, s.hpCur / s.hpMax));
     const color = hpColor(s.hpCur, s.hpMax);
     const badge = 34;
