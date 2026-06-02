@@ -1,4 +1,4 @@
-import OBR, { buildImage, buildShape } from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
+import OBR, { buildShape } from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, off } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
@@ -15,7 +15,18 @@ const FB_CONFIG = {
 const ROOM_KEY = "ru.dndsheet.link/room";
 const LINK_KEY = "ru.dndsheet.link/character";
 const OVERLAY_KEY = "ru.dndsheet.link/overlay";
-const TEXT_TILE_URL = new URL("./overlay-text.svg?v=0115", import.meta.url).toString();
+const DIGITS = {
+  "0": "abcfed",
+  "1": "bc",
+  "2": "abged",
+  "3": "abgcd",
+  "4": "fgbc",
+  "5": "afgcd",
+  "6": "afgecd",
+  "7": "abc",
+  "8": "abcdefg",
+  "9": "abfgcd"
+};
 
 let app;
 let db;
@@ -125,13 +136,6 @@ async function redrawOverlays() {
     const badge = 30;
     const badgeX = bounds.center.x + (bounds.width || 90) * 0.32;
     const badgeY = bounds.center.y + (bounds.height || 90) * 0.15;
-    const hpTextWidth = 58;
-    const hpTextHeight = 18;
-    const hpTextX = x + width / 2 - hpTextWidth / 2;
-    const hpTextY = y;
-    const acTextSize = 24;
-    const acTextX = badgeX + badge / 2 - acTextSize / 2;
-    const acTextY = badgeY + badge / 2 - acTextSize / 2;
     const metaBase = { [OVERLAY_KEY]: { tokenId: item.id } };
 
     overlays.push(
@@ -164,16 +168,6 @@ async function redrawOverlays() {
         .zIndex(9001)
         .metadata(metaBase)
         .build(), item.id),
-      attachOverlay(buildOverlayText(`${s.hpCur}/${s.hpMax}`, {
-        width: hpTextWidth,
-        height: hpTextHeight,
-        x: hpTextX,
-        y: hpTextY,
-        fontSize: 16,
-        strokeColor: "#1a1a18",
-        zIndex: 9002,
-        metadata: metaBase
-      }), item.id),
       attachOverlay(buildShape()
         .shapeType("CIRCLE")
         .width(badge)
@@ -189,16 +183,22 @@ async function redrawOverlays() {
         .zIndex(9003)
         .metadata(metaBase)
         .build(), item.id),
-      attachOverlay(buildOverlayText(String(s.ac), {
-        width: acTextSize,
-        height: acTextSize,
-        x: acTextX,
-        y: acTextY,
-        fontSize: 18,
-        strokeColor: "#3f5f9a",
+      ...buildSegmentText(`${s.hpCur}/${s.hpMax}`, {
+        centerX: x + width / 2,
+        centerY: y + barHeight / 2,
+        scale: 1.15,
+        color: "#ffffff",
         zIndex: 9004,
         metadata: metaBase
-      }), item.id)
+      }).map((part) => attachOverlay(part, item.id)),
+      ...buildSegmentText(String(s.ac), {
+        centerX: badgeX + badge / 2,
+        centerY: badgeY + badge / 2,
+        scale: 1.25,
+        color: "#ffffff",
+        zIndex: 9005,
+        metadata: metaBase
+      }).map((part) => attachOverlay(part, item.id))
     );
   }
   if (overlays.length) await OBR.scene.local.addItems(overlays);
@@ -209,40 +209,71 @@ async function clearOverlays() {
   if (old.length) await OBR.scene.local.deleteItems(old.map((item) => item.id));
 }
 
-function buildOverlayText(text, options) {
-  return buildImage(
-    {
-      width: options.width,
-      height: options.height,
-      url: TEXT_TILE_URL,
-      mime: "image/svg+xml"
-    },
-    {
-      dpi: 150,
-      offset: { x: options.width / 2, y: options.height / 2 }
+function buildSegmentText(text, options) {
+  const chars = String(text);
+  const scale = options.scale || 1;
+  const digitW = 7 * scale;
+  const digitH = 12 * scale;
+  const gap = 2 * scale;
+  const slashW = 4 * scale;
+  const totalW = Array.from(chars).reduce((sum, ch, idx) => {
+    const charW = ch === "/" ? slashW : digitW;
+    return sum + charW + (idx ? gap : 0);
+  }, 0);
+  let cursor = options.centerX - totalW / 2;
+  const top = options.centerY - digitH / 2;
+  const items = [];
+  for (const ch of chars) {
+    if (ch === "/") {
+      items.push(...buildSlash(cursor, top, scale, options));
+      cursor += slashW + gap;
+      continue;
     }
-  )
-    .position({ x: options.x, y: options.y })
-    .text({
-      plainText: text,
-      type: "PLAIN",
-      width: options.width,
-      height: options.height,
-      style: {
-        padding: 0,
-        fontFamily: "Inter, Arial, sans-serif",
-        fontSize: options.fontSize,
-        fontWeight: 800,
-        lineHeight: 1,
-        textAlign: "CENTER",
-        textAlignVertical: "MIDDLE",
-        fillColor: "#ffffff",
-        fillOpacity: 1,
-        strokeColor: options.strokeColor,
-        strokeOpacity: 1,
-        strokeWidth: 1
-      }
-    })
+    items.push(...buildDigit(ch, cursor, top, scale, options));
+    cursor += digitW + gap;
+  }
+  return items;
+}
+
+function buildDigit(ch, x, y, scale, options) {
+  const segments = DIGITS[ch];
+  if (!segments) return [];
+  const t = 2 * scale;
+  const w = 7 * scale;
+  const h = 12 * scale;
+  const mid = h / 2 - t / 2;
+  const defs = {
+    a: [x + t, y, w - 2 * t, t],
+    b: [x + w - t, y + t, t, h / 2 - t],
+    c: [x + w - t, y + h / 2, t, h / 2 - t],
+    d: [x + t, y + h - t, w - 2 * t, t],
+    e: [x, y + h / 2, t, h / 2 - t],
+    f: [x, y + t, t, h / 2 - t],
+    g: [x + t, y + mid, w - 2 * t, t]
+  };
+  return Array.from(segments).map((seg) => buildSegment(defs[seg], options));
+}
+
+function buildSlash(x, y, scale, options) {
+  const size = 2 * scale;
+  return [
+    [x + 2 * scale, y + 2 * scale, size, size],
+    [x + 1 * scale, y + 5 * scale, size, size],
+    [x, y + 8 * scale, size, size]
+  ].map((rect) => buildSegment(rect, options));
+}
+
+function buildSegment(rect, options) {
+  const [x, y, width, height] = rect;
+  return buildShape()
+    .shapeType("RECTANGLE")
+    .width(width)
+    .height(height)
+    .position({ x, y })
+    .fillColor(options.color)
+    .fillOpacity(1)
+    .strokeColor("#1a1a18")
+    .strokeWidth(0.35)
     .layer("ATTACHMENT")
     .disableHit(true)
     .disableAutoZIndex(true)
