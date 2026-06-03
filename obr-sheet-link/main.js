@@ -69,6 +69,7 @@ function hpColor(cur, max) {
 function summary(key, data) {
   const hpMax = Math.max(1, parseInt(data.hpMax, 10) || 1);
   const hpCur = Math.max(0, parseInt(data.hpCur, 10) || 0);
+  const hpTemp = Math.max(0, parseInt(data.hpTemp, 10) || 0);
   return {
     key,
     name: data.charName || data._name || key,
@@ -77,7 +78,8 @@ function summary(key, data) {
     level: parseInt(data.levelInput, 10) || 1,
     ac: parseInt(data.ac, 10) || 10,
     hpCur,
-    hpMax
+    hpMax,
+    hpTemp
   };
 }
 
@@ -169,7 +171,7 @@ function renderCharacters() {
           <div class="name">${escapeHtml(s.name)}</div>
           <div class="meta">${escapeHtml(s.cls)} ${s.level} ур. · КД ${s.ac}</div>
         </div>
-        <div class="hp">${s.hpCur}/${s.hpMax}</div>
+        <div class="hp">${s.hpCur}/${s.hpMax}${s.hpTemp ? " +" + s.hpTemp : ""}</div>
       </div>
       <div class="hpbar"><div class="hpfill" style="width:${pct}%;background:${hpColor(s.hpCur, s.hpMax)}"></div></div>`;
     card.addEventListener("click", () => {

@@ -62,12 +62,14 @@ function connectRoom(nextRoom) {
 function summary(key, data) {
   const hpMax = Math.max(1, parseInt(data.hpMax, 10) || 1);
   const hpCur = Math.max(0, parseInt(data.hpCur, 10) || 0);
+  const hpTemp = Math.max(0, parseInt(data.hpTemp, 10) || 0);
   return {
     key,
     name: data.charName || data._name || key,
     ac: parseInt(data.ac, 10) || 10,
     hpCur,
-    hpMax
+    hpMax,
+    hpTemp
   };
 }
 
@@ -115,7 +117,7 @@ async function redrawOverlays() {
   const signature = linkedItems.map((item) => {
     const link = item.metadata[LINK_KEY];
     const s = summary(link.playerKey, players[link.playerKey]);
-    return [item.id, link.playerKey, s.ac, s.hpCur, s.hpMax].join(":");
+    return [item.id, link.playerKey, s.ac, s.hpCur, s.hpMax, s.hpTemp].join(":");
   }).sort().join("|");
   if (signature === lastOverlaySignature) return;
   lastOverlaySignature = signature;
@@ -133,6 +135,8 @@ async function redrawOverlays() {
     const y = bounds.center.y + (bounds.height || 90) * 0.34;
     const pct = Math.max(0, Math.min(1, s.hpCur / s.hpMax));
     const color = hpColor(s.hpCur, s.hpMax);
+    const hasTemp = s.hpTemp > 0;
+    const tempHeight = 7;
     const badge = 34;
     const badgeCenterX = x + width + 2;
     const badgeCenterY = y + barHeight / 2 - 2;
@@ -183,6 +187,14 @@ async function redrawOverlays() {
         .zIndex(9003)
         .metadata(metaBase)
         .build(), item.id),
+      ...buildTempHpOverlay(s.hpTemp, {
+        x,
+        y,
+        width,
+        tempHeight,
+        hasTemp,
+        metadata: metaBase
+      }).map((part) => attachOverlay(part, item.id)),
       ...buildSegmentText(`${s.hpCur}/${s.hpMax}`, {
         centerX: x + width / 2,
         centerY: y + barHeight / 2,
@@ -207,6 +219,51 @@ async function redrawOverlays() {
 async function clearOverlays() {
   const old = await OBR.scene.local.getItems((item) => Boolean(item.metadata?.[OVERLAY_KEY]));
   if (old.length) await OBR.scene.local.deleteItems(old.map((item) => item.id));
+}
+
+function buildTempHpOverlay(hpTemp, options) {
+  if (!options.hasTemp) return [];
+  const blue = "#69A7E8";
+  const y = options.y - options.tempHeight - 2;
+  return [
+    buildShape()
+      .shapeType("RECTANGLE")
+      .width(options.width)
+      .height(options.tempHeight)
+      .position({ x: options.x, y })
+      .fillColor("#1A3D5F")
+      .fillOpacity(0.92)
+      .strokeColor("#ffffff")
+      .strokeWidth(0.6)
+      .layer("ATTACHMENT")
+      .disableHit(true)
+      .disableAutoZIndex(true)
+      .zIndex(9002)
+      .metadata(options.metadata)
+      .build(),
+    buildShape()
+      .shapeType("RECTANGLE")
+      .width(options.width)
+      .height(options.tempHeight)
+      .position({ x: options.x, y })
+      .fillColor(blue)
+      .fillOpacity(0.95)
+      .strokeWidth(0)
+      .layer("ATTACHMENT")
+      .disableHit(true)
+      .disableAutoZIndex(true)
+      .zIndex(9003)
+      .metadata(options.metadata)
+      .build(),
+    ...buildSegmentText(String(hpTemp), {
+      centerX: options.x + options.width / 2,
+      centerY: y + options.tempHeight / 2,
+      scale: 0.62,
+      color: "#ffffff",
+      zIndex: 9006,
+      metadata: options.metadata
+    })
+  ];
 }
 
 function buildSegmentText(text, options) {
