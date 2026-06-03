@@ -235,3 +235,154 @@ h2 {
   border-radius: 4px;
   background: #639922;
 }
+
+.tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 9px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.tab {
+  flex: 0 0 auto;
+  border: 1px solid #d8d4ca;
+  border-radius: 999px;
+  background: #fff;
+  color: #666;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+
+.tab.active {
+  border-color: #534AB7;
+  background: #f4f2ff;
+  color: #534AB7;
+  font-weight: 700;
+}
+
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  max-height: 370px;
+  overflow: auto;
+}
+
+.overview-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eeeae1;
+}
+
+.overview-name {
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.overview-sub {
+  margin-top: 2px;
+  color: #777;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.overview-hp {
+  color: #639922;
+  font-size: 13px;
+  font-weight: 850;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.overview-tile {
+  min-width: 0;
+  border: 1px solid #e0ddd4;
+  border-radius: 8px;
+  background: #fbfaf7;
+  padding: 7px;
+}
+
+.overview-label {
+  color: #888;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.overview-value {
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.overview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.overview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  border: 1px solid #e0ddd4;
+  border-radius: 8px;
+  background: #fbfaf7;
+  padding: 7px;
+  font-size: 12px;
+}
+
+.overview-row strong {
+  font-size: 13px;
+}
+
+.overview-row .muted,
+.overview-text .muted {
+  color: #888;
+}
+
+.overview-proficient {
+  border-color: #b8d4a1;
+  background: #f4faef;
+}
+
+.overview-text {
+  border: 1px solid #e0ddd4;
+  border-radius: 8px;
+  background: #fbfaf7;
+  padding: 8px;
+  color: #333;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.overview-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.overview-badge {
+  border-radius: 999px;
+  background: #eeeae1;
+  color: #555;
+  padding: 4px 7px;
+  font-size: 11px;
+}
+
+.overview-badge.prepared {
+  background: #f4f2ff;
+  color: #534AB7;
+  font-weight: 700;
+}
