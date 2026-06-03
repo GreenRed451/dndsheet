@@ -103,6 +103,7 @@ let selectedCharacterKey = "";
 let selectedItemId = "";
 let selectedItemLink = null;
 let overviewTab = "stats";
+let spellDbPromise = null;
 let playersRef = null;
 let redrawTimer = null;
 let unsubItems = null;
@@ -312,6 +313,7 @@ function renderOverview() {
   const [key, data] = entry;
   const s = summary(key, data);
   box.innerHTML = overviewHeader(s, data) + overviewContent(data, s);
+  bindOverviewSpellButtons(box);
 }
 
 function overviewHeader(s, data) {
@@ -406,7 +408,7 @@ function overviewSpells(data) {
   if (!spellNames.length && !data.spells && !spellStat) {
     return '<div class="muted-box">У персонажа нет данных о заклинаниях.</div>';
   }
-  const badges = spellNames.map((name) => `<span class="overview-badge${prepared.has(name) ? " prepared" : ""}">${escapeHtml(name)}</span>`).join("");
+  const badges = spellNames.map((name) => `<button type="button" class="overview-badge${prepared.has(name) ? " prepared" : ""}" data-spell-name="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("");
   const slotText = spellSlotText(data.spellSlotDots);
   return `
     <div class="overview-grid">
@@ -417,6 +419,7 @@ function overviewSpells(data) {
     <div class="overview-section">
       ${slotText ? `<h2>Ячейки</h2><div class="overview-text">${escapeHtml(slotText)}</div>` : ""}
       ${badges ? `<h2>Известные и подготовленные</h2><div class="overview-badges">${badges}</div>` : ""}
+      <div id="overviewSpellDetail" class="overview-spell-detail muted-box">Нажмите на заклинание, чтобы увидеть описание.</div>
       ${extra.length ? `<h2>Дополнительно изученные</h2><div class="overview-text">${escapeHtml(extra.join(", "))}</div>` : ""}
       ${data.spells ? `<h2>Заметки по магии</h2><div class="overview-text">${escapeHtml(data.spells)}</div>` : ""}
     </div>`;
@@ -502,6 +505,81 @@ function spellSlotText(spellSlotDots) {
 function spellSlotLabel(key) {
   const match = String(key).match(/\d+/);
   return match ? `${match[0]} круг` : String(key);
+}
+
+function bindOverviewSpellButtons(root) {
+  root.querySelectorAll("[data-spell-name]").forEach((button) => {
+    button.addEventListener("click", () => showOverviewSpell(button.dataset.spellName || ""));
+  });
+}
+
+async function showOverviewSpell(name) {
+  const box = $("overviewSpellDetail");
+  if (!box) return;
+  box.textContent = "Загружаю описание...";
+  try {
+    const db = await loadSpellDb();
+    const spell = db.get(name);
+    if (!spell) {
+      box.className = "overview-spell-detail muted-box";
+      box.textContent = "Описание не найдено в базе листка.";
+      return;
+    }
+    box.className = "overview-spell-detail overview-text";
+    box.innerHTML = `
+      <strong>${escapeHtml(spell.name)}</strong>
+      <div class="overview-sub">${escapeHtml(spell.level === "0" ? "Заговор" : spell.level + " круг")} · ${escapeHtml(spell.school || "Школа не указана")}</div>
+      <div class="overview-sub">${escapeHtml([spell.cast, spell.range, spell.dur].filter(Boolean).join(" · "))}</div>
+      ${spell.comp ? `<div class="overview-sub">Компоненты: ${escapeHtml(spell.comp)}</div>` : ""}
+      <div style="margin-top:6px">${escapeHtml(spell.desc || "Описание не указано.")}</div>`;
+  } catch (error) {
+    console.error(error);
+    box.className = "overview-spell-detail muted-box";
+    box.textContent = "Не удалось загрузить описание заклинания.";
+  }
+}
+
+function loadSpellDb() {
+  if (!spellDbPromise) {
+    spellDbPromise = fetch("../index.html?v=0128")
+      .then((response) => response.text())
+      .then(parseSpellDb);
+  }
+  return spellDbPromise;
+}
+
+function parseSpellDb(source) {
+  const db = new Map();
+  const lines = String(source || "").split(/\n/).filter((line) => line.includes("{ name:") && line.includes("desc:"));
+  for (const line of lines) {
+    const spell = {
+      name: quotedField(line, "name"),
+      level: String(numberField(line, "level") ?? ""),
+      school: quotedField(line, "school"),
+      cast: quotedField(line, "cast"),
+      range: quotedField(line, "range"),
+      dur: quotedField(line, "dur"),
+      comp: quotedField(line, "comp"),
+      desc: quotedField(line, "desc")
+    };
+    if (spell.name) db.set(spell.name, spell);
+  }
+  return db;
+}
+
+function quotedField(line, field) {
+  const match = String(line).match(new RegExp(field + ':\\s*"((?:\\\\.|[^"\\\\])*)"'));
+  if (!match) return "";
+  try {
+    return JSON.parse('"' + match[1] + '"');
+  } catch {
+    return match[1];
+  }
+}
+
+function numberField(line, field) {
+  const match = String(line).match(new RegExp(field + ":\\s*(-?\\d+)"));
+  return match ? parseInt(match[1], 10) : null;
 }
 
 function scheduleOverlayRedraw() {
