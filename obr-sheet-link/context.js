@@ -1,6 +1,6 @@
 import OBR from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, off } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const FB_CONFIG = {
   apiKey: "AIzaSyBEjhg3RC4EzeaK792Ob2pn5krfXnn6rxk",
@@ -13,30 +13,19 @@ const FB_CONFIG = {
 };
 
 const LINK_KEY = "ru.dndsheet.link/character";
-const ROOM_KEY = "ru.dndsheet.link/room";
-const CLASS_LABELS = {
-  barbarian: "Варвар",
-  bard: "Бард",
-  cleric: "Жрец",
-  druid: "Друид",
-  fighter: "Воин",
-  monk: "Монах",
-  paladin: "Паладин",
-  ranger: "Следопыт",
-  rogue: "Плут",
-  sorcerer: "Чародей",
-  warlock: "Колдун",
-  wizard: "Волшебник"
+const SPELL_STATS = {
+  bard: "cha",
+  cleric: "wis",
+  druid: "wis",
+  paladin: "cha",
+  ranger: "wis",
+  sorcerer: "cha",
+  warlock: "cha",
+  wizard: "int"
 };
 
 let app;
 let db;
-let room = "";
-let players = {};
-let playersRef = null;
-let selectedItemId = "";
-let selectedItemLink = null;
-let selectedCharacterKey = "";
 
 const $ = (id) => document.getElementById(id);
 
@@ -46,203 +35,85 @@ function initFirebase() {
   db = getDatabase(app);
 }
 
-function sanitizeFirebaseKey(value) {
-  return String(value || "").trim().replace(/[\x00-\x1F\x7F.#$\[\]\/'"`<>\\]/g, "_");
-}
-
-function summary(key, data) {
-  const hpMax = Math.max(1, parseInt(data.hpMax, 10) || 1);
-  const hpCur = Math.max(0, parseInt(data.hpCur, 10) || 0);
-  const hpTemp = Math.max(0, parseInt(data.hpTemp, 10) || 0);
-  return {
-    key,
-    name: data.charName || data._name || key,
-    cls: CLASS_LABELS[data.classSelect] || data.classSelect || "",
-    level: parseInt(data.levelInput, 10) || 1,
-    ac: parseInt(data.ac, 10) || 10,
-    hpCur,
-    hpMax,
-    hpTemp
-  };
-}
-
-async function connectRoom(nextRoom, writeScene = false) {
-  initFirebase();
-  if (playersRef) off(playersRef);
-  room = sanitizeFirebaseKey(nextRoom);
-  $("ctxRoomInput").value = room;
-  localStorage.setItem("dnd_obr_room", room);
-  if (!room) {
-    players = {};
-    render();
+async function init() {
+  if (!OBR.isAvailable) {
+    renderMessage("Откройте это меню внутри Owlbear Rodeo.");
     return;
   }
-  if (writeScene && OBR.isAvailable && await OBR.scene.isReady()) {
-    await OBR.scene.setMetadata({ [ROOM_KEY]: room });
-  }
-  playersRef = ref(db, `rooms/${room}/players`);
-  onValue(playersRef, (snap) => {
-    players = snap.val() || {};
-    if (selectedItemLink?.room === room && players[selectedItemLink.playerKey]) {
-      selectedCharacterKey = selectedItemLink.playerKey;
+  await OBR.onReady(async () => {
+    try {
+      initFirebase();
+      const item = await getContextItem();
+      const link = item?.metadata?.[LINK_KEY];
+      if (!link?.room || !link?.playerKey) {
+        renderMessage("Листок не привязан к этому токену.");
+        return;
+      }
+      const snap = await get(ref(db, `rooms/${link.room}/players/${link.playerKey}`));
+      const data = snap.val();
+      if (!data) {
+        renderMessage("Не удалось найти данные листка.");
+        return;
+      }
+      renderAttackMenu(data);
+    } catch (error) {
+      console.error(error);
+      renderMessage("Не удалось загрузить атаки листка.");
     }
-    render();
   });
 }
 
-async function refreshSelection() {
-  if (!OBR.isAvailable || !(await OBR.scene.isReady())) {
-    setStatus("Откройте сцену Owlbear Rodeo.");
-    return;
-  }
+async function getContextItem() {
   const selection = await OBR.player.getSelection();
   const fallbackItemId = localStorage.getItem("dnd_obr_context_item") || "";
   const itemId = selection && selection.length === 1 ? selection[0] : fallbackItemId;
-  if (!itemId) {
-    selectedItemId = "";
-    selectedItemLink = null;
-    setStatus("Выберите ровно один токен.");
-    render();
-    return;
-  }
-  selectedItemId = itemId;
-  const [item] = await OBR.scene.items.getItems([selectedItemId]);
-  if (!item) {
-    selectedItemId = "";
-    selectedItemLink = null;
-    setStatus("Токен не найден на сцене.");
-    render();
-    return;
-  }
-  selectedItemLink = item?.metadata?.[LINK_KEY] || null;
-  if (selectedItemLink?.room && selectedItemLink.room !== room) {
-    await connectRoom(selectedItemLink.room);
-  }
-  if (selectedItemLink?.room === room && players[selectedItemLink.playerKey]) {
-    selectedCharacterKey = selectedItemLink.playerKey;
-  }
-  render();
+  if (!itemId) return null;
+  const [item] = await OBR.scene.items.getItems([itemId]);
+  return item || null;
 }
 
-function actualPlayers() {
-  return Object.entries(players)
-    .filter(([key]) => !String(key).startsWith("__"))
-    .sort((a, b) => summary(a[0], a[1]).name.localeCompare(summary(b[0], b[1]).name, "ru"));
+function renderAttackMenu(data) {
+  const rows = attackRows(data);
+  const title = data.charName || data._name || "Листок";
+  $("ctxAttackMenu").innerHTML = `
+    <div class="attack-menu-title">${escapeHtml(title)}</div>
+    <div class="attack-menu-list">
+      ${rows.length ? rows.join("") : '<div class="attack-menu-empty">Атаки не указаны.</div>'}
+    </div>`;
 }
 
-async function bindToken(key) {
-  if (!selectedItemId || !room || !players[key]) return;
-  const link = { room, playerKey: key };
-  await OBR.scene.items.updateItems([selectedItemId], (items) => {
-    for (const item of items) {
-      item.metadata = item.metadata || {};
-      item.metadata[LINK_KEY] = link;
-    }
-  });
-  selectedItemLink = link;
-  selectedCharacterKey = key;
-  render();
-}
-
-async function unlinkToken() {
-  if (!selectedItemId) return;
-  await OBR.scene.items.updateItems([selectedItemId], (items) => {
-    for (const item of items) {
-      item.metadata = item.metadata || {};
-      delete item.metadata[LINK_KEY];
-    }
-  });
-  selectedItemLink = null;
-  render();
-}
-
-function render() {
-  renderStatus();
-  renderCharacters();
-  renderSheet();
-}
-
-function renderStatus() {
-  if (!selectedItemId) {
-    setStatus("Выберите один токен, чтобы привязать листок.");
-    $("ctxUnlinkBtn").disabled = true;
-    return;
+function attackRows(data) {
+  const attacks = cleanList(data.attacks).map((attack) =>
+    attackRow(attack.name || "Атака", attack.bonus || "", attack.dmg || "")
+  );
+  const spellStat = SPELL_STATS[data.classSelect];
+  if (spellStat) {
+    const spellMod = statMod(data, spellStat);
+    const prof = profBonus(data.levelInput);
+    attacks.push(attackRow("Атака заклинанием", fmtMod(prof + spellMod), ""));
+    attacks.push(attackRow("Сложность спасброска", fmtMod(8 + prof + spellMod), ""));
   }
-  $("ctxUnlinkBtn").disabled = !selectedItemLink;
-  if (!selectedItemLink) {
-    setStatus("Токен выбран, листок пока не привязан.");
-    return;
-  }
-  setStatus(`Привязан: ${selectedItemLink.playerKey} · ${selectedItemLink.room}`);
+  return attacks;
 }
 
-function renderCharacters() {
-  const list = $("ctxCharacterList");
-  const entries = actualPlayers();
-  if (!entries.length) {
-    list.innerHTML = '<div class="muted-box">В комнате пока нет персонажей.</div>';
-    return;
-  }
-  list.innerHTML = "";
-  for (const [key, data] of entries) {
-    const s = summary(key, data);
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "card" + (key === selectedCharacterKey ? " selected" : "");
-    card.innerHTML = `
-      <div class="card-head">
-        <div>
-          <div class="name">${escapeHtml(s.name)}</div>
-          <div class="meta">${escapeHtml(s.cls)} ${s.level} ур. · КД ${s.ac}</div>
-        </div>
-        <div class="hp">${s.hpCur}/${s.hpMax}${s.hpTemp ? " +" + s.hpTemp : ""}</div>
-      </div>`;
-    card.addEventListener("click", () => bindToken(key));
-    list.appendChild(card);
-  }
+function attackRow(name, bonus, details) {
+  return `
+    <div class="attack-menu-row">
+      <span class="attack-menu-name">${escapeHtml(name)}</span>
+      <span class="attack-menu-bonus">${escapeHtml(bonus)}</span>
+      ${details ? `<span class="attack-menu-details">${escapeHtml(details)}</span>` : ""}
+    </div>`;
 }
 
-function renderSheet() {
-  const box = $("ctxSheetBox");
-  const key = selectedCharacterKey || selectedItemLink?.playerKey;
-  const data = key ? players[key] : null;
-  if (!data) {
-    box.innerHTML = '<div class="muted-box">Привяжите или выберите персонажа.</div>';
-    return;
-  }
-  const s = summary(key, data);
-  const temp = s.hpTemp ? ` +${s.hpTemp} врем.` : "";
-  const attacks = cleanList(data.attacks).slice(0, 3).map((attack) =>
-    `<div class="overview-row"><strong>${escapeHtml(attack.name || "Атака")}</strong><span>${escapeHtml(attack.bonus || "")} ${escapeHtml(attack.dmg || "")}</span></div>`
-  ).join("");
-  const abilities = cleanList(data.abilities).slice(0, 3).map((ability) =>
-    `<span class="overview-badge">${escapeHtml(ability.name || "Умение")}</span>`
-  ).join("");
-  box.innerHTML = `
-    <div class="overview-head">
-      <div>
-        <div class="overview-name">${escapeHtml(s.name)}</div>
-        <div class="overview-sub">${escapeHtml(s.cls)} ${s.level} ур. · ${escapeHtml(data.race || "Раса не указана")}</div>
-      </div>
-      <div class="overview-hp">${s.hpCur}/${s.hpMax}${escapeHtml(temp)}<br>КД ${s.ac}</div>
-    </div>
-    <div class="overview-grid">
-      ${tile("Иниц.", data.initField || "—")}
-      ${tile("Скорость", data.speed || "30 фт.")}
-      ${tile("Пассивка", passivePerception(data))}
-    </div>
-    ${attacks ? `<h2>Атаки</h2><div class="overview-section">${attacks}</div>` : ""}
-    ${abilities ? `<h2>Умения</h2><div class="overview-badges">${abilities}</div>` : ""}`;
+function renderMessage(text) {
+  $("ctxAttackMenu").innerHTML = `<div class="attack-menu-empty">${escapeHtml(text)}</div>`;
 }
 
-function tile(label, value) {
-  return `<div class="overview-tile"><div class="overview-label">${escapeHtml(label)}</div><div class="overview-value">${escapeHtml(value)}</div></div>`;
-}
-
-function passivePerception(data) {
-  const wis = statMod(data, "wis");
-  const prof = data.skillProf?.perception ? profBonus(data.levelInput) : 0;
-  return 10 + wis + prof;
+function cleanList(value) {
+  return Array.isArray(value) ? value.filter((item) => {
+    if (typeof item === "string") return item.trim();
+    return item && Object.values(item).some((part) => String(part || "").trim());
+  }) : [];
 }
 
 function statTotal(data, stat) {
@@ -259,20 +130,9 @@ function profBonus(level) {
   return 2 + Math.floor(((parseInt(level, 10) || 1) - 1) / 4);
 }
 
-function cleanList(value) {
-  return Array.isArray(value) ? value.filter((item) => {
-    if (typeof item === "string") return item.trim();
-    return item && Object.values(item).some((part) => String(part || "").trim());
-  }) : [];
-}
-
-function openFullSheet() {
-  const url = new URL("../index.html", window.location.href);
-  window.open(url.toString(), "_blank", "noopener,noreferrer");
-}
-
-function setStatus(text) {
-  $("ctxStatus").textContent = text;
+function fmtMod(value) {
+  const num = parseInt(value, 10) || 0;
+  return num >= 0 ? "+" + num : String(num);
 }
 
 function escapeHtml(value) {
@@ -283,28 +143,6 @@ function escapeHtml(value) {
     '"': "&quot;",
     "'": "&#39;"
   }[ch]));
-}
-
-function bindUi() {
-  $("ctxConnectBtn").addEventListener("click", () => connectRoom($("ctxRoomInput").value, true));
-  $("ctxRefreshBtn").addEventListener("click", refreshSelection);
-  $("ctxUnlinkBtn").addEventListener("click", unlinkToken);
-  $("ctxOpenFullBtn").addEventListener("click", openFullSheet);
-}
-
-async function init() {
-  bindUi();
-  if (!OBR.isAvailable) {
-    setStatus("Откройте это меню внутри Owlbear Rodeo.");
-    return;
-  }
-  await OBR.onReady(async () => {
-    const metadata = await OBR.scene.getMetadata();
-    const savedRoom = metadata[ROOM_KEY] || localStorage.getItem("dnd_obr_room") || localStorage.getItem("dnd_fb_room") || "";
-    $("ctxRoomInput").value = savedRoom;
-    if (savedRoom) await connectRoom(savedRoom);
-    await refreshSelection();
-  });
 }
 
 init();

@@ -387,8 +387,8 @@ function setupContextMenu() {
       }
     ],
     embed: {
-      url: "/dndsheet/obr-sheet-link/context.html?v=0130",
-      height: 520
+      url: "/dndsheet/obr-sheet-link/context.html?v=0132",
+      height: 260
     },
     onClick(context) {
       const itemId = context?.items?.[0]?.id || context?.item?.id || context?.itemId || "";

@@ -4,52 +4,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Листок токена</title>
-  <link rel="stylesheet" href="./style.css?v=0130">
+  <title>Атаки листка</title>
+  <link rel="stylesheet" href="./style.css?v=0132">
 </head>
 
 <body class="context-body">
-  <main class="context-menu">
-    <section class="panel">
-      <div class="title-row">
-        <h2>Листок токена</h2>
-        <button id="ctxRefreshBtn" class="btn small">Обновить</button>
-      </div>
-      <div id="ctxStatus" class="muted-box">Загрузка...</div>
-    </section>
-
-    <section class="panel">
-      <label class="field">
-        <span>Комната листка</span>
-        <input id="ctxRoomInput" placeholder="CocaColaRoom" autocomplete="off">
-      </label>
-      <div class="row">
-        <button id="ctxConnectBtn" class="btn primary">Подключить</button>
-        <button id="ctxUnlinkBtn" class="btn danger">Отвязать</button>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="title-row">
-        <h2>Персонажи</h2>
-      </div>
-      <div id="ctxCharacterList" class="list compact-list">
-        <div class="muted-box">Персонажи появятся после подключения.</div>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="title-row">
-        <h2>Краткий листок</h2>
-        <button id="ctxOpenFullBtn" class="btn small">Полный</button>
-      </div>
-      <div id="ctxSheetBox" class="overview">
-        <div class="muted-box">Привяжите или выберите персонажа.</div>
-      </div>
-    </section>
+  <main id="ctxAttackMenu" class="attack-menu">
+    <div class="muted-box">Загрузка...</div>
   </main>
 
-  <script type="module" src="./context.js?v=0130"></script>
+  <script type="module" src="./context.js?v=0132"></script>
 </body>
 
 </html>
