@@ -15,6 +15,7 @@ const FB_CONFIG = {
 const ROOM_KEY = "ru.dndsheet.link/room";
 const LINK_KEY = "ru.dndsheet.link/character";
 const OVERLAY_KEY = "ru.dndsheet.link/overlay";
+const CONTEXT_MENU_ID = "ru.dndsheet.link/context-menu";
 const DIGITS = {
   "0": "abcfed",
   "1": "bc",
@@ -372,8 +373,33 @@ async function loadSceneRoom() {
   connectRoom(metadata[ROOM_KEY] || "");
 }
 
+function setupContextMenu() {
+  OBR.contextMenu.create({
+    id: CONTEXT_MENU_ID,
+    icons: [
+      {
+        icon: "/dndsheet/obr-sheet-link/icon.png",
+        label: "Листок",
+        filter: {
+          min: 1,
+          max: 1
+        }
+      }
+    ],
+    embed: {
+      url: "/dndsheet/obr-sheet-link/context.html?v=0130",
+      height: 520
+    },
+    onClick(context) {
+      const itemId = context?.items?.[0]?.id || context?.item?.id || context?.itemId || "";
+      if (itemId) localStorage.setItem("dnd_obr_context_item", itemId);
+    }
+  });
+}
+
 if (OBR.isAvailable) {
   OBR.onReady(() => {
+    setupContextMenu();
     loadSceneRoom();
     OBR.scene.onReadyChange((ready) => {
       if (ready) loadSceneRoom();

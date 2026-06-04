@@ -9,6 +9,17 @@ body {
   color: #1a1a18;
 }
 
+.context-body {
+  background: transparent;
+}
+
+.context-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+}
+
 button,
 input {
   font: inherit;
@@ -184,6 +195,10 @@ h2 {
   gap: 7px;
   max-height: 230px;
   overflow: auto;
+}
+
+.compact-list {
+  max-height: 150px;
 }
 
 .card {
