@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="D&D Sheet Link">
+  <rect width="64" height="64" rx="15" fill="#2F7A5B"/>
+  <path d="M18 10h22l9 9v35H18z" fill="#FFF8E6"/>
+  <path d="M40 10v10h9z" fill="#E8D3A4"/>
+  <path d="M18 10h22l9 9v35H18z" fill="none" stroke="#234C3D" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M25 26h17M25 33h17M25 40h10" stroke="#6B5A3A" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="22" cy="26" r="2" fill="#639922"/>
+  <circle cx="22" cy="33" r="2" fill="#BA7517"/>
+  <circle cx="22" cy="40" r="2" fill="#534AB7"/>
+  <path d="M42 42l6 3v7l-6 3-6-3v-7z" fill="#534AB7" stroke="#FFF8E6" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M42 42v13M36 45l12 7M48 45l-12 7" stroke="#FFF8E6" stroke-width="1.4" stroke-linecap="round"/>
+</svg>

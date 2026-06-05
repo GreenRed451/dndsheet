@@ -1,26 +1,16 @@
 {
-  "name": "D&D Лист персонажа",
-  "short_name": "D&D Лист",
-  "description": "Лист персонажа D&D 5e для игровых сессий.",
-  "lang": "ru",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "any",
-  "background_color": "#f5f4f0",
-  "theme_color": "#534AB7",
-  "icons": [
-    {
-      "src": "./icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+  "name": "D&D Sheet Link",
+  "version": "0.1.36",
+  "manifest_version": 1,
+  "description": "Связывает токены Owlbear Rodeo с вашим листком персонажа.",
+  "icon": "/dndsheet/obr-sheet-link/icon.png",
+  "author": "GreenRed",
+  "background_url": "/dndsheet/obr-sheet-link/background.html?v=0136",
+  "action": {
+    "title": "D&D Sheet",
+    "icon": "/dndsheet/obr-sheet-link/icon.png",
+    "popover": "/dndsheet/obr-sheet-link/index.html?v=0136",
+    "height": 760,
+    "width": 560
+  }
 }
