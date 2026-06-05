@@ -1,7 +1,7 @@
 import OBR from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { enablePopoverDrag } from "./popover-window.js?v=0136";
+import { enablePopoverDrag } from "./popover-window.js?v=0137";
 
 const FB_CONFIG = {
   apiKey: "AIzaSyBEjhg3RC4EzeaK792Ob2pn5krfXnn6rxk",

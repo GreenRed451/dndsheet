@@ -18,7 +18,6 @@ const OVERLAY_KEY = "ru.dndsheet.link/overlay";
 const ATTACK_CONTEXT_MENU_ID = "ru.dndsheet.link/attack-context-menu";
 const SPELL_CONTEXT_MENU_ID = "ru.dndsheet.link/spell-context-menu";
 const ABILITY_CONTEXT_MENU_ID = "ru.dndsheet.link/ability-context-menu";
-const POPOVER_SIZE = { width: 720, height: 620 };
 const DIGITS = {
   "0": "abcfed",
   "1": "bc",
@@ -387,13 +386,17 @@ async function openFloatingPopover(options) {
   const itemQuery = options.itemId ? `&itemId=${encodeURIComponent(options.itemId)}` : "";
   OBR.popover.open({
     id: options.id,
-    url: `${options.url}?v=0136&x=${position.left}&y=${position.top}${itemQuery}`,
-    width: POPOVER_SIZE.width,
-    height: POPOVER_SIZE.height,
+    url: `${options.url}?v=0137&x=${position.left}&y=${position.top}&w=${screenWidth}&h=${screenHeight}${itemQuery}`,
+    width: screenWidth,
+    height: screenHeight,
     anchorReference: "POSITION",
-    anchorPosition: position,
+    anchorPosition: {
+      left: Math.round(screenWidth / 2),
+      top: Math.round(screenHeight / 2)
+    },
     anchorOrigin: { horizontal: "CENTER", vertical: "CENTER" },
     transformOrigin: { horizontal: "CENTER", vertical: "CENTER" },
+    hidePaper: true,
     disableClickAway: true
   });
 }
@@ -423,7 +426,7 @@ function setupContextMenu() {
       }
     ],
     embed: {
-      url: "/dndsheet/obr-sheet-link/context.html?v=0136",
+      url: "/dndsheet/obr-sheet-link/context.html?v=0137",
       height: 260
     },
     onClick(context) {
