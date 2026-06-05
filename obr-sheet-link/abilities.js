@@ -1,7 +1,7 @@
 import OBR from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { enablePopoverDrag } from "./popover-window.js?v=0137";
+import { bindPopoverMoveButtons, enablePopoverDrag } from "./popover-window.js?v=0138";
 
 const FB_CONFIG = {
   apiKey: "AIzaSyBEjhg3RC4EzeaK792Ob2pn5krfXnn6rxk",
@@ -92,6 +92,7 @@ function renderAbilityMenu(data) {
         <div class="spell-menu-title">${escapeHtml(title)}</div>
         <div class="spell-menu-sub">${currentAbilities.length ? `Умений: ${currentAbilities.length}` : "Умения не указаны."}</div>
       </div>
+      ${moveControls()}
       <button type="button" id="closeAbilityPopover" class="spell-menu-close">Закрыть</button>
     </div>
     ${currentAbilities.length
@@ -104,12 +105,14 @@ function renderAbilityMenu(data) {
       : '<div class="attack-menu-empty">У этого персонажа пока нет записанных умений.</div>'}
   `;
   $("closeAbilityPopover")?.addEventListener("click", closePopover);
-  enablePopoverDrag(OBR, {
+  const dragOptions = {
     rootId: "abilityMenu",
     popoverId: ABILITY_POPOVER_ID,
     url: "/dndsheet/obr-sheet-link/abilities.html",
     storageKey: "dnd_obr_abilities_position"
-  });
+  };
+  enablePopoverDrag(OBR, dragOptions);
+  bindPopoverMoveButtons(OBR, dragOptions);
   $("abilityMenu").querySelectorAll("[data-ability-index]").forEach((button) => {
     button.addEventListener("click", () => showAbility(parseInt(button.dataset.abilityIndex, 10) || 0));
   });
@@ -143,16 +146,29 @@ function renderMessage(text) {
   $("abilityMenu").innerHTML = `
     <div class="spell-menu-head">
       <div class="spell-menu-title">Умения</div>
+      ${moveControls()}
       <button type="button" id="closeAbilityPopover" class="spell-menu-close">Закрыть</button>
     </div>
     <div class="attack-menu-empty">${escapeHtml(text)}</div>`;
   $("closeAbilityPopover")?.addEventListener("click", closePopover);
-  enablePopoverDrag(OBR, {
+  const dragOptions = {
     rootId: "abilityMenu",
     popoverId: ABILITY_POPOVER_ID,
     url: "/dndsheet/obr-sheet-link/abilities.html",
     storageKey: "dnd_obr_abilities_position"
-  });
+  };
+  enablePopoverDrag(OBR, dragOptions);
+  bindPopoverMoveButtons(OBR, dragOptions);
+}
+
+function moveControls() {
+  return `
+    <div class="popover-move-controls" aria-label="Переместить окно">
+      <button type="button" data-popover-move="left" title="Левее">‹</button>
+      <button type="button" data-popover-move="up" title="Выше">˄</button>
+      <button type="button" data-popover-move="down" title="Ниже">˅</button>
+      <button type="button" data-popover-move="right" title="Правее">›</button>
+    </div>`;
 }
 
 function closePopover() {

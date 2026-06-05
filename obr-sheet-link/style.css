@@ -11,7 +11,6 @@ body {
 
 .context-body {
   background: transparent;
-  overflow: hidden;
 }
 
 .context-menu {
@@ -79,17 +78,14 @@ body {
 }
 
 .spell-menu {
-  position: fixed;
-  width: 720px;
-  height: 620px;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   padding: 12px;
   background: #f5f4f0;
   color: #1a1a18;
   font-size: 13px;
-  border: 1px solid #d8d4ca;
-  border-radius: 10px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, .26);
+  transition: transform .08s ease-out;
 }
 
 .spell-menu.dragging-window {
@@ -109,6 +105,27 @@ body {
   cursor: move;
   user-select: none;
   touch-action: none;
+}
+
+.popover-move-controls {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.popover-move-controls button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d8d4ca;
+  border-radius: 7px;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+}
+
+.popover-move-controls button:hover {
+  border-color: #534AB7;
+  color: #534AB7;
 }
 
 .spell-menu-title {
@@ -139,7 +156,7 @@ body {
   display: grid;
   grid-template-columns: 230px minmax(0, 1fr);
   gap: 10px;
-  height: 546px;
+  height: calc(100vh - 58px);
   min-height: 0;
 }
 

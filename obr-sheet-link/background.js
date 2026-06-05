@@ -18,6 +18,7 @@ const OVERLAY_KEY = "ru.dndsheet.link/overlay";
 const ATTACK_CONTEXT_MENU_ID = "ru.dndsheet.link/attack-context-menu";
 const SPELL_CONTEXT_MENU_ID = "ru.dndsheet.link/spell-context-menu";
 const ABILITY_CONTEXT_MENU_ID = "ru.dndsheet.link/ability-context-menu";
+const POPOVER_SIZE = { width: 720, height: 620 };
 const DIGITS = {
   "0": "abcfed",
   "1": "bc",
@@ -386,19 +387,23 @@ async function openFloatingPopover(options) {
   const itemQuery = options.itemId ? `&itemId=${encodeURIComponent(options.itemId)}` : "";
   OBR.popover.open({
     id: options.id,
-    url: `${options.url}?v=0137&x=${position.left}&y=${position.top}&w=${screenWidth}&h=${screenHeight}${itemQuery}`,
-    width: screenWidth,
-    height: screenHeight,
+    url: `${options.url}?v=0138&x=${position.left}&y=${position.top}${itemQuery}`,
+    width: POPOVER_SIZE.width,
+    height: POPOVER_SIZE.height,
     anchorReference: "POSITION",
-    anchorPosition: {
-      left: Math.round(screenWidth / 2),
-      top: Math.round(screenHeight / 2)
-    },
+    anchorPosition: clampPopoverPosition(position, screenWidth, screenHeight),
     anchorOrigin: { horizontal: "CENTER", vertical: "CENTER" },
     transformOrigin: { horizontal: "CENTER", vertical: "CENTER" },
-    hidePaper: true,
     disableClickAway: true
   });
+}
+
+function clampPopoverPosition(position, screenWidth, screenHeight) {
+  const margin = 24;
+  return {
+    left: Math.max(POPOVER_SIZE.width / 2 + margin, Math.min(screenWidth - POPOVER_SIZE.width / 2 - margin, Math.round(position.left))),
+    top: Math.max(POPOVER_SIZE.height / 2 + margin, Math.min(screenHeight - POPOVER_SIZE.height / 2 - margin, Math.round(position.top)))
+  };
 }
 
 function readSavedPopoverPosition(key) {
@@ -426,7 +431,7 @@ function setupContextMenu() {
       }
     ],
     embed: {
-      url: "/dndsheet/obr-sheet-link/context.html?v=0137",
+      url: "/dndsheet/obr-sheet-link/context.html?v=0138",
       height: 260
     },
     onClick(context) {

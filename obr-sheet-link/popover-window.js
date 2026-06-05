@@ -1,45 +1,39 @@
-const WINDOW_WIDTH = 720;
-const WINDOW_HEIGHT = 620;
+const STEP = 120;
 
 export function enablePopoverDrag(OBR, options) {
   const root = document.getElementById(options.rootId);
   const handle = root?.querySelector(".spell-menu-head");
   if (!root || !handle) return;
 
-  positionWindow(root);
+  handle.classList.add("draggable-window-head");
+  handle.title = "Потяните, чтобы закрепить окно в новом месте";
   if (!OBR.isAvailable) return;
 
-  handle.classList.add("draggable-window-head");
   handle.addEventListener("pointerdown", (event) => {
     if (event.button !== 0 || event.target.closest("button")) return;
     event.preventDefault();
     handle.setPointerCapture(event.pointerId);
     const startX = event.clientX;
     const startY = event.clientY;
-    const rect = root.getBoundingClientRect();
-    const baseLeft = rect.left;
-    const baseTop = rect.top;
+    const params = new URLSearchParams(window.location.search);
+    const baseX = parseInt(params.get("x"), 10) || Math.round(window.innerWidth / 2);
+    const baseY = parseInt(params.get("y"), 10) || Math.round(window.innerHeight / 2);
 
     const onMove = (moveEvent) => {
-      const next = clampPanelPosition({
-        left: baseLeft + moveEvent.clientX - startX,
-        top: baseTop + moveEvent.clientY - startY
-      });
-      root.style.left = `${next.left}px`;
-      root.style.top = `${next.top}px`;
+      root.style.transform = `translate(${moveEvent.clientX - startX}px, ${moveEvent.clientY - startY}px)`;
       root.classList.add("dragging-window");
     };
 
-    const onUp = () => {
+    const onUp = async (upEvent) => {
       handle.releasePointerCapture(event.pointerId);
       handle.removeEventListener("pointermove", onMove);
       handle.removeEventListener("pointerup", onUp);
       root.classList.remove("dragging-window");
-      const nextRect = root.getBoundingClientRect();
-      localStorage.setItem(options.storageKey, JSON.stringify({
-        left: Math.round(nextRect.left + nextRect.width / 2),
-        top: Math.round(nextRect.top + nextRect.height / 2)
-      }));
+      root.style.transform = "";
+      await movePopover(OBR, options, {
+        left: baseX + upEvent.clientX - startX,
+        top: baseY + upEvent.clientY - startY
+      });
     };
 
     handle.addEventListener("pointermove", onMove);
@@ -47,22 +41,48 @@ export function enablePopoverDrag(OBR, options) {
   });
 }
 
-function positionWindow(root) {
-  const params = new URLSearchParams(window.location.search);
-  const centerX = parseInt(params.get("x"), 10) || Math.round(window.innerWidth / 2);
-  const centerY = parseInt(params.get("y"), 10) || Math.round(window.innerHeight / 2);
-  const next = clampPanelPosition({
-    left: centerX - WINDOW_WIDTH / 2,
-    top: centerY - WINDOW_HEIGHT / 2
+export function bindPopoverMoveButtons(OBR, options) {
+  const root = document.getElementById(options.rootId);
+  if (!root || !OBR.isAvailable) return;
+  root.querySelectorAll("[data-popover-move]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const direction = button.dataset.popoverMove || "";
+      const params = new URLSearchParams(window.location.search);
+      const baseX = parseInt(params.get("x"), 10) || Math.round(window.innerWidth / 2);
+      const baseY = parseInt(params.get("y"), 10) || Math.round(window.innerHeight / 2);
+      await movePopover(OBR, options, {
+        left: baseX + (direction.includes("right") ? STEP : direction.includes("left") ? -STEP : 0),
+        top: baseY + (direction.includes("down") ? STEP : direction.includes("up") ? -STEP : 0)
+      });
+    });
   });
-  root.style.left = `${next.left}px`;
-  root.style.top = `${next.top}px`;
 }
 
-function clampPanelPosition(position) {
-  const margin = 12;
+async function movePopover(OBR, options, position) {
+  const width = await OBR.viewport.getWidth();
+  const height = await OBR.viewport.getHeight();
+  const next = clampPosition(position, width, height);
+  localStorage.setItem(options.storageKey, JSON.stringify(next));
+  const params = new URLSearchParams(window.location.search);
+  const itemId = params.get("itemId") || "";
+  const itemQuery = itemId ? `&itemId=${encodeURIComponent(itemId)}` : "";
+  await OBR.popover.open({
+    id: options.popoverId,
+    url: `${options.url}?v=0138&x=${next.left}&y=${next.top}${itemQuery}`,
+    width: 720,
+    height: 620,
+    anchorReference: "POSITION",
+    anchorPosition: next,
+    anchorOrigin: { horizontal: "CENTER", vertical: "CENTER" },
+    transformOrigin: { horizontal: "CENTER", vertical: "CENTER" },
+    disableClickAway: true
+  });
+}
+
+function clampPosition(position, screenWidth, screenHeight) {
+  const margin = 24;
   return {
-    left: Math.max(margin, Math.min(window.innerWidth - WINDOW_WIDTH - margin, Math.round(position.left))),
-    top: Math.max(margin, Math.min(window.innerHeight - WINDOW_HEIGHT - margin, Math.round(position.top)))
+    left: Math.max(360 + margin, Math.min(screenWidth - 360 - margin, Math.round(position.left))),
+    top: Math.max(310 + margin, Math.min(screenHeight - 310 - margin, Math.round(position.top)))
   };
 }
