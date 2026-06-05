@@ -172,6 +172,40 @@
       min-width: 240px
     }
 
+    .tool-row .field.view-field {
+      min-width: 190px
+    }
+
+    .view-toggle {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border: 1px solid #d8d2c5;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff
+    }
+
+    .view-option {
+      border: none;
+      border-right: 1px solid #d8d2c5;
+      background: transparent;
+      color: #4b4a45;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 10px;
+      cursor: pointer
+    }
+
+    .view-option:last-child {
+      border-right: none
+    }
+
+    .view-option.active {
+      background: #534AB7;
+      color: #fff
+    }
+
     .type-badge {
       display: inline-flex;
       align-items: center;
@@ -235,6 +269,75 @@
       font-size: 12px;
       color: #888;
       margin-top: 2px
+    }
+
+    .bestiary-card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      flex-wrap: wrap
+    }
+
+    .bestiary-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .bestiary-list-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid #e0ddd4;
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px 12px;
+      cursor: pointer
+    }
+
+    .bestiary-list-item:focus,
+    .bestiary-list-item:hover {
+      border-color: #534AB7;
+      box-shadow: 0 2px 12px rgba(83, 74, 183, .08)
+    }
+
+    .bestiary-list-main {
+      min-width: 0
+    }
+
+    .bestiary-list-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a18;
+      overflow-wrap: anywhere
+    }
+
+    .bestiary-list-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 3px;
+      color: #888;
+      font-size: 12px
+    }
+
+    .bestiary-list-preview {
+      margin-top: 5px;
+      color: #5f5d57;
+      font-size: 12px;
+      line-height: 1.4;
+      overflow-wrap: anywhere
+    }
+
+    .bestiary-list-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      flex-wrap: wrap
     }
 
     .bestiary-section {
@@ -567,9 +670,17 @@
 
     .entry-modal-head {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
       gap: 8px;
-      margin-bottom: 10px
+      margin-bottom: 10px;
+      flex-wrap: wrap
+    }
+
+    .entry-modal-nav {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap
     }
 
     .entry-modal .bestiary-card {
@@ -604,12 +715,24 @@
         padding: 12px
       }
 
+      .entry-modal-head {
+        align-items: stretch
+      }
+
       .wrap {
         padding: 12px 10px
       }
 
       .bestiary-grid {
         grid-template-columns: 1fr
+      }
+
+      .bestiary-list-item {
+        grid-template-columns: 1fr
+      }
+
+      .bestiary-list-actions {
+        justify-content: flex-start
       }
 
       .editor-grid {
@@ -711,6 +834,12 @@
             <option value="hidden">Ничего не раскрыто</option>
           </select>
         </div>
+        <div class="field view-field"><label>Вид</label>
+          <div class="view-toggle" role="group" aria-label="Вид отображения">
+            <button class="view-option" id="viewCardsBtn" type="button" onclick="setViewMode('cards')">Карточки</button>
+            <button class="view-option" id="viewListBtn" type="button" onclick="setViewMode('list')">Список</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -721,6 +850,10 @@
   <div id="entryModal" class="entry-modal" onclick="if(event.target===this)closeEntryModal()">
     <div class="entry-modal-panel">
       <div class="entry-modal-head">
+        <div class="entry-modal-nav">
+          <button class="btn" id="prevEntryBtn" type="button" onclick="openAdjacentEntry(-1)">Предыдущая</button>
+          <button class="btn" id="nextEntryBtn" type="button" onclick="openAdjacentEntry(1)">Следующая</button>
+        </div>
         <button class="btn" onclick="closeEntryModal()">Закрыть</button>
       </div>
       <div id="entryModalBody"></div>
@@ -836,6 +969,7 @@
     let bestiaryLoaded = false;
     let entries = [];
     let saveTimer = null;
+    let viewMode = localStorage.getItem('dnd_bestiary_view') === 'list' ? 'list' : 'cards';
 
     function v(id) {
       return document.getElementById(id);
@@ -970,6 +1104,23 @@
     function isEditingEntryList() {
       const active = document.activeElement;
       return !!(active && active.closest && active.closest('#entryList, #entryModal') && isEntryEditorControl(active));
+    }
+
+    function setViewMode(mode) {
+      viewMode = mode === 'list' ? 'list' : 'cards';
+      localStorage.setItem('dnd_bestiary_view', viewMode);
+      render();
+    }
+
+    function updateViewModeButtons() {
+      const cardsBtn = v('viewCardsBtn');
+      const listBtn = v('viewListBtn');
+      if (!cardsBtn || !listBtn) return;
+      const isList = viewMode === 'list';
+      cardsBtn.classList.toggle('active', !isList);
+      listBtn.classList.toggle('active', isList);
+      cardsBtn.setAttribute('aria-pressed', String(!isList));
+      listBtn.setAttribute('aria-pressed', String(isList));
     }
 
     async function connectBestiary() {
@@ -1190,10 +1341,12 @@
 
     function render() {
       const list = v('entryList');
+      updateViewModeButtons();
       v('addButtons').style.display = isGm && room ? 'flex' : 'none';
       v('accessHint').textContent = isGm
         ? 'Вы мастер: видите всё. Флажки показывают, какие секции открыты игрокам.'
         : 'Вы игрок: видите только сведения, которые мастер открыл для группы.';
+      list.className = viewMode === 'list' ? 'bestiary-list' : 'bestiary-grid';
 
       if (!room) {
         list.innerHTML = '<div class="section" style="grid-column:1/-1;color:#888;font-size:13px;text-align:center">Подключитесь к комнате.</div>';
@@ -1203,32 +1356,37 @@
       if (isGm) {
         const filtered = filterEntries(entries);
         list.innerHTML = filtered.length
-          ? filtered.map(renderEditorCard).join('')
+          ? filtered.map(entry => viewMode === 'list' ? renderListItem(entry) : renderEditorCard(entry)).join('')
           : '<div class="section" style="grid-column:1/-1;color:#888;font-size:13px;text-align:center">Подходящих записей нет.</div>';
-        attachCardControlStopper();
+        attachEntryListHandlers();
         return;
       }
 
       const publicEntries = filterEntries(entries.filter(hasVisibleContent));
       list.innerHTML = publicEntries.length
-        ? publicEntries.map(renderPublicCard).join('')
+        ? publicEntries.map(entry => viewMode === 'list' ? renderListItem(entry) : renderPublicCard(entry)).join('')
         : '<div class="section" style="grid-column:1/-1;color:#888;font-size:13px;text-align:center">Подходящих раскрытых записей нет.</div>';
-      attachCardControlStopper();
+      attachEntryListHandlers();
     }
 
-    function attachCardControlStopper() {
+    function attachEntryListHandlers() {
       const list = v('entryList');
       if (!list || list.dataset.stopperReady) return;
       list.addEventListener('click', event => {
+        const openButton = event.target.closest && event.target.closest('[data-open-entry-id]');
+        if (openButton && list.contains(openButton)) {
+          openEntryModal(openButton.dataset.openEntryId);
+          return;
+        }
         if (isEntryControl(event.target)) return;
-        const card = event.target.closest && event.target.closest('.bestiary-card[data-entry-id]');
+        const card = event.target.closest && event.target.closest('.bestiary-card[data-entry-id], .bestiary-list-item[data-entry-id]');
         if (!card || !list.contains(card)) return;
         openEntryModal(card.dataset.entryId);
       });
       list.addEventListener('keydown', event => {
         if (event.key !== 'Enter' && event.key !== ' ') return;
         if (isEntryControl(event.target)) return;
-        const card = event.target.closest && event.target.closest('.bestiary-card[data-entry-id]');
+        const card = event.target.closest && event.target.closest('.bestiary-card[data-entry-id], .bestiary-list-item[data-entry-id]');
         if (!card || !list.contains(card)) return;
         event.preventDefault();
         openEntryModal(card.dataset.entryId);
@@ -1243,6 +1401,7 @@
       v('entryModal').dataset.entryId = id;
       body.innerHTML = isGm ? renderEditorCard(entry, true) : renderPublicCard(entry, true);
       v('entryModal').classList.add('show');
+      updateEntryModalNav(id);
       document.body.style.overflow = 'hidden';
     }
 
@@ -1253,6 +1412,7 @@
       const entry = entries.find(item => item.id === id);
       if (!entry) return;
       v('entryModalBody').innerHTML = isGm ? renderEditorCard(entry, true) : renderPublicCard(entry, true);
+      updateEntryModalNav(id);
     }
 
     function closeEntryModal() {
@@ -1260,6 +1420,30 @@
       v('entryModal').dataset.entryId = '';
       v('entryModalBody').innerHTML = '';
       document.body.style.overflow = '';
+    }
+
+    function modalEntryPool() {
+      return isGm ? filterEntries(entries) : filterEntries(entries.filter(hasVisibleContent));
+    }
+
+    function updateEntryModalNav(id) {
+      const pool = modalEntryPool();
+      const disabled = pool.length < 2 || !pool.some(item => item.id === id);
+      ['prevEntryBtn', 'nextEntryBtn'].forEach(buttonId => {
+        const button = v(buttonId);
+        if (button) button.disabled = disabled;
+      });
+    }
+
+    function openAdjacentEntry(step) {
+      const modal = v('entryModal');
+      const currentId = modal.dataset.entryId;
+      const pool = modalEntryPool();
+      if (!pool.length) return;
+      const index = pool.findIndex(item => item.id === currentId);
+      const currentIndex = index >= 0 ? index : 0;
+      const next = pool[(currentIndex + step + pool.length) % pool.length];
+      if (next) openEntryModal(next.id);
     }
 
     function filterEntries(source) {
@@ -1285,6 +1469,10 @@
         : `class="bestiary-card" data-entry-id="${id}" tabindex="0" role="button"`;
     }
 
+    function renderOpenButton(id) {
+      return `<button class="btn" type="button" data-open-entry-id="${id}" style="padding:3px 8px">Открыть</button>`;
+    }
+
     function renderEditorCard(entry, inModal) {
       const e = normalizeEntry(entry);
       const id = esc(e.id);
@@ -1298,7 +1486,10 @@
               <div class="bestiary-card-name">${esc(e.name || 'Без названия')}</div>
               <div class="bestiary-card-meta"><span class="type-badge">${esc(e.type || 'NPC')}</span>${revealSummary(e)}${e.tags ? ' · ' + esc(e.tags) : ''}</div>
             </div>
-            <button class="btn danger" onclick="deleteEntry('${id}')" style="padding:3px 8px">Удалить</button>
+            <div class="bestiary-card-actions">
+              ${inModal ? '' : renderOpenButton(id)}
+              <button class="btn danger" onclick="deleteEntry('${id}')" style="padding:3px 8px">Удалить</button>
+            </div>
           </div>
           <div class="editor-grid">
             <div class="field"><label>Название</label><input type="text" value="${esc(e.name)}" oninput="updateEntry('${id}','name',this.value)"></div>
@@ -1508,10 +1699,72 @@
               <div class="bestiary-card-name">${esc(e.name || 'Без названия')}</div>
               <div class="bestiary-card-meta"><span class="type-badge">${esc(e.type || 'NPC')}</span>${e.tags ? esc(e.tags) : ''}</div>
             </div>
+            ${inModal ? '' : `<div class="bestiary-card-actions">${renderOpenButton(id)}</div>`}
           </div>
           ${sections}
         </div>
       `;
+    }
+
+    function renderListItem(entry) {
+      const e = normalizeEntry(entry);
+      const id = esc(e.id);
+      const meta = [
+        `<span class="type-badge">${esc(e.type || 'NPC')}</span>`,
+        e.tags ? esc(e.tags) : '',
+        revealSummary(e)
+      ].filter(Boolean).join('');
+      const preview = entryListPreview(e);
+      return `
+        <div class="bestiary-list-item" data-entry-id="${id}" tabindex="0" role="button">
+          <div class="bestiary-list-main">
+            <div class="bestiary-list-name">${esc(e.name || 'Без названия')}</div>
+            <div class="bestiary-list-meta">${meta}</div>
+            ${preview ? `<div class="bestiary-list-preview">${esc(preview)}</div>` : ''}
+          </div>
+          <div class="bestiary-list-actions">
+            ${renderOpenButton(id)}
+            ${isGm ? `<button class="btn danger" onclick="deleteEntry('${id}')" style="padding:3px 8px">Удалить</button>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function entryListPreview(entry) {
+      const candidates = isGm
+        ? [entry.summary, entry.peace, entry.combat, entry.inventory, entry.relations, entry.gmNotes]
+        : VISIBILITY_FIELDS
+          .filter(([field]) => entry.visible[field])
+          .map(([field]) => plainSectionPreview(entry, field));
+      const text = candidates.find(value => String(value || '').trim());
+      return compactText(text || '');
+    }
+
+    function plainSectionPreview(entry, field) {
+      if (field === 'combat') {
+        const combat = normalizeCombatBlock(entry.combatBlock);
+        return [combat.challenge, combat.ac ? `КД ${combat.ac}` : '', combat.hp ? `ХП ${combat.hp}` : '', entry.combat]
+          .filter(Boolean)
+          .join(' · ');
+      }
+      if (field === 'peace') {
+        const peace = normalizePeaceBlock(entry.peaceBlock);
+        return [peace.wants, peace.heroAttitude, peace.behavior, entry.peace].filter(Boolean).join(' · ');
+      }
+      if (field === 'inventory') {
+        const item = normalizeInventoryItems(entry.inventoryItems).find(row => row.name || row.qty || row.note);
+        return [item?.name, entry.inventory].filter(Boolean).join(' · ');
+      }
+      if (field === 'relations') {
+        const link = normalizeRelationLinks(entry.relationLinks).find(row => row.targetId || row.customTarget || row.attitude || row.note);
+        return [link ? relationTargetName(link) : '', link?.attitude, entry.relations].filter(Boolean).join(' · ');
+      }
+      return entry[field];
+    }
+
+    function compactText(value) {
+      const text = String(value || '').replace(/\s+/g, ' ').trim();
+      return text.length > 180 ? text.slice(0, 177) + '...' : text;
     }
 
     function renderPublicSection(entry, field) {
