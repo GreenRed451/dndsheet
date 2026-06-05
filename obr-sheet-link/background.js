@@ -388,7 +388,7 @@ function setupContextMenu() {
       }
     ],
     embed: {
-      url: "/dndsheet/obr-sheet-link/context.html?v=0133",
+      url: "/dndsheet/obr-sheet-link/context.html?v=0134",
       height: 260
     },
     onClick(context) {
@@ -409,13 +409,19 @@ function setupContextMenu() {
         }
       }
     ],
-    embed: {
-      url: "/dndsheet/obr-sheet-link/spells.html?v=0133",
-      height: 460
-    },
-    onClick(context) {
+    onClick(context, elementId) {
       const itemId = context?.items?.[0]?.id || context?.item?.id || context?.itemId || "";
       if (itemId) localStorage.setItem("dnd_obr_context_item", itemId);
+      OBR.popover.open({
+        id: "ru.dndsheet.link/spells-popover",
+        url: `/dndsheet/obr-sheet-link/spells.html?v=0134${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}`,
+        width: 720,
+        height: 620,
+        anchorElementId: elementId,
+        anchorOrigin: { horizontal: "RIGHT", vertical: "CENTER" },
+        transformOrigin: { horizontal: "LEFT", vertical: "CENTER" },
+        disableClickAway: true
+      });
     }
   });
 }

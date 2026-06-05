@@ -13,6 +13,7 @@ const FB_CONFIG = {
 };
 
 const LINK_KEY = "ru.dndsheet.link/character";
+const SPELL_POPOVER_ID = "ru.dndsheet.link/spells-popover";
 const SPELL_STATS = {
   bard: "cha",
   cleric: "wis",
@@ -71,9 +72,10 @@ async function init() {
 }
 
 async function getContextItem() {
+  const queryItemId = new URLSearchParams(window.location.search).get("itemId") || "";
   const selection = await OBR.player.getSelection();
   const fallbackItemId = localStorage.getItem("dnd_obr_context_item") || "";
-  const itemId = selection && selection.length === 1 ? selection[0] : fallbackItemId;
+  const itemId = queryItemId || (selection && selection.length === 1 ? selection[0] : fallbackItemId);
   if (!itemId) return null;
   const [item] = await OBR.scene.items.getItems([itemId]);
   return item || null;
@@ -113,6 +115,7 @@ async function renderSpellMenu(data) {
         <div class="spell-menu-title">${escapeHtml(title)}</div>
         <div class="spell-menu-sub">${escapeHtml(statLine)}</div>
       </div>
+      <button type="button" id="closeSpellPopover" class="spell-menu-close">Закрыть</button>
     </div>
     ${currentSpells.length
       ? `<div class="spell-menu-layout">
@@ -123,6 +126,7 @@ async function renderSpellMenu(data) {
         </div>`
       : `<div class="attack-menu-empty">${escapeHtml(data.spells || "У этого персонажа не указаны заклинания.")}</div>`}
   `;
+  $("closeSpellPopover")?.addEventListener("click", closePopover);
   $("spellMenu").querySelectorAll("[data-spell-index]").forEach((button) => {
     button.addEventListener("click", () => showSpell(parseInt(button.dataset.spellIndex, 10) || 0));
   });
@@ -175,12 +179,23 @@ function spellInfo(label, value) {
 }
 
 function renderMessage(text) {
-  $("spellMenu").innerHTML = `<div class="attack-menu-empty">${escapeHtml(text)}</div>`;
+  $("spellMenu").innerHTML = `
+    <div class="spell-menu-head">
+      <div class="spell-menu-title">Заклинания</div>
+      <button type="button" id="closeSpellPopover" class="spell-menu-close">Закрыть</button>
+    </div>
+    <div class="attack-menu-empty">${escapeHtml(text)}</div>`;
+  $("closeSpellPopover")?.addEventListener("click", closePopover);
+}
+
+function closePopover() {
+  if (OBR.isAvailable) OBR.popover.close(SPELL_POPOVER_ID);
+  else window.close();
 }
 
 function loadSpellDb() {
   if (!spellDbPromise) {
-    spellDbPromise = fetch("../index.html?v=0133")
+    spellDbPromise = fetch("../index.html?v=0134")
       .then((response) => response.text())
       .then(parseSpellDb);
   }
