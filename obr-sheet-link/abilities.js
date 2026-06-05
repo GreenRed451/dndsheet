@@ -1,6 +1,7 @@
 import OBR from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { enablePopoverDrag } from "./popover-window.js?v=0136";
 
 const FB_CONFIG = {
   apiKey: "AIzaSyBEjhg3RC4EzeaK792Ob2pn5krfXnn6rxk",
@@ -103,6 +104,12 @@ function renderAbilityMenu(data) {
       : '<div class="attack-menu-empty">У этого персонажа пока нет записанных умений.</div>'}
   `;
   $("closeAbilityPopover")?.addEventListener("click", closePopover);
+  enablePopoverDrag(OBR, {
+    rootId: "abilityMenu",
+    popoverId: ABILITY_POPOVER_ID,
+    url: "/dndsheet/obr-sheet-link/abilities.html",
+    storageKey: "dnd_obr_abilities_position"
+  });
   $("abilityMenu").querySelectorAll("[data-ability-index]").forEach((button) => {
     button.addEventListener("click", () => showAbility(parseInt(button.dataset.abilityIndex, 10) || 0));
   });
@@ -140,6 +147,12 @@ function renderMessage(text) {
     </div>
     <div class="attack-menu-empty">${escapeHtml(text)}</div>`;
   $("closeAbilityPopover")?.addEventListener("click", closePopover);
+  enablePopoverDrag(OBR, {
+    rootId: "abilityMenu",
+    popoverId: ABILITY_POPOVER_ID,
+    url: "/dndsheet/obr-sheet-link/abilities.html",
+    storageKey: "dnd_obr_abilities_position"
+  });
 }
 
 function closePopover() {

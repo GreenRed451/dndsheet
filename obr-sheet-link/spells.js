@@ -1,6 +1,7 @@
 import OBR from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { enablePopoverDrag } from "./popover-window.js?v=0136";
 
 const FB_CONFIG = {
   apiKey: "AIzaSyBEjhg3RC4EzeaK792Ob2pn5krfXnn6rxk",
@@ -127,6 +128,12 @@ async function renderSpellMenu(data) {
       : `<div class="attack-menu-empty">${escapeHtml(data.spells || "У этого персонажа не указаны заклинания.")}</div>`}
   `;
   $("closeSpellPopover")?.addEventListener("click", closePopover);
+  enablePopoverDrag(OBR, {
+    rootId: "spellMenu",
+    popoverId: SPELL_POPOVER_ID,
+    url: "/dndsheet/obr-sheet-link/spells.html",
+    storageKey: "dnd_obr_spells_position"
+  });
   $("spellMenu").querySelectorAll("[data-spell-index]").forEach((button) => {
     button.addEventListener("click", () => showSpell(parseInt(button.dataset.spellIndex, 10) || 0));
   });
@@ -186,6 +193,12 @@ function renderMessage(text) {
     </div>
     <div class="attack-menu-empty">${escapeHtml(text)}</div>`;
   $("closeSpellPopover")?.addEventListener("click", closePopover);
+  enablePopoverDrag(OBR, {
+    rootId: "spellMenu",
+    popoverId: SPELL_POPOVER_ID,
+    url: "/dndsheet/obr-sheet-link/spells.html",
+    storageKey: "dnd_obr_spells_position"
+  });
 }
 
 function closePopover() {
@@ -195,7 +208,7 @@ function closePopover() {
 
 function loadSpellDb() {
   if (!spellDbPromise) {
-    spellDbPromise = fetch("../index.html?v=0135")
+    spellDbPromise = fetch("../index.html?v=0136")
       .then((response) => response.text())
       .then(parseSpellDb);
   }
