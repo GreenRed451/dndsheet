@@ -17,6 +17,7 @@ const LINK_KEY = "ru.dndsheet.link/character";
 const OVERLAY_KEY = "ru.dndsheet.link/overlay";
 const ATTACK_CONTEXT_MENU_ID = "ru.dndsheet.link/attack-context-menu";
 const SPELL_CONTEXT_MENU_ID = "ru.dndsheet.link/spell-context-menu";
+const ABILITY_CONTEXT_MENU_ID = "ru.dndsheet.link/ability-context-menu";
 const DIGITS = {
   "0": "abcfed",
   "1": "bc",
@@ -388,7 +389,7 @@ function setupContextMenu() {
       }
     ],
     embed: {
-      url: "/dndsheet/obr-sheet-link/context.html?v=0134",
+      url: "/dndsheet/obr-sheet-link/context.html?v=0135",
       height: 260
     },
     onClick(context) {
@@ -414,7 +415,35 @@ function setupContextMenu() {
       if (itemId) localStorage.setItem("dnd_obr_context_item", itemId);
       OBR.popover.open({
         id: "ru.dndsheet.link/spells-popover",
-        url: `/dndsheet/obr-sheet-link/spells.html?v=0134${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}`,
+        url: `/dndsheet/obr-sheet-link/spells.html?v=0135${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}`,
+        width: 720,
+        height: 620,
+        anchorElementId: elementId,
+        anchorOrigin: { horizontal: "RIGHT", vertical: "CENTER" },
+        transformOrigin: { horizontal: "LEFT", vertical: "CENTER" },
+        disableClickAway: true
+      });
+    }
+  });
+
+  OBR.contextMenu.create({
+    id: ABILITY_CONTEXT_MENU_ID,
+    icons: [
+      {
+        icon: "/dndsheet/obr-sheet-link/icon.png",
+        label: "Умения",
+        filter: {
+          min: 1,
+          max: 1
+        }
+      }
+    ],
+    onClick(context, elementId) {
+      const itemId = context?.items?.[0]?.id || context?.item?.id || context?.itemId || "";
+      if (itemId) localStorage.setItem("dnd_obr_context_item", itemId);
+      OBR.popover.open({
+        id: "ru.dndsheet.link/abilities-popover",
+        url: `/dndsheet/obr-sheet-link/abilities.html?v=0135${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}`,
         width: 720,
         height: 620,
         anchorElementId: elementId,
