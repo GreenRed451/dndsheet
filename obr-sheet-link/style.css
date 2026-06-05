@@ -77,6 +77,139 @@ body {
   line-height: 1.35;
 }
 
+.spell-menu {
+  width: 430px;
+  max-height: 460px;
+  overflow: hidden;
+  padding: 10px;
+  background: #3f404b;
+  color: #fff;
+  font-size: 13px;
+}
+
+.spell-menu-head {
+  padding: 3px 4px 9px;
+}
+
+.spell-menu-title {
+  font-weight: 850;
+  letter-spacing: .02em;
+}
+
+.spell-menu-sub {
+  margin-top: 3px;
+  color: #d7d7dc;
+  font-size: 12px;
+}
+
+.spell-menu-layout {
+  display: grid;
+  grid-template-columns: 158px 1fr;
+  gap: 8px;
+  min-height: 330px;
+}
+
+.spell-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 390px;
+  overflow-y: auto;
+  padding-right: 3px;
+}
+
+.spell-menu-item {
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  padding: 7px 8px;
+  background: rgba(255, 255, 255, .06);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.spell-menu-item:hover,
+.spell-menu-item.active {
+  background: rgba(255, 255, 255, .14);
+}
+
+.spell-menu-item span,
+.spell-menu-item small {
+  display: block;
+}
+
+.spell-menu-item span {
+  font-weight: 780;
+  line-height: 1.2;
+}
+
+.spell-menu-item small {
+  margin-top: 3px;
+  color: #d7d7dc;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.spell-detail {
+  max-height: 390px;
+  overflow-y: auto;
+  border-radius: 7px;
+  padding: 10px;
+  background: #f5f4f0;
+  color: #1a1a18;
+}
+
+.spell-detail h1 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.spell-detail-sub,
+.spell-muted {
+  margin-top: 4px;
+  color: #777;
+  font-size: 12px;
+}
+
+.spell-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin: 10px 0;
+}
+
+.spell-detail-grid div {
+  border: 1px solid #e0ddd4;
+  border-radius: 6px;
+  padding: 5px 6px;
+  background: #fff;
+}
+
+.spell-detail-grid span,
+.spell-detail-grid strong {
+  display: block;
+}
+
+.spell-detail-grid span {
+  color: #888;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.spell-detail-grid strong {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.spell-detail p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 button,
 input {
   font: inherit;

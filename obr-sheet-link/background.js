@@ -15,7 +15,8 @@ const FB_CONFIG = {
 const ROOM_KEY = "ru.dndsheet.link/room";
 const LINK_KEY = "ru.dndsheet.link/character";
 const OVERLAY_KEY = "ru.dndsheet.link/overlay";
-const CONTEXT_MENU_ID = "ru.dndsheet.link/context-menu";
+const ATTACK_CONTEXT_MENU_ID = "ru.dndsheet.link/attack-context-menu";
+const SPELL_CONTEXT_MENU_ID = "ru.dndsheet.link/spell-context-menu";
 const DIGITS = {
   "0": "abcfed",
   "1": "bc",
@@ -375,11 +376,11 @@ async function loadSceneRoom() {
 
 function setupContextMenu() {
   OBR.contextMenu.create({
-    id: CONTEXT_MENU_ID,
+    id: ATTACK_CONTEXT_MENU_ID,
     icons: [
       {
         icon: "/dndsheet/obr-sheet-link/icon.png",
-        label: "Листок",
+        label: "Атаки",
         filter: {
           min: 1,
           max: 1
@@ -387,8 +388,30 @@ function setupContextMenu() {
       }
     ],
     embed: {
-      url: "/dndsheet/obr-sheet-link/context.html?v=0132",
+      url: "/dndsheet/obr-sheet-link/context.html?v=0133",
       height: 260
+    },
+    onClick(context) {
+      const itemId = context?.items?.[0]?.id || context?.item?.id || context?.itemId || "";
+      if (itemId) localStorage.setItem("dnd_obr_context_item", itemId);
+    }
+  });
+
+  OBR.contextMenu.create({
+    id: SPELL_CONTEXT_MENU_ID,
+    icons: [
+      {
+        icon: "/dndsheet/obr-sheet-link/icon.png",
+        label: "Заклинания",
+        filter: {
+          min: 1,
+          max: 1
+        }
+      }
+    ],
+    embed: {
+      url: "/dndsheet/obr-sheet-link/spells.html?v=0133",
+      height: 460
     },
     onClick(context) {
       const itemId = context?.items?.[0]?.id || context?.item?.id || context?.itemId || "";

@@ -541,7 +541,7 @@ async function showOverviewSpell(name) {
 
 function loadSpellDb() {
   if (!spellDbPromise) {
-    spellDbPromise = fetch("../index.html?v=0128")
+    spellDbPromise = fetch("../index.html?v=0133")
       .then((response) => response.text())
       .then(parseSpellDb);
   }
