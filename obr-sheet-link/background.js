@@ -376,47 +376,6 @@ async function loadSceneRoom() {
   connectRoom(metadata[ROOM_KEY] || "");
 }
 
-async function openFloatingPopover(options) {
-  const screenWidth = await OBR.viewport.getWidth();
-  const screenHeight = await OBR.viewport.getHeight();
-  const savedPosition = readSavedPopoverPosition(options.storageKey);
-  const position = savedPosition || {
-    left: Math.round(screenWidth / 2),
-    top: Math.round(screenHeight / 2)
-  };
-  const itemQuery = options.itemId ? `&itemId=${encodeURIComponent(options.itemId)}` : "";
-  OBR.popover.open({
-    id: options.id,
-    url: `${options.url}?v=0138&x=${position.left}&y=${position.top}${itemQuery}`,
-    width: POPOVER_SIZE.width,
-    height: POPOVER_SIZE.height,
-    anchorReference: "POSITION",
-    anchorPosition: clampPopoverPosition(position, screenWidth, screenHeight),
-    anchorOrigin: { horizontal: "CENTER", vertical: "CENTER" },
-    transformOrigin: { horizontal: "CENTER", vertical: "CENTER" },
-    disableClickAway: true
-  });
-}
-
-function clampPopoverPosition(position, screenWidth, screenHeight) {
-  const margin = 24;
-  return {
-    left: Math.max(POPOVER_SIZE.width / 2 + margin, Math.min(screenWidth - POPOVER_SIZE.width / 2 - margin, Math.round(position.left))),
-    top: Math.max(POPOVER_SIZE.height / 2 + margin, Math.min(screenHeight - POPOVER_SIZE.height / 2 - margin, Math.round(position.top)))
-  };
-}
-
-function readSavedPopoverPosition(key) {
-  if (!key) return null;
-  try {
-    const value = JSON.parse(localStorage.getItem(key) || "null");
-    if (Number.isFinite(value?.left) && Number.isFinite(value?.top)) return value;
-  } catch {
-    return null;
-  }
-  return null;
-}
-
 function setupContextMenu() {
   OBR.contextMenu.create({
     id: ATTACK_CONTEXT_MENU_ID,
@@ -431,7 +390,7 @@ function setupContextMenu() {
       }
     ],
     embed: {
-      url: "/dndsheet/obr-sheet-link/context.html?v=0138",
+      url: "/dndsheet/obr-sheet-link/context.html?v=0140",
       height: 260
     },
     onClick(context) {
@@ -455,11 +414,15 @@ function setupContextMenu() {
     onClick(context, elementId) {
       const itemId = context?.items?.[0]?.id || context?.item?.id || context?.itemId || "";
       if (itemId) localStorage.setItem("dnd_obr_context_item", itemId);
-      openFloatingPopover({
+      OBR.popover.open({
         id: "ru.dndsheet.link/spells-popover",
-        url: "/dndsheet/obr-sheet-link/spells.html",
-        itemId,
-        storageKey: "dnd_obr_spells_position"
+        url: `/dndsheet/obr-sheet-link/spells.html?v=0140${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}`,
+        width: POPOVER_SIZE.width,
+        height: POPOVER_SIZE.height,
+        anchorElementId: elementId,
+        anchorOrigin: { horizontal: "RIGHT", vertical: "CENTER" },
+        transformOrigin: { horizontal: "LEFT", vertical: "CENTER" },
+        disableClickAway: true
       });
     }
   });
@@ -479,11 +442,15 @@ function setupContextMenu() {
     onClick(context, elementId) {
       const itemId = context?.items?.[0]?.id || context?.item?.id || context?.itemId || "";
       if (itemId) localStorage.setItem("dnd_obr_context_item", itemId);
-      openFloatingPopover({
+      OBR.popover.open({
         id: "ru.dndsheet.link/abilities-popover",
-        url: "/dndsheet/obr-sheet-link/abilities.html",
-        itemId,
-        storageKey: "dnd_obr_abilities_position"
+        url: `/dndsheet/obr-sheet-link/abilities.html?v=0140${itemId ? `&itemId=${encodeURIComponent(itemId)}` : ""}`,
+        width: POPOVER_SIZE.width,
+        height: POPOVER_SIZE.height,
+        anchorElementId: elementId,
+        anchorOrigin: { horizontal: "RIGHT", vertical: "CENTER" },
+        transformOrigin: { horizontal: "LEFT", vertical: "CENTER" },
+        disableClickAway: true
       });
     }
   });

@@ -1,7 +1,6 @@
 import OBR from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { bindPopoverMoveButtons, enablePopoverDrag } from "./popover-window.js?v=0138";
 
 const FB_CONFIG = {
   apiKey: "AIzaSyBEjhg3RC4EzeaK792Ob2pn5krfXnn6rxk",
@@ -45,11 +44,18 @@ function initFirebase() {
 }
 
 async function init() {
+  const fallbackTimer = setTimeout(() => {
+    if ($("spellMenu")?.textContent.trim() === "Загрузка...") {
+      renderMessage("Откройте это окно внутри Owlbear Rodeo.");
+    }
+  }, 1200);
   if (!OBR.isAvailable) {
+    clearTimeout(fallbackTimer);
     renderMessage("Откройте это окно внутри Owlbear Rodeo.");
     return;
   }
   await OBR.onReady(async () => {
+    clearTimeout(fallbackTimer);
     try {
       initFirebase();
       const item = await getContextItem();
@@ -116,7 +122,6 @@ async function renderSpellMenu(data) {
         <div class="spell-menu-title">${escapeHtml(title)}</div>
         <div class="spell-menu-sub">${escapeHtml(statLine)}</div>
       </div>
-      ${moveControls()}
       <button type="button" id="closeSpellPopover" class="spell-menu-close">Закрыть</button>
     </div>
     ${currentSpells.length
@@ -129,14 +134,6 @@ async function renderSpellMenu(data) {
       : `<div class="attack-menu-empty">${escapeHtml(data.spells || "У этого персонажа не указаны заклинания.")}</div>`}
   `;
   $("closeSpellPopover")?.addEventListener("click", closePopover);
-  const dragOptions = {
-    rootId: "spellMenu",
-    popoverId: SPELL_POPOVER_ID,
-    url: "/dndsheet/obr-sheet-link/spells.html",
-    storageKey: "dnd_obr_spells_position"
-  };
-  enablePopoverDrag(OBR, dragOptions);
-  bindPopoverMoveButtons(OBR, dragOptions);
   $("spellMenu").querySelectorAll("[data-spell-index]").forEach((button) => {
     button.addEventListener("click", () => showSpell(parseInt(button.dataset.spellIndex, 10) || 0));
   });
@@ -192,29 +189,10 @@ function renderMessage(text) {
   $("spellMenu").innerHTML = `
     <div class="spell-menu-head">
       <div class="spell-menu-title">Заклинания</div>
-      ${moveControls()}
       <button type="button" id="closeSpellPopover" class="spell-menu-close">Закрыть</button>
     </div>
     <div class="attack-menu-empty">${escapeHtml(text)}</div>`;
   $("closeSpellPopover")?.addEventListener("click", closePopover);
-  const dragOptions = {
-    rootId: "spellMenu",
-    popoverId: SPELL_POPOVER_ID,
-    url: "/dndsheet/obr-sheet-link/spells.html",
-    storageKey: "dnd_obr_spells_position"
-  };
-  enablePopoverDrag(OBR, dragOptions);
-  bindPopoverMoveButtons(OBR, dragOptions);
-}
-
-function moveControls() {
-  return `
-    <div class="popover-move-controls" aria-label="Переместить окно">
-      <button type="button" data-popover-move="left" title="Левее">‹</button>
-      <button type="button" data-popover-move="up" title="Выше">˄</button>
-      <button type="button" data-popover-move="down" title="Ниже">˅</button>
-      <button type="button" data-popover-move="right" title="Правее">›</button>
-    </div>`;
 }
 
 function closePopover() {
@@ -224,7 +202,7 @@ function closePopover() {
 
 function loadSpellDb() {
   if (!spellDbPromise) {
-    spellDbPromise = fetch("../index.html?v=0138")
+    spellDbPromise = fetch("../index.html?v=0140")
       .then((response) => response.text())
       .then(parseSpellDb);
   }

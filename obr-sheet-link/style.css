@@ -85,12 +85,6 @@ body {
   background: #f5f4f0;
   color: #1a1a18;
   font-size: 13px;
-  transition: transform .08s ease-out;
-}
-
-.spell-menu.dragging-window {
-  transition: none;
-  opacity: .94;
 }
 
 .spell-menu-head {
@@ -99,33 +93,6 @@ body {
   justify-content: space-between;
   gap: 12px;
   padding: 2px 2px 10px;
-}
-
-.spell-menu-head.draggable-window-head {
-  cursor: move;
-  user-select: none;
-  touch-action: none;
-}
-
-.popover-move-controls {
-  display: flex;
-  gap: 4px;
-  margin-left: auto;
-}
-
-.popover-move-controls button {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #d8d4ca;
-  border-radius: 7px;
-  background: #fff;
-  color: #555;
-  cursor: pointer;
-}
-
-.popover-move-controls button:hover {
-  border-color: #534AB7;
-  color: #534AB7;
 }
 
 .spell-menu-title {
