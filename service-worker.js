@@ -1,14 +1,22 @@
-const CACHE_NAME = 'dnd-sheet-v18';
+const CACHE_NAME = 'dnd-sheet-v53';
 const APP_SHELL = [
   './',
   './index.html',
   './obr-sheet-link/manifest.json',
   './obr-sheet-link/index.html',
+  './obr-sheet-link/context.html',
+  './obr-sheet-link/spells.html',
+  './obr-sheet-link/abilities.html',
   './obr-sheet-link/background.html',
   './obr-sheet-link/background.js',
   './obr-sheet-link/main.js',
+  './obr-sheet-link/context.js',
+  './obr-sheet-link/spells.js',
+  './obr-sheet-link/abilities.js',
+  './obr-sheet-link/popover-window.js',
   './obr-sheet-link/style.css',
   './obr-sheet-link/icon.svg',
+  './obr-sheet-link/icon.png',
   './table.html',
   './vtt.css',
   './vtt.js',
@@ -47,6 +55,8 @@ self.addEventListener('fetch', event => {
     let fallback = './index.html';
     if (url.pathname.endsWith('/table.html')) fallback = './table.html';
     if (url.pathname.endsWith('/obr-sheet-link/index.html')) fallback = './obr-sheet-link/index.html';
+    if (url.pathname.endsWith('/obr-sheet-link/spells.html')) fallback = './obr-sheet-link/spells.html';
+    if (url.pathname.endsWith('/obr-sheet-link/abilities.html')) fallback = './obr-sheet-link/abilities.html';
     event.respondWith(
       fetch(request)
         .then(response => {
