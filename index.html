@@ -1311,6 +1311,7 @@
     <button class="btn primary" onclick="openCharacterWizard()">Создать персонажа</button>
     <button class="btn" onclick="openLevelUpWizard()">Повысить уровень</button>
     <button class="btn" onclick="window.open('./table.html','_blank')" title="Открыть виртуальный игровой стол">Игровой стол</button>
+    <button class="btn" onclick="window.open('./bestiary.html','_blank')" title="Открыть бестиарий кампании">Бестиарий</button>
     <button class="btn" onclick="saveJSON()" title="Скачать JSON">💾</button>
     <label class="btn" style="cursor:pointer" title="Загрузить JSON">📂<input type="file" accept=".json"
         onchange="loadJSON(event)" style="display:none"></label>
@@ -6662,6 +6663,7 @@
     function closeSpellPopup() {
       v('spellPopup').style.display = 'none';
     }
+
     // ============ FIREBASE SYNC ============
     // REPLACE THESE VALUES with your own Firebase project config:
     const FB_CONFIG = {

@@ -1,7 +1,8 @@
-const CACHE_NAME = 'dnd-sheet-v53';
+const CACHE_NAME = 'dnd-sheet-v67';
 const APP_SHELL = [
   './',
   './index.html',
+  './bestiary.html',
   './obr-sheet-link/manifest.json',
   './obr-sheet-link/index.html',
   './obr-sheet-link/context.html',
@@ -13,7 +14,6 @@ const APP_SHELL = [
   './obr-sheet-link/context.js',
   './obr-sheet-link/spells.js',
   './obr-sheet-link/abilities.js',
-  './obr-sheet-link/popover-window.js',
   './obr-sheet-link/style.css',
   './obr-sheet-link/icon.svg',
   './obr-sheet-link/icon.png',
@@ -53,6 +53,7 @@ self.addEventListener('fetch', event => {
 
   if (request.mode === 'navigate') {
     let fallback = './index.html';
+    if (url.pathname.endsWith('/bestiary.html')) fallback = './bestiary.html';
     if (url.pathname.endsWith('/table.html')) fallback = './table.html';
     if (url.pathname.endsWith('/obr-sheet-link/index.html')) fallback = './obr-sheet-link/index.html';
     if (url.pathname.endsWith('/obr-sheet-link/spells.html')) fallback = './obr-sheet-link/spells.html';

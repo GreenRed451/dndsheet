@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#534AB7">
+  <title>Бестиарий кампании</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f4f0;
+      color: #1a1a18;
+      min-height: 100vh
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #fff;
+      border-bottom: 1px solid #e0ddd4;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    h1 {
+      font-size: 17px;
+      font-weight: 700;
+      flex: 1;
+      min-width: 220px
+    }
+
+    .wrap {
+      max-width: none;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px 24px
+    }
+
+    .btn {
+      font-size: 13px;
+      padding: 7px 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #fff;
+      color: #444;
+      transition: all .15s;
+      white-space: nowrap
+    }
+
+    .btn:hover {
+      background: #f0efe8;
+      border-color: #aaa
+    }
+
+    .btn.primary {
+      background: #534AB7;
+      color: #fff;
+      border-color: #534AB7
+    }
+
+    .btn.primary:hover {
+      background: #3C3489
+    }
+
+    .btn.danger {
+      border-color: #993C1D;
+      color: #993C1D
+    }
+
+    .section {
+      background: #fff;
+      border: 1px solid #e0ddd4;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #888;
+      margin-bottom: 10px
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    .field label {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .04em
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      background: #f5f4f0;
+      border: 1px solid #e0ddd4;
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 13px;
+      color: #1a1a18;
+      font-family: inherit;
+      width: 100%
+    }
+
+    .field textarea {
+      min-height: 86px;
+      resize: vertical;
+      line-height: 1.55
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: 2px solid #7F77DD;
+      outline-offset: -1px
+    }
+
+    .room-row {
+      display: flex;
+      align-items: end;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .room-row .field {
+      min-width: 180px
+    }
+
+    .status {
+      font-size: 13px;
+      color: #888
+    }
+
+    .status strong {
+      color: #534AB7
+    }
+
+    .tool-row {
+      display: flex;
+      align-items: end;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px
+    }
+
+    .tool-row .field {
+      min-width: 160px
+    }
+
+    .tool-row .field.search-field {
+      flex: 1;
+      min-width: 240px
+    }
+
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #EEEDFE;
+      color: #534AB7;
+      font-size: 11px;
+      font-weight: 700;
+      margin-right: 6px
+    }
+
+    .reveal-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #f0fce8;
+      color: #3B6D11;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .bestiary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 12px
+    }
+
+    .bestiary-card {
+      border: 1px solid #e0ddd4;
+      border-radius: 10px;
+      background: #fff;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: pointer
+    }
+
+    .bestiary-card:focus,
+    .bestiary-card:hover {
+      border-color: #534AB7;
+      box-shadow: 0 2px 12px rgba(83, 74, 183, .08)
+    }
+
+    .bestiary-card-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px
+    }
+
+    .bestiary-card-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a18
+    }
+
+    .bestiary-card-meta {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px
+    }
+
+    .bestiary-section {
+      border-top: 1px solid #eeeae2;
+      padding-top: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap
+    }
+
+    .bestiary-section strong {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #888;
+      margin-bottom: 3px
+    }
+
+    .editor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px
+    }
+
+    .editor-grid .field.full {
+      grid-column: 1 / -1
+    }
+
+    .combat-box {
+      border: 1px solid #e0ddd4;
+      border-radius: 10px;
+      background: #faf9f5;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .combat-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px
+    }
+
+    .combat-stats {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 6px
+    }
+
+    .combat-stats .field input {
+      text-align: center;
+      font-weight: 700
+    }
+
+    .combat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px
+    }
+
+    .combat-action {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1.7fr 30px;
+      gap: 6px;
+      align-items: center
+    }
+
+    .combat-action input {
+      background: #f5f4f0;
+      border: 1px solid #e0ddd4;
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 13px;
+      color: #1a1a18;
+      font-family: inherit;
+      width: 100%
+    }
+
+    .inventory-box {
+      border: 1px solid #e0ddd4;
+      border-radius: 10px;
+      background: #faf9f5;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .inventory-header,
+    .inventory-row {
+      display: grid;
+      grid-template-columns: 2fr .7fr 1.4fr 30px;
+      gap: 6px;
+      align-items: center
+    }
+
+    .coin-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px
+    }
+
+    .coin-row input {
+      text-align: center;
+      font-weight: 700
+    }
+
+    .inventory-row input {
+      background: #f5f4f0;
+      border: 1px solid #e0ddd4;
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 13px;
+      color: #1a1a18;
+      font-family: inherit;
+      width: 100%
+    }
+
+    .inventory-public-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 4px
+    }
+
+    .inventory-public-item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      align-items: baseline;
+      border: 1px solid #e0ddd4;
+      border-radius: 8px;
+      background: #faf9f5;
+      padding: 6px 8px
+    }
+
+    .inventory-public-item b {
+      font-size: 13px
+    }
+
+    .inventory-public-item span {
+      font-size: 12px;
+      color: #777
+    }
+
+    .relations-box {
+      border: 1px solid #e0ddd4;
+      border-radius: 10px;
+      background: #faf9f5;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .peace-box {
+      border: 1px solid #e0ddd4;
+      border-radius: 10px;
+      background: #faf9f5;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .peace-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px
+    }
+
+    .peace-grid .field.full {
+      grid-column: 1 / -1
+    }
+
+    .relation-header,
+    .relation-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1.8fr 30px;
+      gap: 6px;
+      align-items: center
+    }
+
+    .relation-row input,
+    .relation-row select {
+      background: #f5f4f0;
+      border: 1px solid #e0ddd4;
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 13px;
+      color: #1a1a18;
+      font-family: inherit;
+      width: 100%
+    }
+
+    .relation-public-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 4px
+    }
+
+    .relation-public-item {
+      border: 1px solid #e0ddd4;
+      border-radius: 8px;
+      background: #faf9f5;
+      padding: 6px 8px
+    }
+
+    .relation-public-item b {
+      font-size: 13px
+    }
+
+    .relation-public-item span {
+      color: #777;
+      font-size: 12px
+    }
+
+    .mini-remove {
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: transparent;
+      color: #aaa;
+      font-size: 18px;
+      cursor: pointer
+    }
+
+    .mini-remove:hover {
+      color: #993C1D
+    }
+
+    .public-combat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 4px
+    }
+
+    .public-combat-stat {
+      border: 1px solid #e0ddd4;
+      border-radius: 8px;
+      background: #faf9f5;
+      padding: 6px;
+      text-align: center
+    }
+
+    .public-combat-stat span {
+      display: block;
+      font-size: 10px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 2px
+    }
+
+    .public-combat-stat b {
+      font-size: 15px
+    }
+
+    .visibility {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px;
+      border: 1px dashed #d8d4ca;
+      border-radius: 8px;
+      background: #faf9f5
+    }
+
+    .visibility label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: #666
+    }
+
+    .visibility input {
+      accent-color: #534AB7
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: #1a1a18;
+      color: #fff;
+      font-size: 12px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .25s, transform .25s;
+      pointer-events: none;
+      z-index: 50
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    .entry-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(26, 26, 24, .45);
+      padding: 18px;
+      overflow: auto
+    }
+
+    .entry-modal.show {
+      display: block
+    }
+
+    .entry-modal-panel {
+      max-width: 1280px;
+      min-height: calc(100vh - 36px);
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #e0ddd4;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, .22)
+    }
+
+    .entry-modal-head {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 10px
+    }
+
+    .entry-modal .bestiary-card {
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      cursor: default
+    }
+
+    .entry-modal .bestiary-card:hover {
+      border-color: transparent;
+      box-shadow: none
+    }
+
+    @media (min-width: 1500px) {
+      .bestiary-grid {
+        grid-template-columns: repeat(auto-fill, minmax(420px, 1fr))
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        padding: 10px 12px
+      }
+
+      .entry-modal {
+        padding: 8px
+      }
+
+      .entry-modal-panel {
+        min-height: calc(100vh - 16px);
+        padding: 12px
+      }
+
+      .wrap {
+        padding: 12px 10px
+      }
+
+      .bestiary-grid {
+        grid-template-columns: 1fr
+      }
+
+      .editor-grid {
+        grid-template-columns: 1fr
+      }
+
+      .combat-row,
+      .public-combat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .combat-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr))
+      }
+
+      .combat-action {
+        grid-template-columns: 1fr
+      }
+
+      .inventory-header {
+        display: none
+      }
+
+      .relation-header {
+        display: none
+      }
+
+      .inventory-row,
+      .inventory-public-item,
+      .relation-row {
+        grid-template-columns: 1fr
+      }
+
+      .peace-grid {
+        grid-template-columns: 1fr
+      }
+
+      .coin-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getDatabase, ref, set, onValue, off, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+    window._fbMod = { initializeApp, getDatabase, ref, set, onValue, off, get };
+  </script>
+</head>
+
+<body>
+  <div class="topbar">
+    <h1>Бестиарий кампании</h1>
+    <button class="btn" onclick="window.open('./index.html','_blank')">Лист персонажа</button>
+  </div>
+
+  <main class="wrap">
+    <div class="section">
+      <div class="section-title">Комната</div>
+      <div class="room-row">
+        <div class="field"><label>Комната</label><input id="roomInput" type="text" maxlength="40"></div>
+        <div class="field"><label>Имя</label><input id="nameInput" type="text" maxlength="30"></div>
+        <button class="btn primary" id="connectBtn" onclick="connectBestiary()">Войти</button>
+        <button class="btn" id="disconnectBtn" onclick="disconnectBestiary()" style="display:none">Выйти</button>
+        <span class="status" id="statusText">Не подключено</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div>
+          <div class="section-title" style="margin-bottom:4px">Записи</div>
+          <div id="accessHint" style="font-size:12px;color:#888;line-height:1.5">
+            Мастер видит все поля и открывает нужные части игрокам.
+          </div>
+        </div>
+        <div id="addButtons" style="display:none;gap:6px;flex-wrap:wrap">
+          <button class="btn primary" onclick="addEntry('npc')">+ NPC</button>
+          <button class="btn primary" onclick="addEntry('monster')">+ Монстр</button>
+          <button class="btn primary" onclick="addEntry('faction')">+ Фракция</button>
+          <button class="btn" onclick="syncPlayersIntoBestiary(true)">Синхронизировать игроков</button>
+        </div>
+      </div>
+      <div class="tool-row">
+        <div class="field search-field"><label>Поиск</label><input id="searchInput" type="text"
+            placeholder="Имя, метка, описание..." oninput="render()"></div>
+        <div class="field"><label>Тип</label>
+          <select id="typeFilter" onchange="render()">
+            <option value="">Все</option>
+            <option value="NPC">NPC</option>
+            <option value="Монстр">Монстры</option>
+            <option value="Фракция">Фракции</option>
+            <option value="Персонаж игрока">Персонажи игроков</option>
+          </select>
+        </div>
+        <div class="field"><label>Видимость</label>
+          <select id="visibilityFilter" onchange="render()">
+            <option value="">Все записи</option>
+            <option value="public">Есть раскрытое</option>
+            <option value="hidden">Ничего не раскрыто</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="entryList" class="bestiary-grid"></div>
+  </main>
+
+  <div id="toast" class="toast"></div>
+  <div id="entryModal" class="entry-modal" onclick="if(event.target===this)closeEntryModal()">
+    <div class="entry-modal-panel">
+      <div class="entry-modal-head">
+        <button class="btn" onclick="closeEntryModal()">Закрыть</button>
+      </div>
+      <div id="entryModalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const FB_CONFIG = {
+      apiKey: "AIzaSyBEjhg3RC4EzeaK792Ob2pn5krfXnn6rxk",
+      authDomain: "dndsheet-1c7c2.firebaseapp.com",
+      databaseURL: "https://dndsheet-1c7c2-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dndsheet-1c7c2",
+      storageBucket: "dndsheet-1c7c2.firebasestorage.app",
+      messagingSenderId: "771509243100",
+      appId: "1:771509243100:web:b4655cafbe4935de447819"
+    };
+
+    const VISIBILITY_FIELDS = [
+      ['summary', 'Описание'],
+      ['combat', 'Боевой блок'],
+      ['peace', 'Мирная часть'],
+      ['inventory', 'Инвентарь'],
+      ['relations', 'Отношения']
+    ];
+
+    const ENTRY_TEMPLATES = {
+      npc: {
+        type: 'NPC',
+        name: 'Новый NPC',
+        tags: '',
+        summary: '',
+        combat: '',
+        combatBlock: {
+          ac: '',
+          hp: '',
+          speed: '30 фт.',
+          challenge: '',
+          stats: { str: '', dex: '', con: '', int: '', wis: '', cha: '' },
+          saves: '',
+          skills: '',
+          senses: '',
+          resistances: '',
+          immunities: '',
+          traits: '',
+          actions: [{ name: '', bonus: '', damage: '' }]
+        },
+        peace: '',
+        peaceBlock: { wants: '', fears: '', heroAttitude: '', speech: '', phrase: '', secret: '', behavior: '', home: '' },
+        inventory: '',
+        inventoryCoins: { pp: '', gp: '', ep: '', sp: '', cp: '' },
+        inventoryItems: [{ name: '', qty: '1', note: '' }],
+        relations: '',
+        relationLinks: [],
+        gmNotes: ''
+      },
+      monster: {
+        type: 'Монстр',
+        name: 'Новый монстр',
+        tags: '',
+        summary: '',
+        combat: '',
+        combatBlock: {
+          ac: '',
+          hp: '',
+          speed: '30 фт.',
+          challenge: '',
+          stats: { str: '', dex: '', con: '', int: '', wis: '', cha: '' },
+          saves: '',
+          skills: '',
+          senses: '',
+          resistances: '',
+          immunities: '',
+          traits: '',
+          actions: [{ name: 'Атака', bonus: '', damage: '' }]
+        },
+        peace: '',
+        peaceBlock: { wants: '', fears: '', heroAttitude: '', speech: '', phrase: '', secret: '', behavior: 'Поведение:\nИнстинкты:', home: 'Территория:' },
+        inventory: 'Добыча:\nСледы или улики:',
+        inventoryCoins: { pp: '', gp: '', ep: '', sp: '', cp: '' },
+        inventoryItems: [{ name: '', qty: '1', note: 'добыча' }],
+        relations: '',
+        relationLinks: [],
+        gmNotes: ''
+      },
+      faction: {
+        type: 'Фракция',
+        name: 'Новая фракция',
+        tags: '',
+        summary: '',
+        combat: 'Силы:\nТипичные бойцы:\nРесурсы:\nОпасные представители:',
+        combatBlock: null,
+        peace: 'Цель:\nМетоды:\nЛидер:\nШтаб:\nСимволы:\nСлухи:',
+        peaceBlock: { wants: '', fears: '', heroAttitude: '', speech: '', phrase: '', secret: '', behavior: '', home: '' },
+        inventory: 'Ресурсы:\nАртефакты:\nДеньги:',
+        inventoryCoins: { pp: '', gp: '', ep: '', sp: '', cp: '' },
+        inventoryItems: [{ name: '', qty: '', note: 'ресурс' }],
+        relations: 'Отношение к героям:\nСоюзники:\nВраги:\nКонкуренты:',
+        relationLinks: [],
+        gmNotes: ''
+      }
+    };
+
+    let fbApp = null;
+    let fbDb = null;
+    let room = '';
+    let userName = '';
+    let isGm = false;
+    let bestiaryRef = null;
+    let bestiaryCallback = null;
+    let playersRef = null;
+    let playersCallback = null;
+    let roomPlayers = {};
+    let bestiaryLoaded = false;
+    let entries = [];
+    let saveTimer = null;
+
+    function v(id) {
+      return document.getElementById(id);
+    }
+
+    function esc(text) {
+      return String(text ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+    }
+
+    function sanitizeFirebaseKey(value) {
+      return String(value || '').trim().replace(/[\x00-\x1F\x7F.#$\[\]\/'"`<>\\]/g, '_');
+    }
+
+    function toast(msg) {
+      const el = v('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(el._h);
+      el._h = setTimeout(() => el.classList.remove('show'), 1800);
+    }
+
+    function initFirebase() {
+      if (fbApp) return true;
+      if (!window._fbMod) {
+        toast('Firebase ещё загружается');
+        return false;
+      }
+      const { initializeApp, getDatabase } = window._fbMod;
+      fbApp = initializeApp(FB_CONFIG);
+      fbDb = getDatabase(fbApp);
+      return true;
+    }
+
+    function entryId() {
+      return 'npc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+    }
+
+    function defaultEntry(kind) {
+      const template = ENTRY_TEMPLATES[kind] || ENTRY_TEMPLATES.npc;
+      return Object.assign({
+        id: entryId(),
+        visible: { summary: true, combat: false, peace: false, inventory: false, relations: false }
+      }, template);
+    }
+
+    function normalizeEntry(entry) {
+      const visible = Object.assign({ summary: false, combat: false, peace: false, inventory: false, relations: false }, entry?.visible || {});
+      const normalized = Object.assign(defaultEntry('npc'), entry || {}, { visible });
+      normalized.combatBlock = normalizeCombatBlock(normalized.combatBlock);
+      normalized.peaceBlock = normalizePeaceBlock(normalized.peaceBlock);
+      normalized.inventoryCoins = normalizeInventoryCoins(normalized.inventoryCoins);
+      normalized.inventoryItems = normalizeInventoryItems(normalized.inventoryItems);
+      normalized.relationLinks = normalizeRelationLinks(normalized.relationLinks);
+      return normalized;
+    }
+
+    function defaultCombatBlock() {
+      return {
+        ac: '',
+        hp: '',
+        speed: '',
+        challenge: '',
+        stats: { str: '', dex: '', con: '', int: '', wis: '', cha: '' },
+        saves: '',
+        skills: '',
+        senses: '',
+        resistances: '',
+        immunities: '',
+        traits: '',
+        actions: []
+      };
+    }
+
+    function normalizeCombatBlock(block) {
+      if (!block || typeof block !== 'object') return defaultCombatBlock();
+      const base = defaultCombatBlock();
+      const stats = Object.assign({}, base.stats, block.stats || {});
+      const actions = Array.isArray(block.actions) ? block.actions.map(action => ({
+        name: action?.name || '',
+        bonus: action?.bonus || '',
+        damage: action?.damage || ''
+      })) : [];
+      return Object.assign(base, block, { stats, actions });
+    }
+
+    function normalizePeaceBlock(block) {
+      return Object.assign({
+        wants: '',
+        fears: '',
+        heroAttitude: '',
+        speech: '',
+        phrase: '',
+        secret: '',
+        behavior: '',
+        home: ''
+      }, block || {});
+    }
+
+    function normalizeInventoryItems(items) {
+      if (!Array.isArray(items)) return [];
+      return items.map(item => ({
+        name: item?.name || '',
+        qty: item?.qty || '',
+        note: item?.note ?? item?.wt ?? ''
+      }));
+    }
+
+    function normalizeInventoryCoins(coins) {
+      return Object.assign({ pp: '', gp: '', ep: '', sp: '', cp: '' }, coins || {});
+    }
+
+    function normalizeRelationLinks(links) {
+      if (!Array.isArray(links)) return [];
+      return links.map(link => ({
+        targetId: link?.targetId || '',
+        customTarget: link?.customTarget || '',
+        attitude: link?.attitude || '',
+        note: link?.note || ''
+      }));
+    }
+
+    function isEditingEntryList() {
+      const active = document.activeElement;
+      return !!(active && active.closest && active.closest('#entryList'));
+    }
+
+    async function connectBestiary() {
+      if (!initFirebase()) return;
+      const nextRoom = sanitizeFirebaseKey(v('roomInput').value);
+      const nextName = v('nameInput').value.trim();
+      if (!nextRoom || !nextName) {
+        toast('Укажите комнату и имя');
+        return;
+      }
+
+      disconnectBestiary(true);
+      room = nextRoom;
+      userName = nextName;
+      localStorage.setItem('dnd_fb_room', room);
+      localStorage.setItem('dnd_fb_name', userName);
+
+      const { ref, get, onValue } = window._fbMod;
+      const gmRef = ref(fbDb, `rooms/${room}/gm`);
+      const gmSnap = await get(gmRef);
+      const currentGm = gmSnap.val();
+      isGm = currentGm === userName;
+
+      bestiaryRef = ref(fbDb, `rooms/${room}/bestiary`);
+      bestiaryCallback = snap => {
+        if (isGm && isEditingEntryList()) return;
+        const raw = snap.val();
+        const data = Array.isArray(raw) ? raw : Object.values(raw || {});
+        entries = data.map(normalizeEntry);
+        bestiaryLoaded = true;
+        if (isGm) subscribePlayers(room);
+        render();
+      };
+      onValue(bestiaryRef, bestiaryCallback);
+
+      v('connectBtn').style.display = 'none';
+      v('disconnectBtn').style.display = '';
+      v('roomInput').disabled = true;
+      v('nameInput').disabled = true;
+      v('statusText').innerHTML = isGm
+        ? `Подключено: <strong>${esc(room)}</strong> · мастер`
+        : `Подключено: <strong>${esc(room)}</strong> · игрок`;
+      render();
+    }
+
+    function disconnectBestiary(silent) {
+      if (bestiaryRef && bestiaryCallback && window._fbMod) {
+        window._fbMod.off(bestiaryRef, bestiaryCallback);
+      }
+      if (playersRef && playersCallback && window._fbMod) {
+        window._fbMod.off(playersRef, playersCallback);
+      }
+      bestiaryRef = null;
+      bestiaryCallback = null;
+      playersRef = null;
+      playersCallback = null;
+      roomPlayers = {};
+      bestiaryLoaded = false;
+      room = '';
+      userName = '';
+      isGm = false;
+      entries = [];
+      v('connectBtn').style.display = '';
+      v('disconnectBtn').style.display = 'none';
+      v('roomInput').disabled = false;
+      v('nameInput').disabled = false;
+      v('statusText').textContent = 'Не подключено';
+      render();
+      if (!silent) toast('Отключено');
+    }
+
+    function subscribePlayers(roomName) {
+      if (playersRef || !fbDb || !roomName) return;
+      const { ref, onValue } = window._fbMod;
+      playersRef = ref(fbDb, `rooms/${roomName}/players`);
+      playersCallback = snap => {
+        if (isEditingEntryList()) return;
+        roomPlayers = snap.val() || {};
+        syncPlayersIntoBestiary(false);
+      };
+      onValue(playersRef, playersCallback);
+    }
+
+    function syncPlayersIntoBestiary(manual) {
+      if (!isGm || !bestiaryLoaded) {
+        if (manual) toast('Сначала войдите как мастер');
+        return;
+      }
+      const playerNames = Object.keys(roomPlayers || {}).filter(name => !String(name).startsWith('__'));
+      let changed = false;
+      playerNames.forEach(playerKey => {
+        const player = roomPlayers[playerKey] || {};
+        const imported = playerEntryFromSheet(playerKey, player);
+        const index = entries.findIndex(entry => entry.sourceType === 'player' && entry.sourcePlayerKey === playerKey);
+        if (index >= 0) {
+          entries[index] = mergePlayerEntry(entries[index], imported);
+        } else {
+          entries.push(imported);
+        }
+        changed = true;
+      });
+      if (!changed) {
+        if (manual) toast('В комнате пока нет игроков');
+        return;
+      }
+      render();
+      scheduleSave(true);
+      if (manual) toast('Персонажи игроков синхронизированы');
+    }
+
+    function playerEntryFromSheet(playerKey, player) {
+      const charName = player.charName || player._name || playerKey;
+      const className = classLabel(player.classSelect);
+      const level = player.levelInput || '1';
+      const race = player.race || '';
+      const hpCur = player.hpCur || '';
+      const hpMax = player.hpMax || '';
+      const attacks = Array.isArray(player.attacks) ? player.attacks : [];
+      const inventory = Array.isArray(player.inventory) ? player.inventory : [];
+      return normalizeEntry({
+        id: 'player_' + sanitizeFirebaseKey(playerKey),
+        sourceType: 'player',
+        sourcePlayerKey: playerKey,
+        type: 'Персонаж игрока',
+        name: charName,
+        tags: 'Персонаж игрока',
+        summary: `${className} ${level} ур.${race ? ' · ' + race : ''}`,
+        combat: '',
+        combatBlock: {
+          ac: player.ac || '',
+          hp: hpCur || hpMax ? `${hpCur || '?'} / ${hpMax || '?'}` : '',
+          speed: player.speed || '',
+          challenge: 'герой',
+          stats: normalizePlayerStats(player.statValues),
+          saves: '',
+          skills: '',
+          senses: '',
+          resistances: '',
+          immunities: '',
+          traits: player.features || '',
+          actions: attacks.map(attack => ({
+            name: attack.name || '',
+            bonus: attack.bonus || '',
+            damage: attack.dmg || ''
+          })).filter(action => action.name || action.bonus || action.damage)
+        },
+        peace: '',
+        peaceBlock: {
+          wants: '',
+          fears: '',
+          heroAttitude: 'Член отряда героев.',
+          speech: '',
+          phrase: '',
+          secret: '',
+          behavior: '',
+          home: ''
+        },
+        inventory: '',
+        inventoryCoins: {
+          pp: player.pp || '',
+          gp: player.gp || '',
+          ep: player.ep || '',
+          sp: player.sp || '',
+          cp: player.cp || ''
+        },
+        inventoryItems: inventory.map(item => ({
+          name: item.name || '',
+          qty: item.qty || '',
+          note: item.wt ? `вес ${item.wt}` : ''
+        })).filter(item => item.name || item.qty || item.note),
+        relations: '',
+        relationLinks: [],
+        gmNotes: '',
+        visible: { summary: true, combat: true, peace: false, inventory: false, relations: false }
+      });
+    }
+
+    function mergePlayerEntry(existing, imported) {
+      const current = normalizeEntry(existing);
+      return Object.assign({}, current, imported, {
+        visible: current.visible || imported.visible,
+        peace: current.peace || imported.peace,
+        peaceBlock: current.peaceBlock || imported.peaceBlock,
+        relations: current.relations || imported.relations,
+        relationLinks: current.relationLinks || imported.relationLinks,
+        gmNotes: current.gmNotes || imported.gmNotes
+      });
+    }
+
+    function normalizePlayerStats(stats) {
+      const source = stats || {};
+      return {
+        str: source.str || '',
+        dex: source.dex || '',
+        con: source.con || '',
+        int: source.int || '',
+        wis: source.wis || '',
+        cha: source.cha || ''
+      };
+    }
+
+    function classLabel(key) {
+      return ({
+        barbarian: 'Варвар',
+        bard: 'Бард',
+        cleric: 'Жрец',
+        druid: 'Друид',
+        fighter: 'Воин',
+        monk: 'Монах',
+        paladin: 'Паладин',
+        ranger: 'Следопыт',
+        rogue: 'Плут',
+        sorcerer: 'Чародей',
+        warlock: 'Колдун',
+        wizard: 'Волшебник'
+      })[key] || key || 'Класс не указан';
+    }
+
+    function render() {
+      const list = v('entryList');
+      v('addButtons').style.display = isGm && room ? 'flex' : 'none';
+      v('accessHint').textContent = isGm
+        ? 'Вы мастер: видите всё. Флажки показывают, какие секции открыты игрокам.'
+        : 'Вы игрок: видите только сведения, которые мастер открыл для группы.';
+
+      if (!room) {
+        list.innerHTML = '<div class="section" style="grid-column:1/-1;color:#888;font-size:13px;text-align:center">Подключитесь к комнате.</div>';
+        return;
+      }
+
+      if (isGm) {
+        const filtered = filterEntries(entries);
+        list.innerHTML = filtered.length
+          ? filtered.map(renderEditorCard).join('')
+          : '<div class="section" style="grid-column:1/-1;color:#888;font-size:13px;text-align:center">Подходящих записей нет.</div>';
+        attachCardControlStopper();
+        return;
+      }
+
+      const publicEntries = filterEntries(entries.filter(hasVisibleContent));
+      list.innerHTML = publicEntries.length
+        ? publicEntries.map(renderPublicCard).join('')
+        : '<div class="section" style="grid-column:1/-1;color:#888;font-size:13px;text-align:center">Подходящих раскрытых записей нет.</div>';
+      attachCardControlStopper();
+    }
+
+    function attachCardControlStopper() {
+      const list = v('entryList');
+      if (!list || list.dataset.stopperReady) return;
+      ['click', 'keydown'].forEach(eventName => {
+        list.addEventListener(eventName, event => {
+          if (event.target.closest('input, textarea, select, button, label')) {
+            event.stopPropagation();
+          }
+        });
+      });
+      list.dataset.stopperReady = '1';
+    }
+
+    function openEntryModal(id) {
+      const entry = entries.find(item => item.id === id);
+      if (!entry) return;
+      const body = v('entryModalBody');
+      v('entryModal').dataset.entryId = id;
+      body.innerHTML = isGm ? renderEditorCard(entry, true) : renderPublicCard(entry, true);
+      v('entryModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function refreshEntryModal() {
+      const modal = v('entryModal');
+      if (!modal.classList.contains('show')) return;
+      const id = modal.dataset.entryId;
+      const entry = entries.find(item => item.id === id);
+      if (!entry) return;
+      v('entryModalBody').innerHTML = isGm ? renderEditorCard(entry, true) : renderPublicCard(entry, true);
+    }
+
+    function closeEntryModal() {
+      v('entryModal').classList.remove('show');
+      v('entryModal').dataset.entryId = '';
+      v('entryModalBody').innerHTML = '';
+      document.body.style.overflow = '';
+    }
+
+    function filterEntries(source) {
+      const search = String(v('searchInput')?.value || '').trim().toLowerCase();
+      const type = v('typeFilter')?.value || '';
+      const visibility = v('visibilityFilter')?.value || '';
+      return source.filter(entry => {
+        const e = normalizeEntry(entry);
+        if (type && e.type !== type) return false;
+        if (visibility === 'public' && !hasVisibleContent(e)) return false;
+        if (visibility === 'hidden' && hasVisibleContent(e)) return false;
+        if (!search) return true;
+        const haystack = [e.name, e.type, e.tags, e.summary, e.combat, JSON.stringify(e.combatBlock || {}), e.peace, JSON.stringify(e.peaceBlock || {}), e.inventory, JSON.stringify(e.inventoryCoins || {}), JSON.stringify(e.inventoryItems || []), e.relations, JSON.stringify(e.relationLinks || []), e.gmNotes]
+          .join(' ')
+          .toLowerCase();
+        return haystack.includes(search);
+      }).sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'ru'));
+    }
+
+    function renderCardAttrs(id, inModal) {
+      return inModal
+        ? 'class="bestiary-card"'
+        : `class="bestiary-card" onclick="openEntryModal('${id}')" tabindex="0" onkeydown="if(event.key==='Enter')openEntryModal('${id}')"`;
+    }
+
+    function renderEditorCard(entry, inModal) {
+      const e = normalizeEntry(entry);
+      const id = esc(e.id);
+      const visibility = VISIBILITY_FIELDS.map(([field, label]) => `
+        <label><input type="checkbox" ${e.visible[field] ? 'checked' : ''} onchange="setVisible('${id}','${field}',this.checked)"> ${label}</label>
+      `).join('');
+      return `
+        <div ${renderCardAttrs(id, inModal)}>
+          <div class="bestiary-card-title">
+            <div>
+              <div class="bestiary-card-name">${esc(e.name || 'Без названия')}</div>
+              <div class="bestiary-card-meta"><span class="type-badge">${esc(e.type || 'NPC')}</span>${revealSummary(e)}${e.tags ? ' · ' + esc(e.tags) : ''}</div>
+            </div>
+            <button class="btn danger" onclick="deleteEntry('${id}')" style="padding:3px 8px">Удалить</button>
+          </div>
+          <div class="editor-grid">
+            <div class="field"><label>Название</label><input type="text" value="${esc(e.name)}" oninput="updateEntry('${id}','name',this.value)"></div>
+            <div class="field"><label>Тип</label>
+              <select onchange="updateEntry('${id}','type',this.value)">
+                <option value="NPC"${e.type === 'NPC' ? ' selected' : ''}>NPC</option>
+                <option value="Монстр"${e.type === 'Монстр' ? ' selected' : ''}>Монстр</option>
+                <option value="Фракция"${e.type === 'Фракция' ? ' selected' : ''}>Фракция</option>
+                <option value="Персонаж игрока"${e.type === 'Персонаж игрока' ? ' selected' : ''}>Персонаж игрока</option>
+              </select>
+            </div>
+            <div class="field full"><label>Метки</label><input type="text" value="${esc(e.tags)}" placeholder="город, культ, союзник..." oninput="updateEntry('${id}','tags',this.value)"></div>
+            <div class="field full"><label>Что видят игроки</label><div class="visibility">${visibility}</div></div>
+            <div class="field full"><label>Описание для игроков</label><textarea oninput="updateEntry('${id}','summary',this.value)" placeholder="Что герои уже знают или могут увидеть сразу...">${esc(e.summary)}</textarea></div>
+            <div class="field full"><label>Боевая вкладка</label>${renderCombatEditor(e, id)}</div>
+            <div class="field full"><label>Мирная вкладка</label>${renderPeaceEditor(e, id)}</div>
+            <div class="field full"><label>Инвентарь</label>${renderInventoryEditor(e, id)}</div>
+            <div class="field full"><label>Отношения</label>${renderRelationsEditor(e, id)}</div>
+            <div class="field full"><label>Заметки мастера</label><textarea oninput="updateEntry('${id}','gmNotes',this.value)" placeholder="Секреты, планы, приватные детали. Игрокам это поле не показывается.">${esc(e.gmNotes)}</textarea></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCombatEditor(entry, id) {
+      const combat = normalizeCombatBlock(entry.combatBlock);
+      const stats = [
+        ['str', 'Сила'],
+        ['dex', 'Ловк.'],
+        ['con', 'Телосл.'],
+        ['int', 'Инт.'],
+        ['wis', 'Мудр.'],
+        ['cha', 'Хар.']
+      ].map(([key, label]) => `
+        <div class="field"><label>${label}</label><input type="text" value="${esc(combat.stats[key])}" oninput="updateCombatStat('${id}','${key}',this.value)"></div>
+      `).join('');
+      const actions = combat.actions.length ? combat.actions : [{ name: '', bonus: '', damage: '' }];
+      const actionRows = actions.map((action, index) => `
+        <div class="combat-action">
+          <input type="text" value="${esc(action.name)}" placeholder="Действие или атака" oninput="updateCombatAction('${id}',${index},'name',this.value)">
+          <input type="text" value="${esc(action.bonus)}" placeholder="+5 или Сл 13" oninput="updateCombatAction('${id}',${index},'bonus',this.value)">
+          <input type="text" value="${esc(action.damage)}" placeholder="1к8+3 рубящий" oninput="updateCombatAction('${id}',${index},'damage',this.value)">
+          <button class="mini-remove" onclick="removeCombatAction('${id}',${index})" title="Удалить действие">×</button>
+        </div>
+      `).join('');
+      return `
+        <div class="combat-box">
+          <div class="combat-row">
+            <div class="field"><label>КД</label><input type="text" value="${esc(combat.ac)}" placeholder="15" oninput="updateCombatField('${id}','ac',this.value)"></div>
+            <div class="field"><label>ХП</label><input type="text" value="${esc(combat.hp)}" placeholder="27 / 27" oninput="updateCombatField('${id}','hp',this.value)"></div>
+            <div class="field"><label>Скорость</label><input type="text" value="${esc(combat.speed)}" placeholder="30 фт." oninput="updateCombatField('${id}','speed',this.value)"></div>
+            <div class="field"><label>Опасность</label><input type="text" value="${esc(combat.challenge)}" placeholder="1/4, 2, сюжетная..." oninput="updateCombatField('${id}','challenge',this.value)"></div>
+          </div>
+          <div>
+            <div class="section-title" style="margin-bottom:6px">Характеристики</div>
+            <div class="combat-stats">${stats}</div>
+          </div>
+          <div class="editor-grid">
+            <div class="field"><label>Спасброски</label><textarea oninput="updateCombatField('${id}','saves',this.value)" placeholder="Сил +4, Тел +3...">${esc(combat.saves)}</textarea></div>
+            <div class="field"><label>Навыки</label><textarea oninput="updateCombatField('${id}','skills',this.value)" placeholder="Внимательность +4, Скрытность +5...">${esc(combat.skills)}</textarea></div>
+            <div class="field"><label>Чувства</label><textarea oninput="updateCombatField('${id}','senses',this.value)" placeholder="Тёмное зрение 60 фт., пассивная Внимательность 12...">${esc(combat.senses)}</textarea></div>
+            <div class="field"><label>Сопротивления</label><textarea oninput="updateCombatField('${id}','resistances',this.value)" placeholder="Огонь, холод...">${esc(combat.resistances)}</textarea></div>
+            <div class="field"><label>Иммунитеты</label><textarea oninput="updateCombatField('${id}','immunities',this.value)" placeholder="Яд, очарование...">${esc(combat.immunities)}</textarea></div>
+            <div class="field"><label>Способности</label><textarea oninput="updateCombatField('${id}','traits',this.value)" placeholder="Особые свойства, реакции, ауры...">${esc(combat.traits)}</textarea></div>
+          </div>
+          <div>
+            <div class="section-title" style="margin-bottom:6px">Действия и атаки</div>
+            <div class="combat-list">${actionRows}</div>
+            <button class="btn" style="margin-top:6px;padding:5px 10px" onclick="addCombatAction('${id}')">+ Добавить действие</button>
+          </div>
+          <div class="field">
+            <label>Дополнительно</label>
+            <textarea oninput="updateEntry('${id}','combat',this.value)" placeholder="Любые старые заметки или нестандартные правила боя...">${esc(entry.combat)}</textarea>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPeaceEditor(entry, id) {
+      const peace = normalizePeaceBlock(entry.peaceBlock);
+      return `
+        <div class="peace-box">
+          <div class="peace-grid">
+            <div class="field"><label>Хочет</label><textarea oninput="updatePeaceField('${id}','wants',this.value)" placeholder="Чего добивается?">${esc(peace.wants)}</textarea></div>
+            <div class="field"><label>Боится</label><textarea oninput="updatePeaceField('${id}','fears',this.value)" placeholder="Чего избегает или скрывает?">${esc(peace.fears)}</textarea></div>
+            <div class="field full"><label>Отношение к героям</label><textarea oninput="updatePeaceField('${id}','heroAttitude',this.value)" placeholder="Как относится к группе сейчас?">${esc(peace.heroAttitude)}</textarea></div>
+            <div class="field"><label>Манера речи</label><textarea oninput="updatePeaceField('${id}','speech',this.value)" placeholder="Говорит сухо, шепчет, перебивает, любит титулы...">${esc(peace.speech)}</textarea></div>
+            <div class="field"><label>Фраза / жест</label><textarea oninput="updatePeaceField('${id}','phrase',this.value)" placeholder="Запоминающаяся фраза, привычка, жест...">${esc(peace.phrase)}</textarea></div>
+            <div class="field"><label>Поведение</label><textarea oninput="updatePeaceField('${id}','behavior',this.value)" placeholder="Как ведёт себя вне боя?">${esc(peace.behavior)}</textarea></div>
+            <div class="field"><label>Место / быт</label><textarea oninput="updatePeaceField('${id}','home',this.value)" placeholder="Где живёт, где бывает, с кем связан?">${esc(peace.home)}</textarea></div>
+            <div class="field full"><label>Секрет</label><textarea oninput="updatePeaceField('${id}','secret',this.value)" placeholder="Что не должны знать игроки, пока мастер не раскроет?">${esc(peace.secret)}</textarea></div>
+          </div>
+          <div class="field">
+            <label>Дополнительно</label>
+            <textarea oninput="updateEntry('${id}','peace',this.value)" placeholder="Старые заметки или свободное описание...">${esc(entry.peace)}</textarea>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderInventoryEditor(entry, id) {
+      const items = entry.inventoryItems.length ? entry.inventoryItems : [{ name: '', qty: '1', note: '' }];
+      const coins = normalizeInventoryCoins(entry.inventoryCoins);
+      const rows = items.map((item, index) => `
+        <div class="inventory-row">
+          <input type="text" value="${esc(item.name)}" placeholder="Предмет" oninput="updateInventoryItem('${id}',${index},'name',this.value)">
+          <input type="text" value="${esc(item.qty)}" placeholder="1" oninput="updateInventoryItem('${id}',${index},'qty',this.value)">
+          <input type="text" value="${esc(item.note)}" placeholder="Вес, цена, заметка..." oninput="updateInventoryItem('${id}',${index},'note',this.value)">
+          <button class="mini-remove" onclick="removeInventoryItem('${id}',${index})" title="Удалить предмет">×</button>
+        </div>
+      `).join('');
+      return `
+        <div class="inventory-box">
+          <div>
+            <div class="section-title" style="margin-bottom:6px">Монеты</div>
+            <div class="coin-row">
+              <div class="field"><label>Платина</label><input type="text" value="${esc(coins.pp)}" placeholder="0" oninput="updateInventoryCoin('${id}','pp',this.value)"></div>
+              <div class="field"><label>Золото</label><input type="text" value="${esc(coins.gp)}" placeholder="0" oninput="updateInventoryCoin('${id}','gp',this.value)"></div>
+              <div class="field"><label>Электрум</label><input type="text" value="${esc(coins.ep)}" placeholder="0" oninput="updateInventoryCoin('${id}','ep',this.value)"></div>
+              <div class="field"><label>Серебро</label><input type="text" value="${esc(coins.sp)}" placeholder="0" oninput="updateInventoryCoin('${id}','sp',this.value)"></div>
+              <div class="field"><label>Медь</label><input type="text" value="${esc(coins.cp)}" placeholder="0" oninput="updateInventoryCoin('${id}','cp',this.value)"></div>
+            </div>
+          </div>
+          <div class="inventory-header">
+            <div class="section-title" style="margin-bottom:0">Предмет</div>
+            <div class="section-title" style="margin-bottom:0">Кол-во</div>
+            <div class="section-title" style="margin-bottom:0">Заметка</div>
+            <div></div>
+          </div>
+          ${rows}
+          <button class="btn" style="padding:5px 10px;align-self:flex-start" onclick="addInventoryItem('${id}')">+ Добавить предмет</button>
+          <div class="field">
+            <label>Дополнительно</label>
+            <textarea oninput="updateEntry('${id}','inventory',this.value)" placeholder="Старые заметки, деньги, улики, трофеи...">${esc(entry.inventory)}</textarea>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRelationsEditor(entry, id) {
+      const links = entry.relationLinks.length ? entry.relationLinks : [{ targetId: '', customTarget: '', attitude: '', note: '' }];
+      const rows = links.map((link, index) => `
+        <div class="relation-row">
+          ${renderRelationTargetSelect(entry.id, id, index, link)}
+          <select onchange="updateRelationLink('${id}',${index},'attitude',this.value)">
+            ${relationAttitudeOptions(link.attitude)}
+          </select>
+          <input type="text" value="${esc(link.note)}" placeholder="Почему, долг, конфликт, слух..." oninput="updateRelationLink('${id}',${index},'note',this.value)">
+          <button class="mini-remove" onclick="removeRelationLink('${id}',${index})" title="Удалить связь">×</button>
+          ${link.targetId === '__custom' ? `<input type="text" value="${esc(link.customTarget)}" placeholder="Своя цель" oninput="updateRelationLink('${id}',${index},'customTarget',this.value)" style="grid-column:1/-1">` : ''}
+        </div>
+      `).join('');
+      return `
+        <div class="relations-box">
+          <div class="relation-header">
+            <div class="section-title" style="margin-bottom:0">Цель</div>
+            <div class="section-title" style="margin-bottom:0">Отношение</div>
+            <div class="section-title" style="margin-bottom:0">Заметка</div>
+            <div></div>
+          </div>
+          ${rows}
+          <button class="btn" style="padding:5px 10px;align-self:flex-start" onclick="addRelationLink('${id}')">+ Добавить связь</button>
+          <div class="field">
+            <label>Дополнительно</label>
+            <textarea oninput="updateEntry('${id}','relations',this.value)" placeholder="Старые заметки, общие связи, слухи...">${esc(entry.relations)}</textarea>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRelationTargetSelect(entryId, escapedId, index, link) {
+      const options = entries
+        .filter(item => item.id !== entryId)
+        .map(item => {
+          const selected = link.targetId === item.id ? ' selected' : '';
+          return `<option value="${esc(item.id)}"${selected}>${esc(item.name || 'Без названия')} · ${esc(item.type || 'NPC')}</option>`;
+        })
+        .join('');
+      const customSelected = link.targetId === '__custom' ? ' selected' : '';
+      return `
+        <select onchange="updateRelationTarget('${escapedId}',${index},this.value)">
+          <option value="">Выберите цель</option>
+          ${options}
+          <option value="__custom"${customSelected}>Своя цель...</option>
+        </select>
+      `;
+    }
+
+    function relationAttitudeOptions(current) {
+      const options = ['Союзник', 'Дружелюбно', 'Нейтрально', 'Напряжённо', 'Враждебно', 'Боится', 'Должник', 'Покровитель', 'Соперник', 'Секрет'];
+      return ['<option value="">Отношение...</option>'].concat(options.map(value => {
+        return `<option value="${esc(value)}"${current === value ? ' selected' : ''}>${esc(value)}</option>`;
+      })).join('');
+    }
+
+    function renderPublicCard(entry, inModal) {
+      const e = normalizeEntry(entry);
+      const id = esc(e.id);
+      const sections = VISIBILITY_FIELDS
+        .filter(([field]) => e.visible[field] && hasSectionContent(e, field))
+        .map(([field, label]) => `<div class="bestiary-section"><strong>${label}</strong>${renderPublicSection(e, field)}</div>`)
+        .join('');
+      return `
+        <div ${renderCardAttrs(id, inModal)}>
+          <div class="bestiary-card-title">
+            <div>
+              <div class="bestiary-card-name">${esc(e.name || 'Без названия')}</div>
+              <div class="bestiary-card-meta"><span class="type-badge">${esc(e.type || 'NPC')}</span>${e.tags ? esc(e.tags) : ''}</div>
+            </div>
+          </div>
+          ${sections}
+        </div>
+      `;
+    }
+
+    function renderPublicSection(entry, field) {
+      if (field === 'combat') return renderPublicCombat(entry);
+      if (field === 'peace') return renderPublicPeace(entry);
+      if (field === 'inventory') return renderPublicInventory(entry);
+      if (field === 'relations') return renderPublicRelations(entry);
+      return esc(entry[field]);
+    }
+
+    function renderPublicPeace(entry) {
+      const peace = normalizePeaceBlock(entry.peaceBlock);
+      const rows = [
+        ['Хочет', peace.wants],
+        ['Боится', peace.fears],
+        ['Отношение к героям', peace.heroAttitude],
+        ['Манера речи', peace.speech],
+        ['Фраза / жест', peace.phrase],
+        ['Поведение', peace.behavior],
+        ['Место / быт', peace.home],
+        ['Секрет', peace.secret]
+      ].filter(([, value]) => String(value || '').trim())
+        .map(([label, value]) => `<div style="margin-top:6px"><b>${label}:</b> ${esc(value)}</div>`)
+        .join('');
+      const extra = String(entry.peace || '').trim() ? `<div style="margin-top:8px;white-space:pre-wrap">${esc(entry.peace)}</div>` : '';
+      return [rows, extra].filter(Boolean).join('');
+    }
+
+    function renderPublicCombat(entry) {
+      const combat = normalizeCombatBlock(entry.combatBlock);
+      const statLabels = { str: 'Сил', dex: 'Лов', con: 'Тел', int: 'Инт', wis: 'Мдр', cha: 'Хар' };
+      const top = [
+        ['КД', combat.ac],
+        ['ХП', combat.hp],
+        ['Скорость', combat.speed],
+        ['Опасность', combat.challenge]
+      ].filter(([, value]) => String(value || '').trim())
+        .map(([label, value]) => `<div class="public-combat-stat"><span>${label}</span><b>${esc(value)}</b></div>`)
+        .join('');
+      const stats = Object.entries(statLabels)
+        .filter(([key]) => String(combat.stats[key] || '').trim())
+        .map(([key, label]) => `<div class="public-combat-stat"><span>${label}</span><b>${esc(combat.stats[key])}</b></div>`)
+        .join('');
+      const details = [
+        ['Спасброски', combat.saves],
+        ['Навыки', combat.skills],
+        ['Чувства', combat.senses],
+        ['Сопротивления', combat.resistances],
+        ['Иммунитеты', combat.immunities],
+        ['Способности', combat.traits]
+      ].filter(([, value]) => String(value || '').trim())
+        .map(([label, value]) => `<div style="margin-top:6px"><b>${label}:</b> ${esc(value)}</div>`)
+        .join('');
+      const actions = (combat.actions || [])
+        .filter(action => [action.name, action.bonus, action.damage].some(value => String(value || '').trim()))
+        .map(action => `<div style="margin-top:6px"><b>${esc(action.name || 'Действие')}</b>${action.bonus ? ' ' + esc(action.bonus) : ''}${action.damage ? ' · ' + esc(action.damage) : ''}</div>`)
+        .join('');
+      const extra = String(entry.combat || '').trim() ? `<div style="margin-top:8px;white-space:pre-wrap">${esc(entry.combat)}</div>` : '';
+      return [
+        top ? `<div class="public-combat-grid">${top}</div>` : '',
+        stats ? `<div class="public-combat-grid" style="margin-top:6px">${stats}</div>` : '',
+        details,
+        actions ? `<div style="margin-top:8px"><b>Действия:</b>${actions}</div>` : '',
+        extra
+      ].filter(Boolean).join('');
+    }
+
+    function renderPublicInventory(entry) {
+      const coins = normalizeInventoryCoins(entry.inventoryCoins);
+      const coinLabels = { pp: 'пм', gp: 'зм', ep: 'эм', sp: 'см', cp: 'мм' };
+      const coinText = Object.entries(coinLabels)
+        .filter(([key]) => String(coins[key] || '').trim())
+        .map(([key, label]) => `${esc(coins[key])} ${label}`)
+        .join(' · ');
+      const items = normalizeInventoryItems(entry.inventoryItems)
+        .filter(item => [item.name, item.qty, item.note].some(value => String(value || '').trim()));
+      const rows = items.map(item => `
+        <div class="inventory-public-item">
+          <b>${esc(item.name || 'Предмет')}</b>
+          ${item.qty ? `<span>${esc(item.qty)}</span>` : '<span></span>'}
+          ${item.note ? `<span>${esc(item.note)}</span>` : '<span></span>'}
+        </div>
+      `).join('');
+      const extra = String(entry.inventory || '').trim() ? `<div style="margin-top:8px;white-space:pre-wrap">${esc(entry.inventory)}</div>` : '';
+      return [
+        coinText ? `<div style="font-weight:700;margin-bottom:6px">${coinText}</div>` : '',
+        rows ? `<div class="inventory-public-list">${rows}</div>` : '',
+        extra
+      ].filter(Boolean).join('');
+    }
+
+    function renderPublicRelations(entry) {
+      const links = normalizeRelationLinks(entry.relationLinks)
+        .filter(link => [relationTargetName(link), link.attitude, link.note].some(value => String(value || '').trim()));
+      const rows = links.map(link => `
+        <div class="relation-public-item">
+          <b>${esc(relationTargetName(link) || 'Цель')}</b>
+          ${link.attitude ? ` <span>· ${esc(link.attitude)}</span>` : ''}
+          ${link.note ? `<div style="margin-top:3px">${esc(link.note)}</div>` : ''}
+        </div>
+      `).join('');
+      const extra = String(entry.relations || '').trim() ? `<div style="margin-top:8px;white-space:pre-wrap">${esc(entry.relations)}</div>` : '';
+      return [rows ? `<div class="relation-public-list">${rows}</div>` : '', extra].filter(Boolean).join('');
+    }
+
+    function relationTargetName(link) {
+      if (link.targetId === '__custom') return link.customTarget || '';
+      const target = entries.find(item => item.id === link.targetId);
+      return target ? (target.name || target.type || '') : '';
+    }
+
+    function hasVisibleContent(entry) {
+      const e = normalizeEntry(entry);
+      return VISIBILITY_FIELDS.some(([field]) => e.visible[field] && hasSectionContent(e, field));
+    }
+
+    function hasSectionContent(entry, field) {
+      if (field === 'combat') return hasCombatContent(entry);
+      if (field === 'peace') return hasPeaceContent(entry);
+      if (field === 'inventory') return hasInventoryContent(entry);
+      if (field === 'relations') return hasRelationsContent(entry);
+      return String(entry[field] || '').trim();
+    }
+
+    function hasCombatContent(entry) {
+      const combat = normalizeCombatBlock(entry.combatBlock);
+      const values = [
+        entry.combat, combat.ac, combat.hp, combat.speed, combat.challenge, combat.saves, combat.skills,
+        combat.senses, combat.resistances, combat.immunities, combat.traits,
+        ...Object.values(combat.stats || {}),
+        ...(combat.actions || []).flatMap(action => [action.name, action.bonus, action.damage])
+      ];
+      return values.some(value => String(value || '').trim());
+    }
+
+    function hasPeaceContent(entry) {
+      const peace = normalizePeaceBlock(entry.peaceBlock);
+      const values = [entry.peace, ...Object.values(peace)];
+      return values.some(value => String(value || '').trim());
+    }
+
+    function hasInventoryContent(entry) {
+      const values = [
+        entry.inventory,
+        ...Object.values(normalizeInventoryCoins(entry.inventoryCoins)),
+        ...normalizeInventoryItems(entry.inventoryItems).flatMap(item => [item.name, item.qty, item.note])
+      ];
+      return values.some(value => String(value || '').trim());
+    }
+
+    function hasRelationsContent(entry) {
+      const values = [
+        entry.relations,
+        ...normalizeRelationLinks(entry.relationLinks).flatMap(link => [relationTargetName(link), link.attitude, link.note, link.customTarget])
+      ];
+      return values.some(value => String(value || '').trim());
+    }
+
+    function revealSummary(entry) {
+      const count = VISIBILITY_FIELDS.filter(([field]) => entry.visible[field] && hasSectionContent(entry, field)).length;
+      return count ? `<span class="reveal-badge">раскрыто: ${count}</span>` : '<span style="color:#aaa">ничего не раскрыто</span>';
+    }
+
+    function findEntry(id) {
+      return entries.find(entry => entry.id === id);
+    }
+
+    function updateEntry(id, field, value) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry[field] = value;
+      scheduleSave();
+    }
+
+    function updateCombatField(id, field, value) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.combatBlock = normalizeCombatBlock(entry.combatBlock);
+      entry.combatBlock[field] = value;
+      scheduleSave();
+    }
+
+    function updatePeaceField(id, field, value) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.peaceBlock = normalizePeaceBlock(entry.peaceBlock);
+      entry.peaceBlock[field] = value;
+      scheduleSave();
+    }
+
+    function updateCombatStat(id, stat, value) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.combatBlock = normalizeCombatBlock(entry.combatBlock);
+      entry.combatBlock.stats[stat] = value;
+      scheduleSave();
+    }
+
+    function updateCombatAction(id, index, field, value) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.combatBlock = normalizeCombatBlock(entry.combatBlock);
+      if (!entry.combatBlock.actions[index]) entry.combatBlock.actions[index] = { name: '', bonus: '', damage: '' };
+      entry.combatBlock.actions[index][field] = value;
+      scheduleSave();
+    }
+
+    function addCombatAction(id) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.combatBlock = normalizeCombatBlock(entry.combatBlock);
+      entry.combatBlock.actions.push({ name: '', bonus: '', damage: '' });
+      render();
+      refreshEntryModal();
+      scheduleSave(true);
+    }
+
+    function removeCombatAction(id, index) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.combatBlock = normalizeCombatBlock(entry.combatBlock);
+      entry.combatBlock.actions.splice(index, 1);
+      render();
+      refreshEntryModal();
+      scheduleSave(true);
+    }
+
+    function updateInventoryCoin(id, coin, value) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.inventoryCoins = normalizeInventoryCoins(entry.inventoryCoins);
+      entry.inventoryCoins[coin] = value;
+      scheduleSave();
+    }
+
+    function updateInventoryItem(id, index, field, value) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.inventoryItems = normalizeInventoryItems(entry.inventoryItems);
+      if (!entry.inventoryItems[index]) entry.inventoryItems[index] = { name: '', qty: '', note: '' };
+      entry.inventoryItems[index][field] = value;
+      scheduleSave();
+    }
+
+    function addInventoryItem(id) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.inventoryItems = normalizeInventoryItems(entry.inventoryItems);
+      entry.inventoryItems.push({ name: '', qty: '1', note: '' });
+      render();
+      refreshEntryModal();
+      scheduleSave(true);
+    }
+
+    function removeInventoryItem(id, index) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.inventoryItems = normalizeInventoryItems(entry.inventoryItems);
+      entry.inventoryItems.splice(index, 1);
+      render();
+      refreshEntryModal();
+      scheduleSave(true);
+    }
+
+    function updateRelationTarget(id, index, value) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.relationLinks = normalizeRelationLinks(entry.relationLinks);
+      if (!entry.relationLinks[index]) entry.relationLinks[index] = { targetId: '', customTarget: '', attitude: '', note: '' };
+      entry.relationLinks[index].targetId = value;
+      if (value !== '__custom') entry.relationLinks[index].customTarget = '';
+      render();
+      refreshEntryModal();
+      scheduleSave(true);
+    }
+
+    function updateRelationLink(id, index, field, value) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.relationLinks = normalizeRelationLinks(entry.relationLinks);
+      if (!entry.relationLinks[index]) entry.relationLinks[index] = { targetId: '', customTarget: '', attitude: '', note: '' };
+      entry.relationLinks[index][field] = value;
+      scheduleSave();
+    }
+
+    function addRelationLink(id) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.relationLinks = normalizeRelationLinks(entry.relationLinks);
+      entry.relationLinks.push({ targetId: '', customTarget: '', attitude: '', note: '' });
+      render();
+      refreshEntryModal();
+      scheduleSave(true);
+    }
+
+    function removeRelationLink(id, index) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.relationLinks = normalizeRelationLinks(entry.relationLinks);
+      entry.relationLinks.splice(index, 1);
+      render();
+      refreshEntryModal();
+      scheduleSave(true);
+    }
+
+    function setVisible(id, field, checked) {
+      if (!isGm) return;
+      const entry = findEntry(id);
+      if (!entry) return;
+      entry.visible = Object.assign({}, entry.visible || {}, { [field]: checked });
+      scheduleSave();
+    }
+
+    function addEntry(kind) {
+      if (!isGm) {
+        toast('Редактировать может только мастер');
+        return;
+      }
+      entries.unshift(defaultEntry(kind));
+      render();
+      scheduleSave(true);
+    }
+
+    function deleteEntry(id) {
+      if (!isGm || !confirm('Удалить запись из бестиария?')) return;
+      entries = entries.filter(entry => entry.id !== id);
+      render();
+      closeEntryModal();
+      scheduleSave(true);
+    }
+
+    function scheduleSave(immediate) {
+      if (!isGm || !bestiaryRef) return;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveEntries, immediate ? 0 : 500);
+    }
+
+    function saveEntries() {
+      if (!isGm || !bestiaryRef) return;
+      const payload = entries.map(normalizeEntry);
+      window._fbMod.set(bestiaryRef, payload).then(() => {
+        toast('Сохранено');
+      }).catch(e => {
+        console.error('[FB] bestiary write error:', e);
+        toast('Ошибка сохранения');
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      v('roomInput').value = localStorage.getItem('dnd_fb_room') || '';
+      v('nameInput').value = localStorage.getItem('dnd_fb_name') || '';
+      render();
+    });
+
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeEntryModal();
+    });
+  </script>
+</body>
+
+</html>
