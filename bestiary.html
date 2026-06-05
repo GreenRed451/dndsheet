@@ -959,9 +959,17 @@
       }));
     }
 
+    function isEntryControl(target) {
+      return !!(target && target.closest && target.closest('input, textarea, select, button, label'));
+    }
+
+    function isEntryEditorControl(target) {
+      return !!(target && target.closest && target.closest('input, textarea, select, [contenteditable="true"]'));
+    }
+
     function isEditingEntryList() {
       const active = document.activeElement;
-      return !!(active && active.closest && active.closest('#entryList'));
+      return !!(active && active.closest && active.closest('#entryList, #entryModal') && isEntryEditorControl(active));
     }
 
     async function connectBestiary() {
@@ -1211,12 +1219,19 @@
     function attachCardControlStopper() {
       const list = v('entryList');
       if (!list || list.dataset.stopperReady) return;
-      ['click', 'keydown'].forEach(eventName => {
-        list.addEventListener(eventName, event => {
-          if (event.target.closest('input, textarea, select, button, label')) {
-            event.stopPropagation();
-          }
-        });
+      list.addEventListener('click', event => {
+        if (isEntryControl(event.target)) return;
+        const card = event.target.closest && event.target.closest('.bestiary-card[data-entry-id]');
+        if (!card || !list.contains(card)) return;
+        openEntryModal(card.dataset.entryId);
+      });
+      list.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        if (isEntryControl(event.target)) return;
+        const card = event.target.closest && event.target.closest('.bestiary-card[data-entry-id]');
+        if (!card || !list.contains(card)) return;
+        event.preventDefault();
+        openEntryModal(card.dataset.entryId);
       });
       list.dataset.stopperReady = '1';
     }
@@ -1267,7 +1282,7 @@
     function renderCardAttrs(id, inModal) {
       return inModal
         ? 'class="bestiary-card"'
-        : `class="bestiary-card" onclick="openEntryModal('${id}')" tabindex="0" onkeydown="if(event.key==='Enter')openEntryModal('${id}')"`;
+        : `class="bestiary-card" data-entry-id="${id}" tabindex="0" role="button"`;
     }
 
     function renderEditorCard(entry, inModal) {
