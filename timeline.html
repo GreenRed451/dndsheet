@@ -243,6 +243,19 @@
       transition: transform .18s, box-shadow .18s, border-color .18s
     }
 
+    .timeline-event.draggable .event-body {
+      cursor: grab
+    }
+
+    .timeline-event.dragging {
+      opacity: .48
+    }
+
+    .timeline-event.drag-over .event-body {
+      border-color: #534AB7;
+      box-shadow: 0 0 0 3px rgba(83, 74, 183, .14)
+    }
+
     .event-body:hover {
       transform: scale(1.018);
       box-shadow: 0 10px 24px rgba(52, 43, 28, .12);
@@ -562,6 +575,7 @@
     let events = [];
     let openIds = new Set();
     let saveTimer = null;
+    let draggedEventId = '';
 
     function v(id) {
       return document.getElementById(id);
@@ -718,6 +732,7 @@
       list.innerHTML = renderOrigin() + (filtered.length
         ? filtered.map(renderEvent).join('')
         : '<div class="section empty">Событий пока нет.</div>');
+      attachTimelineDragHandlers();
     }
 
     function renderOrigin() {
@@ -741,8 +756,9 @@
       const badge = event.visible
         ? '<span class="event-badge">Видно игрокам</span>'
         : '<span class="event-badge closed">Скрыто</span>';
+      const canDrag = isGm && !(v('searchInput')?.value || '').trim();
       return `
-        <div class="timeline-event${isOpen ? ' open' : ''}" data-id="${esc(id)}">
+        <div class="timeline-event${isOpen ? ' open' : ''}${canDrag ? ' draggable' : ''}" data-id="${esc(id)}" ${canDrag ? 'draggable="true"' : ''}>
           <div class="event-date">${esc(date)}</div>
           <div class="event-body${hiddenClass}">
             <div class="timeline-dot"></div>
@@ -753,6 +769,75 @@
             ${known ? renderDetails(event) : ''}
           </div>
         </div>`;
+    }
+
+    function attachTimelineDragHandlers() {
+      const list = v('timelineList');
+      if (!list || list.dataset.dragReady) return;
+
+      list.addEventListener('dragstart', event => {
+        if (!isGm || (v('searchInput')?.value || '').trim()) return;
+        if (isEditorControl(event.target) || event.target.closest('button, img, label')) {
+          event.preventDefault();
+          return;
+        }
+        const item = event.target.closest('.timeline-event[data-id]');
+        if (!item || !list.contains(item)) return;
+        draggedEventId = item.dataset.id;
+        item.classList.add('dragging');
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', draggedEventId);
+      });
+
+      list.addEventListener('dragover', event => {
+        if (!draggedEventId) return;
+        const item = event.target.closest('.timeline-event[data-id]');
+        if (!item || !list.contains(item) || item.dataset.id === draggedEventId) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+        clearDragOver();
+        item.classList.add('drag-over');
+      });
+
+      list.addEventListener('dragleave', event => {
+        const item = event.target.closest('.timeline-event[data-id]');
+        if (item && !item.contains(event.relatedTarget)) item.classList.remove('drag-over');
+      });
+
+      list.addEventListener('drop', event => {
+        if (!draggedEventId) return;
+        const item = event.target.closest('.timeline-event[data-id]');
+        clearDragOver();
+        if (!item || !list.contains(item)) return;
+        event.preventDefault();
+        reorderDraggedEvent(draggedEventId, item.dataset.id);
+      });
+
+      list.addEventListener('dragend', () => {
+        clearDragOver();
+        const item = list.querySelector('.timeline-event.dragging');
+        if (item) item.classList.remove('dragging');
+        draggedEventId = '';
+      });
+
+      list.dataset.dragReady = '1';
+    }
+
+    function clearDragOver() {
+      v('timelineList')?.querySelectorAll('.drag-over').forEach(item => item.classList.remove('drag-over'));
+    }
+
+    function reorderDraggedEvent(sourceId, targetId) {
+      if (!isGm || !sourceId || !targetId || sourceId === targetId) return;
+      const sourceIndex = events.findIndex(item => item.id === sourceId);
+      const targetIndex = events.findIndex(item => item.id === targetId);
+      if (sourceIndex < 0 || targetIndex < 0) return;
+      const copy = events.slice();
+      const [moved] = copy.splice(sourceIndex, 1);
+      copy.splice(targetIndex, 0, moved);
+      events = copy;
+      render();
+      scheduleSave(true);
     }
 
     function renderEventImage(event) {
