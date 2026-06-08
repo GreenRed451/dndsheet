@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dnd-sheet-v73';
+const CACHE_NAME = 'dnd-sheet-v74';
 const APP_SHELL = [
   './',
   './index.html',

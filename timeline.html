@@ -222,7 +222,8 @@
       display: grid;
       grid-template-columns: 96px 1fr;
       gap: 42px;
-      margin: 0 0 16px 0
+      margin: 0 0 16px 0;
+      transition: transform .18s ease, opacity .18s ease
     }
 
     .event-date {
@@ -248,12 +249,45 @@
     }
 
     .timeline-event.dragging {
-      opacity: .48
+      opacity: .42;
+      transform: rotate(-1deg) scale(.99)
+    }
+
+    .timeline-event.dragging .event-body {
+      cursor: grabbing;
+      box-shadow: 0 16px 32px rgba(52, 43, 28, .18)
     }
 
     .timeline-event.drag-over .event-body {
       border-color: #534AB7;
       box-shadow: 0 0 0 3px rgba(83, 74, 183, .14)
+    }
+
+    .timeline-event.drop-before,
+    .timeline-event.drop-after {
+      transform: translateY(4px)
+    }
+
+    .timeline-event.drop-before::before,
+    .timeline-event.drop-after::after {
+      content: "";
+      position: absolute;
+      left: 138px;
+      right: 0;
+      height: 4px;
+      border-radius: 999px;
+      background: #534AB7;
+      box-shadow: 0 0 0 4px rgba(83, 74, 183, .14);
+      z-index: 5;
+      pointer-events: none
+    }
+
+    .timeline-event.drop-before::before {
+      top: -10px
+    }
+
+    .timeline-event.drop-after::after {
+      bottom: -10px
     }
 
     .event-body:hover {
@@ -491,6 +525,11 @@
         left: -31px
       }
 
+      .timeline-event.drop-before::before,
+      .timeline-event.drop-after::after {
+        left: 44px
+      }
+
       .editor-grid {
         grid-template-columns: 1fr
       }
@@ -576,6 +615,7 @@
     let openIds = new Set();
     let saveTimer = null;
     let draggedEventId = '';
+    let draggedInsertMode = 'before';
 
     function v(id) {
       return document.getElementById(id);
@@ -784,6 +824,7 @@
         const item = event.target.closest('.timeline-event[data-id]');
         if (!item || !list.contains(item)) return;
         draggedEventId = item.dataset.id;
+        draggedInsertMode = 'before';
         item.classList.add('dragging');
         event.dataTransfer.effectAllowed = 'move';
         event.dataTransfer.setData('text/plain', draggedEventId);
@@ -795,46 +836,57 @@
         if (!item || !list.contains(item) || item.dataset.id === draggedEventId) return;
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
-        clearDragOver();
+        const rect = item.getBoundingClientRect();
+        draggedInsertMode = event.clientY > rect.top + rect.height / 2 ? 'after' : 'before';
+        clearDropMarkers();
         item.classList.add('drag-over');
+        item.classList.add(draggedInsertMode === 'after' ? 'drop-after' : 'drop-before');
       });
 
       list.addEventListener('dragleave', event => {
         const item = event.target.closest('.timeline-event[data-id]');
-        if (item && !item.contains(event.relatedTarget)) item.classList.remove('drag-over');
+        if (item && !item.contains(event.relatedTarget)) {
+          item.classList.remove('drag-over', 'drop-before', 'drop-after');
+        }
       });
 
       list.addEventListener('drop', event => {
         if (!draggedEventId) return;
         const item = event.target.closest('.timeline-event[data-id]');
-        clearDragOver();
+        clearDropMarkers();
         if (!item || !list.contains(item)) return;
         event.preventDefault();
-        reorderDraggedEvent(draggedEventId, item.dataset.id);
+        reorderDraggedEvent(draggedEventId, item.dataset.id, draggedInsertMode);
       });
 
       list.addEventListener('dragend', () => {
-        clearDragOver();
+        clearDropMarkers();
         const item = list.querySelector('.timeline-event.dragging');
         if (item) item.classList.remove('dragging');
         draggedEventId = '';
+        draggedInsertMode = 'before';
       });
 
       list.dataset.dragReady = '1';
     }
 
-    function clearDragOver() {
-      v('timelineList')?.querySelectorAll('.drag-over').forEach(item => item.classList.remove('drag-over'));
+    function clearDropMarkers() {
+      v('timelineList')?.querySelectorAll('.drag-over, .drop-before, .drop-after').forEach(item => {
+        item.classList.remove('drag-over', 'drop-before', 'drop-after');
+      });
     }
 
-    function reorderDraggedEvent(sourceId, targetId) {
+    function reorderDraggedEvent(sourceId, targetId, mode) {
       if (!isGm || !sourceId || !targetId || sourceId === targetId) return;
       const sourceIndex = events.findIndex(item => item.id === sourceId);
       const targetIndex = events.findIndex(item => item.id === targetId);
       if (sourceIndex < 0 || targetIndex < 0) return;
       const copy = events.slice();
       const [moved] = copy.splice(sourceIndex, 1);
-      copy.splice(targetIndex, 0, moved);
+      let insertIndex = copy.findIndex(item => item.id === targetId);
+      if (insertIndex < 0) return;
+      if (mode === 'after') insertIndex += 1;
+      copy.splice(insertIndex, 0, moved);
       events = copy;
       render();
       scheduleSave(true);
