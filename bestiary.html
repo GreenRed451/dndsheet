@@ -538,13 +538,14 @@
     .relation-header,
     .relation-row {
       display: grid;
-      grid-template-columns: 1.4fr 1fr 1.8fr 30px;
+      grid-template-columns: 1.2fr .8fr 2fr 30px;
       gap: 6px;
-      align-items: center
+      align-items: start
     }
 
     .relation-row input,
-    .relation-row select {
+    .relation-row select,
+    .relation-row textarea {
       background: #f5f4f0;
       border: 1px solid #e0ddd4;
       border-radius: 8px;
@@ -553,6 +554,12 @@
       color: #1a1a18;
       font-family: inherit;
       width: 100%
+    }
+
+    .relation-row textarea {
+      min-height: 82px;
+      resize: vertical;
+      line-height: 1.45
     }
 
     .relation-public-list {
@@ -1746,7 +1753,7 @@
           <select onchange="updateRelationLink('${id}',${index},'attitude',this.value)">
             ${relationAttitudeOptions(link.attitude)}
           </select>
-          <input type="text" value="${esc(link.note)}" placeholder="Почему, долг, конфликт, слух..." oninput="updateRelationLink('${id}',${index},'note',this.value)">
+          <textarea placeholder="Почему, долг, конфликт, слух..." oninput="updateRelationLink('${id}',${index},'note',this.value)">${esc(link.note)}</textarea>
           <button class="mini-remove" onclick="removeRelationLink('${id}',${index})" title="Удалить связь">×</button>
           ${link.targetId === '__custom' ? `<input type="text" value="${esc(link.customTarget)}" placeholder="Своя цель" oninput="updateRelationLink('${id}',${index},'customTarget',this.value)" style="grid-column:1/-1">` : ''}
         </div>
@@ -2208,8 +2215,10 @@
         toast('Редактировать может только мастер');
         return;
       }
-      entries.unshift(defaultEntry(kind));
+      const entry = defaultEntry(kind);
+      entries.unshift(entry);
       render();
+      openEntryModal(entry.id);
       scheduleSave(true);
     }
 
