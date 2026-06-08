@@ -563,26 +563,47 @@
     }
 
     .relation-public-list {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin-top: 4px
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 8px;
+      margin-top: 4px;
+      white-space: normal
     }
 
     .relation-public-item {
       border: 1px solid #e0ddd4;
       border-radius: 8px;
       background: #faf9f5;
-      padding: 6px 8px
+      padding: 8px 10px;
+      min-height: 0
     }
 
     .relation-public-item b {
-      font-size: 13px
+      display: block;
+      font-size: 13px;
+      line-height: 1.2;
+      margin-bottom: 5px
     }
 
-    .relation-public-item span {
-      color: #777;
-      font-size: 12px
+    .relation-attitude {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      border-radius: 999px;
+      background: #f0efe8;
+      color: #6b655b;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.2
+    }
+
+    .relation-note {
+      margin-top: 7px;
+      color: #34322e;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap
     }
 
     .mini-remove {
@@ -1979,8 +2000,8 @@
       const rows = links.map(link => `
         <div class="relation-public-item">
           <b>${esc(relationTargetName(link) || 'Цель')}</b>
-          ${link.attitude ? ` <span>· ${esc(link.attitude)}</span>` : ''}
-          ${link.note ? `<div style="margin-top:3px">${esc(link.note)}</div>` : ''}
+          ${link.attitude ? `<span class="relation-attitude">${esc(link.attitude)}</span>` : ''}
+          ${link.note ? `<div class="relation-note">${esc(link.note)}</div>` : ''}
         </div>
       `).join('');
       const extra = String(entry.relations || '').trim() ? `<div style="margin-top:8px;white-space:pre-wrap">${esc(entry.relations)}</div>` : '';
