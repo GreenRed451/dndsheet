@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#534AB7">
+  <title>Хронология кампании</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f4f0;
+      color: #1a1a18;
+      min-height: 100vh
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #fff;
+      border-bottom: 1px solid #e0ddd4;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    h1 {
+      font-size: 17px;
+      font-weight: 700;
+      flex: 1;
+      min-width: 220px
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 24px
+    }
+
+    .btn {
+      font-size: 13px;
+      padding: 7px 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #fff;
+      color: #444;
+      transition: all .15s;
+      white-space: nowrap
+    }
+
+    .btn:hover {
+      background: #f0efe8;
+      border-color: #aaa
+    }
+
+    .btn.primary {
+      background: #534AB7;
+      color: #fff;
+      border-color: #534AB7
+    }
+
+    .btn.primary:hover {
+      background: #3C3489
+    }
+
+    .btn.danger {
+      border-color: #993C1D;
+      color: #993C1D
+    }
+
+    .section {
+      background: #fff;
+      border: 1px solid #e0ddd4;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #888;
+      margin-bottom: 10px
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    .field label,
+    .check-row {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .04em
+    }
+
+    .field input,
+    .field textarea {
+      background: #f5f4f0;
+      border: 1px solid #e0ddd4;
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 13px;
+      color: #1a1a18;
+      font-family: inherit;
+      width: 100%
+    }
+
+    .field textarea {
+      min-height: 96px;
+      resize: vertical;
+      line-height: 1.55
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      outline: 2px solid #7F77DD;
+      outline-offset: -1px
+    }
+
+    .room-row,
+    .tool-row {
+      display: flex;
+      align-items: end;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .room-row .field,
+    .tool-row .field {
+      min-width: 180px
+    }
+
+    .tool-row {
+      margin-top: 12px
+    }
+
+    .tool-row .search-field {
+      flex: 1;
+      min-width: 260px
+    }
+
+    .status {
+      font-size: 13px;
+      color: #888
+    }
+
+    .status strong {
+      color: #534AB7
+    }
+
+    .timeline {
+      position: relative;
+      padding: 12px 0 20px 0
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 120px;
+      width: 3px;
+      border-radius: 999px;
+      background: linear-gradient(#534AB7, #b9852b, #7b6d54)
+    }
+
+    .timeline.timeline-empty::before {
+      display: none
+    }
+
+    .timeline-start {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 42px;
+      align-items: center;
+      margin-bottom: 14px
+    }
+
+    .timeline-start .origin-date {
+      color: #534AB7;
+      font-weight: 800;
+      text-align: right
+    }
+
+    .origin-node,
+    .timeline-dot {
+      width: 18px;
+      height: 18px;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      background: #534AB7;
+      box-shadow: 0 0 0 2px #534AB7
+    }
+
+    .origin-node {
+      margin-left: -27px
+    }
+
+    .origin-title {
+      font-weight: 800
+    }
+
+    .timeline-event {
+      position: relative;
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 42px;
+      margin: 0 0 16px 0
+    }
+
+    .event-date {
+      padding-top: 14px;
+      text-align: right;
+      color: #7b6d54;
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .event-body {
+      position: relative;
+      background: #fff;
+      border: 1px solid #e0ddd4;
+      border-radius: 12px;
+      padding: 12px 14px;
+      min-width: 0;
+      transition: transform .18s, box-shadow .18s, border-color .18s
+    }
+
+    .event-body:hover {
+      transform: scale(1.018);
+      box-shadow: 0 10px 24px rgba(52, 43, 28, .12);
+      border-color: #c9c4f5
+    }
+
+    .event-body.hidden-event {
+      background: #faf9f6;
+      color: #888
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -27px;
+      top: 15px;
+      z-index: 2;
+      background: #b9852b;
+      box-shadow: 0 0 0 2px #b9852b
+    }
+
+    .hidden-event .timeline-dot {
+      background: #888;
+      box-shadow: 0 0 0 2px #888
+    }
+
+    .event-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .event-title {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: left;
+      min-width: 0
+    }
+
+    .event-title:hover {
+      color: #534AB7
+    }
+
+    .event-badge {
+      flex: 0 0 auto;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      color: #4b8b1e;
+      background: #e8f3dc;
+      font-weight: 700
+    }
+
+    .event-badge.closed {
+      color: #888;
+      background: #f0efe8
+    }
+
+    .event-details {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #ebe8df
+    }
+
+    .timeline-event.open .event-details {
+      display: block
+    }
+
+    .event-description {
+      font-style: italic;
+      line-height: 1.6;
+      white-space: pre-wrap
+    }
+
+    .event-image {
+      width: 100%;
+      max-height: 280px;
+      object-fit: cover;
+      border: 1px solid #e0ddd4;
+      border-radius: 10px;
+      background: #f5f4f0;
+      cursor: zoom-in;
+      display: block;
+      margin-top: 12px
+    }
+
+    .event-image:hover {
+      border-color: #534AB7;
+      box-shadow: 0 2px 12px rgba(83, 74, 183, .12)
+    }
+
+    .editor-grid {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 10px;
+      margin-top: 10px
+    }
+
+    .editor-grid .wide {
+      grid-column: 1 / -1
+    }
+
+    .event-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px
+    }
+
+    .check-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border: 1px dashed #d7d1c5;
+      border-radius: 8px;
+      background: #faf9f6;
+      cursor: pointer
+    }
+
+    .empty {
+      color: #888;
+      font-size: 13px;
+      text-align: center;
+      padding: 28px
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: #1a1a18;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all .18s;
+      pointer-events: none;
+      z-index: 50
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    .image-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(26, 26, 24, .76);
+      padding: 20px;
+      align-items: center;
+      justify-content: center
+    }
+
+    .image-modal.show {
+      display: flex
+    }
+
+    .image-modal-panel {
+      width: min(1100px, 96vw);
+      max-height: 94vh;
+      background: #fff;
+      border: 1px solid #e0ddd4;
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, .35);
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .image-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .image-modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      overflow-wrap: anywhere
+    }
+
+    .image-modal-img {
+      width: 100%;
+      max-height: calc(94vh - 72px);
+      object-fit: contain;
+      border-radius: 10px;
+      background: #f5f4f0
+    }
+
+    @media (max-width: 720px) {
+      .wrap {
+        padding: 12px
+      }
+
+      .timeline::before {
+        left: 22px
+      }
+
+      .timeline-start,
+      .timeline-event {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding-left: 44px
+      }
+
+      .timeline-start .origin-date,
+      .event-date {
+        text-align: left;
+        padding-top: 0
+      }
+
+      .origin-node {
+        margin-left: 0
+      }
+
+      .timeline-dot {
+        left: -31px
+      }
+
+      .editor-grid {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getDatabase, ref, set, onValue, off, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+    window._fbMod = { initializeApp, getDatabase, ref, set, onValue, off, get };
+  </script>
+</head>
+
+<body>
+  <div class="topbar">
+    <h1>Хронология кампании</h1>
+    <button class="btn" onclick="window.open('./index.html','_blank')">Лист персонажа</button>
+    <button class="btn" onclick="window.open('./bestiary.html','_blank')">Бестиарий</button>
+  </div>
+
+  <main class="wrap">
+    <div class="section">
+      <div class="section-title">Комната</div>
+      <div class="room-row">
+        <div class="field"><label>Комната</label><input id="roomInput" type="text" maxlength="40"></div>
+        <div class="field"><label>Имя</label><input id="nameInput" type="text" maxlength="30"></div>
+        <button class="btn primary" id="connectBtn" onclick="connectTimeline()">Войти</button>
+        <button class="btn" id="disconnectBtn" onclick="disconnectTimeline()" style="display:none">Выйти</button>
+        <span class="status" id="statusText">Не подключено</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div>
+          <div class="section-title" style="margin-bottom:4px">Лента времени</div>
+          <div id="accessHint" style="font-size:12px;color:#888;line-height:1.5">
+            Мастер добавляет события и решает, какие из них известны игрокам.
+          </div>
+        </div>
+        <div id="addButtons" style="display:none">
+          <button class="btn primary" onclick="addEvent()">+ Событие</button>
+        </div>
+      </div>
+      <div class="tool-row">
+        <div class="field search-field"><label>Поиск</label><input id="searchInput" type="text"
+            placeholder="Дата, название, описание..." oninput="render()"></div>
+      </div>
+    </div>
+
+    <div id="timelineList" class="timeline"></div>
+  </main>
+
+  <div id="toast" class="toast"></div>
+  <div id="imageModal" class="image-modal" onclick="if(event.target===this)closeImageModal()">
+    <div class="image-modal-panel">
+      <div class="image-modal-head">
+        <div id="imageModalTitle" class="image-modal-title"></div>
+        <button class="btn" type="button" onclick="closeImageModal()">Закрыть</button>
+      </div>
+      <img id="imageModalImg" class="image-modal-img" alt="">
+    </div>
+  </div>
+
+  <script>
+    const FB_CONFIG = {
+      apiKey: "AIzaSyBEjhg3RC4EzeaK792Ob2pn5krfXnn6rxk",
+      authDomain: "dndsheet-1c7c2.firebaseapp.com",
+      databaseURL: "https://dndsheet-1c7c2-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "dndsheet-1c7c2",
+      storageBucket: "dndsheet-1c7c2.firebasestorage.app",
+      messagingSenderId: "771509243100",
+      appId: "1:771509243100:web:b4655cafbe4935de447819"
+    };
+
+    let fbApp = null;
+    let fbDb = null;
+    let room = '';
+    let userName = '';
+    let isGm = false;
+    let timelineRef = null;
+    let timelineCallback = null;
+    let events = [];
+    let openIds = new Set();
+    let saveTimer = null;
+
+    function v(id) {
+      return document.getElementById(id);
+    }
+
+    function esc(text) {
+      return String(text ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+    }
+
+    function sanitizeFirebaseKey(value) {
+      return String(value || '').trim().replace(/[\x00-\x1F\x7F.#$\[\]\/'"`<>\\]/g, '_');
+    }
+
+    function toast(msg) {
+      const el = v('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(el._h);
+      el._h = setTimeout(() => el.classList.remove('show'), 1800);
+    }
+
+    function initFirebase() {
+      if (fbApp) return true;
+      if (!window._fbMod) {
+        toast('Firebase ещё загружается');
+        return false;
+      }
+      const { initializeApp, getDatabase } = window._fbMod;
+      fbApp = initializeApp(FB_CONFIG);
+      fbDb = getDatabase(fbApp);
+      return true;
+    }
+
+    function eventId() {
+      return 'event_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+    }
+
+    function normalizeEvent(event) {
+      return {
+        id: event?.id || eventId(),
+        date: event?.date || '',
+        title: event?.title || '',
+        imageUrl: event?.imageUrl || '',
+        details: event?.details || '',
+        visible: !!event?.visible
+      };
+    }
+
+    function defaultEvent() {
+      return normalizeEvent({
+        date: '',
+        title: 'Новое событие',
+        imageUrl: '',
+        details: '',
+        visible: false
+      });
+    }
+
+    function isEditorControl(target) {
+      return !!(target && target.closest && target.closest('input, textarea, select, [contenteditable="true"]'));
+    }
+
+    function isEditingTimeline() {
+      const active = document.activeElement;
+      return !!(active && active.closest && active.closest('#timelineList') && isEditorControl(active));
+    }
+
+    async function connectTimeline() {
+      if (!initFirebase()) return;
+      const nextRoom = sanitizeFirebaseKey(v('roomInput').value);
+      const nextName = v('nameInput').value.trim();
+      if (!nextRoom || !nextName) {
+        toast('Укажите комнату и имя');
+        return;
+      }
+
+      disconnectTimeline(true);
+      room = nextRoom;
+      userName = nextName;
+      localStorage.setItem('dnd_fb_room', room);
+      localStorage.setItem('dnd_fb_name', userName);
+
+      const { ref, get, onValue } = window._fbMod;
+      const gmRef = ref(fbDb, `rooms/${room}/gm`);
+      const gmSnap = await get(gmRef);
+      isGm = gmSnap.val() === userName;
+
+      timelineRef = ref(fbDb, `rooms/${room}/timeline`);
+      timelineCallback = snap => {
+        if (isGm && isEditingTimeline()) return;
+        const raw = snap.val();
+        const data = Array.isArray(raw) ? raw : Object.values(raw || {});
+        events = data.map(normalizeEvent);
+        render();
+      };
+      onValue(timelineRef, timelineCallback);
+
+      v('connectBtn').style.display = 'none';
+      v('disconnectBtn').style.display = '';
+      v('roomInput').disabled = true;
+      v('nameInput').disabled = true;
+      v('statusText').innerHTML = isGm
+        ? `Подключено: <strong>${esc(room)}</strong> · мастер`
+        : `Подключено: <strong>${esc(room)}</strong> · игрок`;
+      render();
+    }
+
+    function disconnectTimeline(silent) {
+      if (timelineRef && timelineCallback && window._fbMod) {
+        window._fbMod.off(timelineRef, timelineCallback);
+      }
+      timelineRef = null;
+      timelineCallback = null;
+      room = '';
+      userName = '';
+      isGm = false;
+      events = [];
+      openIds = new Set();
+      v('connectBtn').style.display = '';
+      v('disconnectBtn').style.display = 'none';
+      v('roomInput').disabled = false;
+      v('nameInput').disabled = false;
+      v('statusText').textContent = 'Не подключено';
+      render();
+      if (!silent) toast('Отключено');
+    }
+
+    function filterEvents(source) {
+      const query = (v('searchInput')?.value || '').trim().toLowerCase();
+      if (!query) return source;
+      return source.filter(event => {
+        if (!isGm && !event.visible) return '???'.includes(query);
+        return [event.date, event.title, event.imageUrl, event.details].join(' ').toLowerCase().includes(query);
+      });
+    }
+
+    function render() {
+      const list = v('timelineList');
+      list.className = 'timeline';
+      v('addButtons').style.display = isGm && room ? 'block' : 'none';
+      v('accessHint').textContent = isGm
+        ? 'Вы мастер: видите все события. Флажок открывает дату, заголовок и описание игрокам.'
+        : 'Вы игрок: закрытые события остаются на шкале, но пока выглядят как тайна.';
+
+      if (!room) {
+        list.className = 'timeline timeline-empty';
+        list.innerHTML = '<div class="section empty">Подключитесь к комнате.</div>';
+        return;
+      }
+
+      const filtered = filterEvents(events);
+      list.innerHTML = renderOrigin() + (filtered.length
+        ? filtered.map(renderEvent).join('')
+        : '<div class="section empty">Событий пока нет.</div>');
+    }
+
+    function renderOrigin() {
+      return `
+        <div class="timeline-start">
+          <div class="origin-date">0</div>
+          <div style="display:grid;grid-template-columns:18px 1fr;gap:14px;align-items:center">
+            <div class="origin-node"></div>
+            <div class="origin-title">Создание мира</div>
+          </div>
+        </div>`;
+    }
+
+    function renderEvent(event) {
+      const id = event.id;
+      const known = isGm || event.visible;
+      const isOpen = openIds.has(id) && known;
+      const date = known ? (event.date || 'Без даты') : '???';
+      const title = known ? (event.title || 'Без названия') : '???';
+      const hiddenClass = known ? '' : ' hidden-event';
+      const badge = event.visible
+        ? '<span class="event-badge">Видно игрокам</span>'
+        : '<span class="event-badge closed">Скрыто</span>';
+      return `
+        <div class="timeline-event${isOpen ? ' open' : ''}" data-id="${esc(id)}">
+          <div class="event-date">${esc(date)}</div>
+          <div class="event-body${hiddenClass}">
+            <div class="timeline-dot"></div>
+            <div class="event-head">
+              <button class="event-title" type="button" onclick="${known ? `toggleEvent('${esc(id)}')` : ''}">${esc(title)}</button>
+              ${isGm ? badge : ''}
+            </div>
+            ${known ? renderDetails(event) : ''}
+          </div>
+        </div>`;
+    }
+
+    function renderEventImage(event) {
+      const url = String(event.imageUrl || '').trim();
+      if (!url) return '';
+      const id = esc(event.id);
+      return `<img class="event-image" src="${esc(url)}" alt="${esc(event.title || 'Изображение события')}" loading="lazy" onclick="event.stopPropagation();openImageModal('${id}')" onerror="this.style.display='none'">`;
+    }
+
+    function openImageModal(id) {
+      const event = events.find(item => item.id === id);
+      if (!event || !String(event.imageUrl || '').trim()) return;
+      const modal = v('imageModal');
+      const img = v('imageModalImg');
+      v('imageModalTitle').textContent = event.title || 'Изображение события';
+      img.src = event.imageUrl;
+      img.alt = event.title || 'Изображение события';
+      modal.classList.add('show');
+    }
+
+    function closeImageModal() {
+      const modal = v('imageModal');
+      modal.classList.remove('show');
+      v('imageModalImg').removeAttribute('src');
+    }
+
+    function renderDetails(event) {
+      if (isGm) {
+        return `
+          <div class="event-details">
+            <div class="event-description">${esc(event.details || 'Подробное описание пока не заполнено.')}</div>
+            ${renderEventImage(event)}
+            <div class="editor-grid">
+              <div class="field"><label>Дата</label><input value="${esc(event.date)}" oninput="updateEvent('${esc(event.id)}','date',this.value)"></div>
+              <div class="field"><label>Название</label><input value="${esc(event.title)}" oninput="updateEvent('${esc(event.id)}','title',this.value)"></div>
+              <div class="field wide"><label>Ссылка на изображение</label><input type="url" value="${esc(event.imageUrl)}" placeholder="https://..." oninput="updateEvent('${esc(event.id)}','imageUrl',this.value)"></div>
+              <div class="field wide"><label>Подробное описание</label><textarea oninput="updateEvent('${esc(event.id)}','details',this.value)">${esc(event.details)}</textarea></div>
+            </div>
+            <div class="event-actions">
+              <label class="check-row"><input type="checkbox" ${event.visible ? 'checked' : ''} onchange="updateEvent('${esc(event.id)}','visible',this.checked)"> Видно игрокам</label>
+              <button class="btn" type="button" onclick="moveEvent('${esc(event.id)}',-1)">Выше</button>
+              <button class="btn" type="button" onclick="moveEvent('${esc(event.id)}',1)">Ниже</button>
+              <button class="btn danger" type="button" onclick="deleteEvent('${esc(event.id)}')">Удалить</button>
+            </div>
+          </div>`;
+      }
+
+      return `
+        <div class="event-details">
+          <div class="event-description">${esc(event.details || 'Подробности этого события пока неизвестны.')}</div>
+          ${renderEventImage(event)}
+        </div>`;
+    }
+
+    function toggleEvent(id) {
+      if (openIds.has(id)) openIds.delete(id);
+      else openIds.add(id);
+      render();
+    }
+
+    function addEvent() {
+      if (!isGm) return;
+      const event = defaultEvent();
+      events.push(event);
+      openIds.add(event.id);
+      render();
+      scheduleSave(true);
+    }
+
+    function updateEvent(id, field, value) {
+      if (!isGm) return;
+      const event = events.find(item => item.id === id);
+      if (!event) return;
+      event[field] = value;
+      scheduleSave(false);
+    }
+
+    function moveEvent(id, direction) {
+      if (!isGm) return;
+      const index = events.findIndex(item => item.id === id);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= events.length) return;
+      const copy = events.slice();
+      const [item] = copy.splice(index, 1);
+      copy.splice(nextIndex, 0, item);
+      events = copy;
+      render();
+      scheduleSave(true);
+    }
+
+    function deleteEvent(id) {
+      if (!isGm || !confirm('Удалить событие из хронологии?')) return;
+      events = events.filter(item => item.id !== id);
+      openIds.delete(id);
+      render();
+      scheduleSave(true);
+    }
+
+    function scheduleSave(immediate) {
+      if (!isGm || !timelineRef) return;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveEvents, immediate ? 0 : 500);
+    }
+
+    function saveEvents() {
+      if (!isGm || !timelineRef) return;
+      const payload = events.map(normalizeEvent);
+      window._fbMod.set(timelineRef, payload).then(() => {
+        toast('Сохранено');
+      }).catch(e => {
+        console.error('[FB] timeline write error:', e);
+        toast('Ошибка сохранения');
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      v('roomInput').value = localStorage.getItem('dnd_fb_room') || '';
+      v('nameInput').value = localStorage.getItem('dnd_fb_name') || '';
+      render();
+    });
+
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && v('imageModal')?.classList.contains('show')) {
+        closeImageModal();
+      }
+    });
+  </script>
+</body>
+
+</html>

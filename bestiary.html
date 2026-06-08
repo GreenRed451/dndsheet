@@ -271,6 +271,26 @@
       margin-top: 2px
     }
 
+    .entry-image {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border: 1px solid #e0ddd4;
+      border-radius: 10px;
+      background: #f5f4f0;
+      cursor: zoom-in;
+      display: block
+    }
+
+    .entry-image:hover {
+      border-color: #534AB7;
+      box-shadow: 0 2px 12px rgba(83, 74, 183, .12)
+    }
+
+    .entry-modal .entry-image {
+      max-height: 420px
+    }
+
     .bestiary-card-actions {
       display: flex;
       align-items: center;
@@ -695,6 +715,55 @@
       box-shadow: none
     }
 
+    .image-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      background: rgba(26, 26, 24, .76);
+      padding: 20px;
+      align-items: center;
+      justify-content: center
+    }
+
+    .image-modal.show {
+      display: flex
+    }
+
+    .image-modal-panel {
+      width: min(1100px, 96vw);
+      max-height: 94vh;
+      background: #fff;
+      border: 1px solid #e0ddd4;
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, .35);
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .image-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .image-modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      overflow-wrap: anywhere
+    }
+
+    .image-modal-img {
+      width: 100%;
+      max-height: calc(94vh - 72px);
+      object-fit: contain;
+      border-radius: 10px;
+      background: #f5f4f0
+    }
+
     @media (min-width: 1500px) {
       .bestiary-grid {
         grid-template-columns: repeat(auto-fill, minmax(420px, 1fr))
@@ -859,6 +928,15 @@
       <div id="entryModalBody"></div>
     </div>
   </div>
+  <div id="imageModal" class="image-modal" onclick="if(event.target===this)closeImageModal()">
+    <div class="image-modal-panel">
+      <div class="image-modal-head">
+        <div id="imageModalTitle" class="image-modal-title"></div>
+        <button class="btn" type="button" onclick="closeImageModal()">Закрыть</button>
+      </div>
+      <img id="imageModalImg" class="image-modal-img" alt="">
+    </div>
+  </div>
 
   <script>
     const FB_CONFIG = {
@@ -883,6 +961,7 @@
       npc: {
         type: 'NPC',
         name: 'Новый NPC',
+        imageUrl: '',
         tags: '',
         summary: '',
         combat: '',
@@ -912,6 +991,7 @@
       monster: {
         type: 'Монстр',
         name: 'Новый монстр',
+        imageUrl: '',
         tags: '',
         summary: '',
         combat: '',
@@ -941,6 +1021,7 @@
       faction: {
         type: 'Фракция',
         name: 'Новая фракция',
+        imageUrl: '',
         tags: '',
         summary: '',
         combat: 'Силы:\nТипичные бойцы:\nРесурсы:\nОпасные представители:',
@@ -1020,6 +1101,7 @@
     function normalizeEntry(entry) {
       const visible = Object.assign({ summary: false, combat: false, peace: false, inventory: false, relations: false }, entry?.visible || {});
       const normalized = Object.assign(defaultEntry('npc'), entry || {}, { visible });
+      normalized.imageUrl = normalized.imageUrl || '';
       normalized.combatBlock = normalizeCombatBlock(normalized.combatBlock);
       normalized.peaceBlock = normalizePeaceBlock(normalized.peaceBlock);
       normalized.inventoryCoins = normalizeInventoryCoins(normalized.inventoryCoins);
@@ -1246,6 +1328,7 @@
         sourcePlayerKey: playerKey,
         type: 'Персонаж игрока',
         name: charName,
+        imageUrl: '',
         tags: 'Персонаж игрока',
         summary: `${className} ${level} ур.${race ? ' · ' + race : ''}`,
         combat: '',
@@ -1456,7 +1539,7 @@
         if (visibility === 'public' && !hasVisibleContent(e)) return false;
         if (visibility === 'hidden' && hasVisibleContent(e)) return false;
         if (!search) return true;
-        const haystack = [e.name, e.type, e.tags, e.summary, e.combat, JSON.stringify(e.combatBlock || {}), e.peace, JSON.stringify(e.peaceBlock || {}), e.inventory, JSON.stringify(e.inventoryCoins || {}), JSON.stringify(e.inventoryItems || []), e.relations, JSON.stringify(e.relationLinks || []), e.gmNotes]
+        const haystack = [e.name, e.type, e.tags, e.imageUrl, e.summary, e.combat, JSON.stringify(e.combatBlock || {}), e.peace, JSON.stringify(e.peaceBlock || {}), e.inventory, JSON.stringify(e.inventoryCoins || {}), JSON.stringify(e.inventoryItems || []), e.relations, JSON.stringify(e.relationLinks || []), e.gmNotes]
           .join(' ')
           .toLowerCase();
         return haystack.includes(search);
@@ -1471,6 +1554,30 @@
 
     function renderOpenButton(id) {
       return `<button class="btn" type="button" data-open-entry-id="${id}" style="padding:3px 8px">Открыть</button>`;
+    }
+
+    function renderEntryImage(entry) {
+      const url = String(entry.imageUrl || '').trim();
+      if (!url) return '';
+      const id = esc(entry.id);
+      return `<img class="entry-image" src="${esc(url)}" alt="${esc(entry.name || 'Изображение')}" loading="lazy" onclick="event.stopPropagation();openImageModal('${id}')" onerror="this.style.display='none'">`;
+    }
+
+    function openImageModal(id) {
+      const entry = findEntry(id);
+      if (!entry || !String(entry.imageUrl || '').trim()) return;
+      const modal = v('imageModal');
+      const img = v('imageModalImg');
+      v('imageModalTitle').textContent = entry.name || 'Изображение';
+      img.src = entry.imageUrl;
+      img.alt = entry.name || 'Изображение';
+      modal.classList.add('show');
+    }
+
+    function closeImageModal() {
+      const modal = v('imageModal');
+      modal.classList.remove('show');
+      v('imageModalImg').removeAttribute('src');
     }
 
     function renderEditorCard(entry, inModal) {
@@ -1491,6 +1598,7 @@
               <button class="btn danger" onclick="deleteEntry('${id}')" style="padding:3px 8px">Удалить</button>
             </div>
           </div>
+          ${renderEntryImage(e)}
           <div class="editor-grid">
             <div class="field"><label>Название</label><input type="text" value="${esc(e.name)}" oninput="updateEntry('${id}','name',this.value)"></div>
             <div class="field"><label>Тип</label>
@@ -1501,6 +1609,7 @@
                 <option value="Персонаж игрока"${e.type === 'Персонаж игрока' ? ' selected' : ''}>Персонаж игрока</option>
               </select>
             </div>
+            <div class="field full"><label>Ссылка на изображение</label><input type="url" value="${esc(e.imageUrl)}" placeholder="https://..." oninput="updateEntry('${id}','imageUrl',this.value)"></div>
             <div class="field full"><label>Метки</label><input type="text" value="${esc(e.tags)}" placeholder="город, культ, союзник..." oninput="updateEntry('${id}','tags',this.value)"></div>
             <div class="field full"><label>Что видят игроки</label><div class="visibility">${visibility}</div></div>
             <div class="field full"><label>Описание для игроков</label><textarea oninput="updateEntry('${id}','summary',this.value)" placeholder="Что герои уже знают или могут увидеть сразу...">${esc(e.summary)}</textarea></div>
@@ -1701,6 +1810,7 @@
             </div>
             ${inModal ? '' : `<div class="bestiary-card-actions">${renderOpenButton(id)}</div>`}
           </div>
+          ${e.visible.summary ? renderEntryImage(e) : ''}
           ${sections}
         </div>
       `;
@@ -2135,7 +2245,12 @@
     });
 
     window.addEventListener('keydown', event => {
-      if (event.key === 'Escape') closeEntryModal();
+      if (event.key !== 'Escape') return;
+      if (v('imageModal')?.classList.contains('show')) {
+        closeImageModal();
+        return;
+      }
+      closeEntryModal();
     });
   </script>
 </body>
