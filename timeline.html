@@ -930,6 +930,8 @@
             </div>
             <div class="event-actions">
               <label class="check-row"><input type="checkbox" ${event.visible ? 'checked' : ''} onchange="updateEvent('${esc(event.id)}','visible',this.checked)"> Видно игрокам</label>
+              <button class="btn primary" type="button" onclick="insertEventNear('${esc(event.id)}','before')">+ Выше</button>
+              <button class="btn primary" type="button" onclick="insertEventNear('${esc(event.id)}','after')">+ Ниже</button>
               <button class="btn" type="button" onclick="moveEvent('${esc(event.id)}',-1)">Выше</button>
               <button class="btn" type="button" onclick="moveEvent('${esc(event.id)}',1)">Ниже</button>
               <button class="btn danger" type="button" onclick="deleteEvent('${esc(event.id)}')">Удалить</button>
@@ -954,6 +956,18 @@
       if (!isGm) return;
       const event = defaultEvent();
       events.push(event);
+      openIds.add(event.id);
+      render();
+      scheduleSave(true);
+    }
+
+    function insertEventNear(id, mode) {
+      if (!isGm) return;
+      const index = events.findIndex(item => item.id === id);
+      if (index < 0) return;
+      const event = defaultEvent();
+      const insertIndex = mode === 'before' ? index : index + 1;
+      events.splice(insertIndex, 0, event);
       openIds.add(event.id);
       render();
       scheduleSave(true);
