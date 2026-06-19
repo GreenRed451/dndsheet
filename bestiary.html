@@ -229,6 +229,63 @@
       font-weight: 700
     }
 
+    .tag-list {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      vertical-align: middle
+    }
+
+    .tag-badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #d7d1c5;
+      border-radius: 999px;
+      background: #faf9f5;
+      color: #5f5d57;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.2;
+      padding: 2px 8px;
+      cursor: pointer
+    }
+
+    .tag-badge:hover,
+    .tag-badge.active {
+      background: #EEEDFE;
+      border-color: #C9C4F5;
+      color: #534AB7
+    }
+
+    .active-tag {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #C9C4F5;
+      border-radius: 999px;
+      background: #EEEDFE;
+      color: #534AB7;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px
+    }
+
+    .active-tag.show {
+      display: inline-flex
+    }
+
+    .active-tag button {
+      border: none;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+      padding: 0 2px
+    }
+
     .bestiary-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -915,6 +972,7 @@
       <div class="tool-row">
         <div class="field search-field"><label>Поиск</label><input id="searchInput" type="text"
             placeholder="Имя, метка, описание..." oninput="render()"></div>
+        <div id="activeTagFilter" class="active-tag"></div>
         <div class="field"><label>Тип</label>
           <select id="typeFilter" onchange="render()">
             <option value="">Все</option>
@@ -1079,6 +1137,7 @@
     let entries = [];
     let saveTimer = null;
     let viewMode = localStorage.getItem('dnd_bestiary_view') === 'list' ? 'list' : 'cards';
+    let activeTagFilter = '';
 
     function v(id) {
       return document.getElementById(id);
@@ -1453,6 +1512,7 @@
     function render() {
       const list = v('entryList');
       updateViewModeButtons();
+      updateActiveTagBadge();
       v('addButtons').style.display = isGm && room ? 'flex' : 'none';
       v('accessHint').textContent = isGm
         ? 'Вы мастер: видите всё. Флажки показывают, какие секции открыты игрокам.'
@@ -1566,6 +1626,7 @@
         if (type && e.type !== type) return false;
         if (visibility === 'public' && !hasVisibleContent(e)) return false;
         if (visibility === 'hidden' && hasVisibleContent(e)) return false;
+        if (activeTagFilter && !parseTags(e.tags).some(tag => tag.toLowerCase() === activeTagFilter.toLowerCase())) return false;
         if (!search) return true;
         const haystack = [e.name, e.type, e.tags, e.imageUrl, e.summary, e.combat, JSON.stringify(e.combatBlock || {}), e.peace, JSON.stringify(e.peaceBlock || {}), e.inventory, JSON.stringify(e.inventoryCoins || {}), JSON.stringify(e.inventoryItems || []), e.relations, JSON.stringify(e.relationLinks || []), e.gmNotes]
           .join(' ')
@@ -1582,6 +1643,18 @@
 
     function renderOpenButton(id) {
       return `<button class="btn" type="button" data-open-entry-id="${id}" style="padding:3px 8px">Открыть</button>`;
+    }
+
+    function updateActiveTagBadge() {
+      const el = v('activeTagFilter');
+      if (!el) return;
+      if (!activeTagFilter) {
+        el.classList.remove('show');
+        el.innerHTML = '';
+        return;
+      }
+      el.classList.add('show');
+      el.innerHTML = `Тег: ${esc(activeTagFilter)} <button type="button" onclick="clearTagFilter()" title="Сбросить тег">×</button>`;
     }
 
     function renderEntryImage(entry) {
@@ -1619,7 +1692,7 @@
           <div class="bestiary-card-title">
             <div>
               <div class="bestiary-card-name">${esc(e.name || 'Без названия')}</div>
-              <div class="bestiary-card-meta"><span class="type-badge">${esc(e.type || 'NPC')}</span>${revealSummary(e)}${e.tags ? ' · ' + esc(e.tags) : ''}</div>
+              <div class="bestiary-card-meta"><span class="type-badge">${esc(e.type || 'NPC')}</span>${revealSummary(e)}${renderTags(e.tags)}</div>
             </div>
             <div class="bestiary-card-actions">
               ${inModal ? '' : renderOpenButton(id)}
@@ -1638,7 +1711,7 @@
               </select>
             </div>
             <div class="field full"><label>Ссылка на изображение</label><input type="url" value="${esc(e.imageUrl)}" placeholder="https://..." oninput="updateEntry('${id}','imageUrl',this.value)"></div>
-            <div class="field full"><label>Метки</label><input type="text" value="${esc(e.tags)}" placeholder="город, культ, союзник..." oninput="updateEntry('${id}','tags',this.value)"></div>
+            <div class="field full"><label>Метки</label><input type="text" value="${esc(e.tags)}" placeholder="город, культ, союзник... Разделяйте запятыми" oninput="updateEntry('${id}','tags',this.value)"></div>
             <div class="field full"><label>Что видят игроки</label><div class="visibility">${visibility}</div></div>
             <div class="field full"><label>Описание для игроков</label><textarea oninput="updateEntry('${id}','summary',this.value)" placeholder="Что герои уже знают или могут увидеть сразу...">${esc(e.summary)}</textarea></div>
             <div class="field full"><label>Боевая вкладка</label>${renderCombatEditor(e, id)}</div>
@@ -1834,7 +1907,7 @@
           <div class="bestiary-card-title">
             <div>
               <div class="bestiary-card-name">${esc(e.name || 'Без названия')}</div>
-              <div class="bestiary-card-meta"><span class="type-badge">${esc(e.type || 'NPC')}</span>${e.tags ? esc(e.tags) : ''}</div>
+              <div class="bestiary-card-meta"><span class="type-badge">${esc(e.type || 'NPC')}</span>${renderTags(e.tags)}</div>
             </div>
             ${inModal ? '' : `<div class="bestiary-card-actions">${renderOpenButton(id)}</div>`}
           </div>
@@ -1849,7 +1922,7 @@
       const id = esc(e.id);
       const meta = [
         `<span class="type-badge">${esc(e.type || 'NPC')}</span>`,
-        e.tags ? esc(e.tags) : '',
+        renderTags(e.tags),
         revealSummary(e)
       ].filter(Boolean).join('');
       const preview = entryListPreview(e);
@@ -1903,6 +1976,33 @@
     function compactText(value) {
       const text = String(value || '').replace(/\s+/g, ' ').trim();
       return text.length > 180 ? text.slice(0, 177) + '...' : text;
+    }
+
+    function parseTags(tags) {
+      return String(tags || '')
+        .split(/[,;]+/)
+        .map(tag => tag.trim())
+        .filter(Boolean)
+        .filter((tag, index, list) => list.findIndex(item => item.toLowerCase() === tag.toLowerCase()) === index);
+    }
+
+    function renderTags(tags) {
+      const items = parseTags(tags);
+      if (!items.length) return '';
+      return `<span class="tag-list">${items.map(tag => {
+        const active = activeTagFilter && tag.toLowerCase() === activeTagFilter.toLowerCase();
+        return `<button class="tag-badge${active ? ' active' : ''}" type="button" onclick="event.stopPropagation();filterByTag(${esc(JSON.stringify(tag))})">${esc(tag)}</button>`;
+      }).join('')}</span>`;
+    }
+
+    function filterByTag(tag) {
+      activeTagFilter = tag;
+      render();
+    }
+
+    function clearTagFilter() {
+      activeTagFilter = '';
+      render();
     }
 
     function renderPublicSection(entry, field) {
