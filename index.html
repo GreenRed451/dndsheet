@@ -2106,7 +2106,9 @@
         7: [{ name: "Дикий инстинкт", desc: "Вы получаете преимущество на инициативу и лучше начинаете бой, если входите в ярость сразу." }],
         9: [{ name: "Брутальный крит", desc: "При критическом попадании оружием ближнего боя добавьте ещё одну кость урона оружия." }],
         11: [{ name: "Неослабевающая ярость", desc: "Когда хиты падают до 0 во время ярости, можно попытаться остаться с 1 хитом." }],
+        13: [{ name: "Брутальный крит x2", desc: "При критическом попадании оружием ближнего боя добавьте ещё две дополнительные кости урона оружия." }],
         15: [{ name: "Постоянная ярость", desc: "Ваша ярость не заканчивается раньше времени, пока вы сознательны." }],
+        17: [{ name: "Брутальный крит x3", desc: "При критическом попадании оружием ближнего боя добавьте ещё три дополнительные кости урона оружия." }],
         18: [{ name: "Неукротимая мощь", desc: "Если проверка Силы меньше вашего значения Силы, можно использовать значение Силы вместо результата." }],
         20: [{ name: "Первобытный чемпион", desc: "Сила и Телосложение увеличиваются на 4, а их максимум становится 24. Внесите это вручную, если используете лимиты выше 20." }]
       },
@@ -2115,16 +2117,23 @@
         3: [{ name: "Коллегия барда", desc: "Выберите коллегию барда. Она даст новые способы использовать вдохновение и роль в группе." }, { name: "Компетентность", desc: "Выберите два владения навыками: бонус мастерства для них удваивается." }],
         5: [{ name: "Источник вдохновения", desc: "Бардовское вдохновение восстанавливается после короткого или долгого отдыха." }],
         6: [{ name: "Контрочарование", desc: "Действием помогайте союзникам сопротивляться испугу и очарованию." }],
-        10: [{ name: "Магические секреты", desc: "Выберите заклинания из списков других классов и добавьте их к заклинаниям барда." }],
+        9: [{ name: "Песнь отдыха d8", desc: "Кость Песни отдыха увеличивается до d8." }],
+        10: [{ name: "Компетентность", desc: "Выберите ещё два владения навыками: бонус мастерства для них удваивается." }, { name: "Магические секреты", desc: "Выберите заклинания из списков других классов и добавьте их к заклинаниям барда." }],
+        13: [{ name: "Песнь отдыха d10", desc: "Кость Песни отдыха увеличивается до d10." }],
+        14: [{ name: "Магические секреты", desc: "Выберите ещё заклинания из списков других классов и добавьте их к заклинаниям барда." }],
         15: [{ name: "Бардовское вдохновение d12", desc: "Кость бардовского вдохновения становится d12." }],
+        17: [{ name: "Песнь отдыха d12", desc: "Кость Песни отдыха увеличивается до d12." }],
+        18: [{ name: "Магические секреты", desc: "Выберите ещё заклинания из списков других классов и добавьте их к заклинаниям барда." }],
         20: [{ name: "Превосходное вдохновение", desc: "Если при броске инициативы у вас нет вдохновения, вы восстанавливаете одно использование." }]
       },
       cleric: {
         2: [{ name: "Канал божественности", desc: "Вы получаете особые божественные эффекты, включая Изгнание нежити и вариант домена." }],
         5: [{ name: "Уничтожение нежити", desc: "Изгнанная нежить слабой опасности уничтожается, если проваливает спасбросок." }],
-        8: [{ name: "Особенность домена", desc: "Ваш домен усиливает атаки, заклинания или защиту. Уточните эффект выбранного домена." }],
+        8: [{ name: "Особенность домена", desc: "Ваш домен усиливает атаки, заклинания или защиту. Уточните эффект выбранного домена." }, { name: "Уничтожение нежити: усиление", desc: "Изгнание нежити уничтожает более опасную нежить, если она проваливает спасбросок." }],
         10: [{ name: "Божественное вмешательство", desc: "Можно просить божество о прямой помощи. Шанс успеха зависит от уровня жреца." }],
-        17: [{ name: "Высшая особенность домена", desc: "Ваш домен раскрывается сильнее. Уточните эффект выбранного домена." }],
+        11: [{ name: "Уничтожение нежити: усиление", desc: "Порог опасности уничтожаемой нежити снова повышается." }],
+        14: [{ name: "Уничтожение нежити: усиление", desc: "Порог опасности уничтожаемой нежити снова повышается." }],
+        17: [{ name: "Высшая особенность домена", desc: "Ваш домен раскрывается сильнее. Уточните эффект выбранного домена." }, { name: "Уничтожение нежити: усиление", desc: "Порог опасности уничтожаемой нежити достигает максимума для базовых правил." }],
         20: [{ name: "Улучшенное божественное вмешательство", desc: "Божественное вмешательство автоматически успешно, если оно доступно." }]
       },
       druid: {
@@ -2147,11 +2156,15 @@
       monk: {
         2: [{ name: "Ци", desc: "Вы получаете очки ци для приёмов монаха: Шквал ударов, Защита терпением, Порыв ветра." }, { name: "Движение без доспехов", desc: "Скорость увеличивается, если вы без доспеха и щита." }],
         3: [{ name: "Монастырская традиция", desc: "Выберите традицию монаха. Она даст особые техники." }, { name: "Отражение снарядов", desc: "Реакцией уменьшайте урон от дальнобойной атаки оружием." }],
+        4: [{ name: "Замедленное падение", desc: "Реакцией уменьшайте урон от падения на величину, зависящую от уровня монаха." }],
         5: [{ name: "Дополнительная атака", desc: "Когда вы совершаете действие Атака, вы можете атаковать дважды." }, { name: "Ошеломляющий удар", desc: "Потратьте ци после попадания, чтобы попытаться ошеломить цель." }],
         6: [{ name: "Ци-удары", desc: "Ваши безоружные удары считаются магическими для преодоления сопротивлений." }],
         7: [{ name: "Увёртливость", desc: "При спасбросках Ловкости вы получаете меньше урона от областей." }, { name: "Спокойствие разума", desc: "Действием можно прекратить на себе испуг или очарование." }],
+        9: [{ name: "Улучшение движения без доспехов", desc: "Вы можете двигаться по вертикальным поверхностям и по воде в свой ход, если закончите движение на твёрдой поверхности." }],
         10: [{ name: "Чистота тела", desc: "Вы получаете иммунитет к болезням и ядам." }],
+        13: [{ name: "Язык солнца и луны", desc: "Вы понимаете все разговорные языки, а существа, знающие хотя бы один язык, понимают вашу речь." }],
         14: [{ name: "Алмазная душа", desc: "Вы получаете владение всеми спасбросками и можете перебрасывать провалы за ци." }],
+        15: [{ name: "Вечное тело", desc: "Вы почти не стареете и больше не нуждаетесь в пище и воде." }],
         18: [{ name: "Пустое тело", desc: "Вы можете становиться невидимым и получать сопротивление многим видам урона." }],
         20: [{ name: "Совершенное я", desc: "Если при инициативе у вас мало ци, вы восстанавливаете часть очков." }]
       },
@@ -2180,6 +2193,7 @@
         2: [{ name: "Хитрое действие", desc: "Бонусным действием можно Рывок, Отход или Засаду." }],
         3: [{ name: "Плутовской архетип", desc: "Выберите архетип плута: вор, убийца, мистический ловкач или другой вариант." }],
         5: [{ name: "Невероятное уклонение", desc: "Реакцией можно уменьшить вдвое урон от атаки, которая по вам попала." }],
+        6: [{ name: "Компетентность", desc: "Выберите ещё два владения навыками или инструментами: бонус мастерства для них удваивается." }],
         7: [{ name: "Увёртливость", desc: "При спасбросках Ловкости вы получаете меньше урона от областей." }],
         11: [{ name: "Надёжный талант", desc: "Для проверок с владением результат d20 ниже 10 считается как 10." }],
         14: [{ name: "Слепое чутьё", desc: "Вы замечаете скрытых или невидимых существ рядом, если можете слышать." }],
@@ -2348,6 +2362,20 @@
         { key: "necromancy", name: "Школа некромантии", desc: "Силы жизни, смерти и нежити. Требует согласования тона кампании." },
         { key: "transmutation", name: "Школа преобразования", desc: "Изменение материи, тел и возможностей предметов." }
       ]
+    };
+    const SUBCLASS_CHOICE_LEVELS = {
+      cleric: 1,
+      sorcerer: 1,
+      warlock: 1,
+      wizard: 2,
+      druid: 2,
+      barbarian: 3,
+      bard: 3,
+      fighter: 3,
+      monk: 3,
+      paladin: 3,
+      ranger: 3,
+      rogue: 3
     };
     const SUBCLASS_FEATURES = {
       barbarian: {
@@ -2894,18 +2922,18 @@
       }
     };
     const CLASS_DATA = {
-      barbarian: { resources: [{ id: "rage", label: "Ярость", color: "#D85A30", perLevel: [2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, null] }] },
-      bard: { resources: [{ id: "inspiration", label: "Бардовское вдохновение", color: "#7F77DD", perLevel: [2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4] }] },
-      cleric: { resources: [{ id: "channel", label: "Канал божественности", color: "#BA7517", perLevel: [0, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3] }] },
-      druid: { resources: [{ id: "wild", label: "Дикий облик", color: "#639922", perLevel: [2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3] }] },
-      fighter: { resources: [{ id: "surge", label: "Всплеск действия", color: "#378ADD", perLevel: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2] }, { id: "superiority", label: "Кости превосходства", color: "#185FA5", perLevel: [0, 0, 0, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6] }] },
+      barbarian: { resources: [{ id: "rage", label: "Ярость", color: "#D85A30", perLevel: [2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, Infinity] }] },
+      bard: { resources: [{ id: "inspiration", label: "Бардовское вдохновение", color: "#7F77DD", stat: "cha", min: 1 }] },
+      cleric: { resources: [{ id: "channel", label: "Канал божественности", color: "#BA7517", perLevel: [0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3] }] },
+      druid: { resources: [{ id: "wild", label: "Дикий облик", color: "#639922", perLevel: [0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, Infinity] }] },
+      fighter: { resources: [{ id: "secondWind", label: "Второе дыхание", color: "#639922", perLevel: Array(20).fill(1) }, { id: "surge", label: "Всплеск действия", color: "#378ADD", perLevel: [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2] }] },
       monk: { resources: [{ id: "ki", label: "Очки ци", color: "#1D9E75", perLevel: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] }] },
       paladin: { resources: [{ id: "lay", label: "Наложение рук (запас ХП)", color: "#BA7517", perLevel: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100] }] },
       ranger: { resources: [{ id: "favored", label: "Избранный враг (видов)", color: "#639922", perLevel: [1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3] }] },
       rogue: { resources: [{ id: "sneak", label: "Скрытая атака (d6)", color: "#888", perLevel: [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10] }] },
       sorcerer: { resources: [{ id: "sorcery", label: "Очки чародейства", color: "#7F77DD", perLevel: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] }] },
       warlock: { resources: [{ id: "pact", label: "Ячейки договора", color: "#D4537E", perLevel: [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2] }] },
-      wizard: { resources: [{ id: "arcane", label: "Восстановление магии (ур. ячеек)", color: "#378ADD", perLevel: [0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5, 5] }] }
+      wizard: { resources: [{ id: "arcane", label: "Восстановление магии (ур. ячеек)", color: "#378ADD", perLevel: [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10] }] }
     };
     const SPELL_SLOTS = {
       bard: [[2], [3], [4, 2], [4, 3], [4, 3, 2], [4, 3, 3], [4, 3, 3, 1], [4, 3, 3, 2], [4, 3, 3, 3, 1], [4, 3, 3, 3, 2], [4, 3, 3, 3, 2, 1], [4, 3, 3, 3, 2, 1], [4, 3, 3, 3, 2, 1, 1], [4, 3, 3, 3, 2, 1, 1], [4, 3, 3, 3, 2, 1, 1, 1], [4, 3, 3, 3, 2, 1, 1, 1], [4, 3, 3, 3, 2, 1, 1, 1, 1], [4, 3, 3, 3, 3, 1, 1, 1, 1], [4, 3, 3, 3, 3, 2, 1, 1, 1], [4, 3, 3, 3, 3, 2, 2, 1, 1]],
@@ -2939,6 +2967,10 @@
     const POINT_COST = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 7, 9]; // index = stat value, 8..15
     const BASE_POINTS = 27;
     const ASI_LEVELS = [4, 8, 12, 16, 19];
+    const CLASS_ASI_LEVELS = {
+      fighter: [4, 6, 8, 12, 14, 16, 19],
+      rogue: [4, 8, 10, 12, 16, 19]
+    };
 
     let statValues = { str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8 };
     let statBonus = { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 }; // racial, background, item or custom bonuses
@@ -2966,8 +2998,11 @@
     function pointsLeft() {
       return BASE_POINTS - totalSpent();
     }
-    function totalASIGranted(lvl) {
-      return ASI_LEVELS.filter(l => l <= lvl).length * 2;
+    function classAsiLevels(classKey = v('classSelect')?.value) {
+      return CLASS_ASI_LEVELS[classKey] || ASI_LEVELS;
+    }
+    function totalASIGranted(lvl, classKey = v('classSelect')?.value) {
+      return classAsiLevels(classKey).filter(l => l <= lvl).length * 2;
     }
     function totalASIUsed() {
       return STATS.reduce((s, st) => s + asiBonus[st], 0);
@@ -3091,7 +3126,6 @@
       });
 
       // ASI panel
-      const asiNextLvl = ASI_LEVELS.find(l => l === lvl);
       if (asiPool > 0) {
         v('asiPanel').style.display = 'block';
         v('asiLevelLabel').textContent = lvl;
@@ -3626,9 +3660,11 @@
       const data = CLASS_DATA[cls];
       if (!data) { el.innerHTML = '<p style="color:#aaa;font-size:13px">Нет специальных ресурсов.</p>'; return; }
       data.resources.forEach(res => {
-        let count = res.perLevel[lvl - 1];
+        let count = res.stat ? Math.max(res.min || 0, getMod(res.stat)) : res.perLevel[lvl - 1];
         const d = document.createElement('div'); d.className = 'class-resource';
-        if (!count || count === 0) {
+        if (count === Infinity) {
+          d.innerHTML = `<div class="class-resource-title">${res.label} <span style="color:${res.color};font-size:14px">без ограничений</span></div>`;
+        } else if (!count || count === 0) {
           d.innerHTML = `<div class="class-resource-title">${res.label}</div><div style="font-size:12px;color:#aaa">Недоступно на ${lvl} уровне</div>`;
         } else {
           d.innerHTML = `<div class="class-resource-title">${res.label} <span style="color:${res.color};font-size:14px">${count}</span></div><div class="resource-dots" id="dots_${res.id}"></div>`;
@@ -4139,6 +4175,7 @@
         name: '',
         playerName: '',
         classKey: 'fighter',
+        subclassKey: null,
         raceKey: 'human',
         customRace: '',
         alignment: 'Нейтральный добрый',
@@ -4170,6 +4207,37 @@
       return value === current ? ' selected' : '';
     }
 
+    function wizardSubclassOptions(classKey = characterWizard?.classKey) {
+      return SUBCLASS_OPTIONS[classKey] || [];
+    }
+
+    function wizardNeedsStartingSubclass(classKey = characterWizard?.classKey) {
+      return (SUBCLASS_CHOICE_LEVELS[classKey] || 3) === 1 && wizardSubclassOptions(classKey).length > 0;
+    }
+
+    function wizardSelectedSubclass(state = characterWizard) {
+      if (!state) return null;
+      return wizardSubclassOptions(state.classKey).find(item => item.key === state.subclassKey) || null;
+    }
+
+    function wizardEnsureSubclass(state = characterWizard) {
+      if (!state) return;
+      if (!wizardNeedsStartingSubclass(state.classKey)) {
+        state.subclassKey = null;
+        return;
+      }
+      const options = wizardSubclassOptions(state.classKey);
+      if (!options.some(item => item.key === state.subclassKey)) {
+        state.subclassKey = options[0]?.key || null;
+      }
+    }
+
+    function wizardSetSubclass(key) {
+      if (!characterWizard) return;
+      characterWizard.subclassKey = key;
+      renderCharacterWizard();
+    }
+
     function openCharacterWizard() {
       characterWizard = wizardDefaultState();
       const modal = v('characterWizardModal');
@@ -4191,6 +4259,7 @@
         characterWizard.equipmentKey = 'recommended';
         characterWizard.cantrips = [];
         characterWizard.spells = [];
+        wizardEnsureSubclass(characterWizard);
       }
       if (field === 'backgroundMode' && value === 'random') {
         rollWizardBackground();
@@ -4282,6 +4351,7 @@
     }
 
     function renderWizardClassChoice() {
+      wizardEnsureSubclass(characterWizard);
       const cards = Object.entries(WIZARD_CLASS_LABELS).map(([key, name]) => {
         const features = (WIZARD_CLASS_FEATURES[key] || []).slice(0, 3).map(feature => feature[0]).join(', ');
         return `
@@ -4293,12 +4363,26 @@
             <span style="display:block;margin-top:4px"><b>Оружие:</b> ${wizardEscape(WIZARD_CLASS_WEAPON_PROFS[key] || 'уточните вручную')}</span>
           </div>`;
       }).join('');
+      const subclassOptions = wizardSubclassOptions(characterWizard.classKey);
+      const subclassCards = wizardNeedsStartingSubclass(characterWizard.classKey) ? `
+          <div class="wizard-full wizard-summary-row">
+            <b>${wizardEscape(WIZARD_CLASS_LABELS[characterWizard.classKey])} выбирает подкласс уже на 1 уровне.</b>
+            Выберите вариант, и лист сразу добавит его стартовые особенности.
+          </div>
+          <div class="wizard-full wizard-choice-list" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">
+            ${subclassOptions.map(item => `
+              <div class="wizard-choice${characterWizard.subclassKey === item.key ? ' active' : ''}" onclick="wizardSetSubclass('${item.key}')">
+                <strong>${wizardEscape(item.name)}</strong>
+                <span>${wizardEscape(item.desc)}</span>
+              </div>`).join('')}
+          </div>` : '';
       return `
         <div class="wizard-grid">
           <div class="wizard-full wizard-summary-row">
             Выберите класс по тому, как персонаж действует в приключении. Подробности можно будет поправить вручную после создания листа.
           </div>
           <div class="wizard-full wizard-choice-list" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">${cards}</div>
+          ${subclassCards}
         </div>`;
     }
 
@@ -4842,6 +4926,7 @@
           && new Set(STATS.map(st => parseInt(characterWizard.statAssignments[st], 10))).size === WIZARD_STANDARD_ARRAY.length);
       if (!String(characterWizard.name || '').trim()) warnings.push('не заполнено имя персонажа');
       if (!manualStatsComplete) warnings.push('ручное распределение характеристик не завершено');
+      if (wizardNeedsStartingSubclass(characterWizard.classKey) && !wizardSelectedSubclass(characterWizard)) warnings.push('не выбран подкласс');
       if (skillData && (characterWizard.classSkills || []).length < skillData.count) warnings.push('выбраны не все навыки класса');
       if (spellData && (characterWizard.cantrips || []).length < spellData.cantrips) warnings.push('выбраны не все заговоры');
       if (spellData && (characterWizard.spells || []).length < spellData.spells) warnings.push('выбраны не все заклинания 1 круга');
@@ -4856,11 +4941,12 @@
       const stats = getWizardStats(characterWizard.classKey);
       const statText = STATS.map(st => `${STAT_NAMES[st]} ${stats[st]}`).join(', ');
       const equipment = wizardSelectedEquipment(characterWizard);
+      const subclass = wizardSelectedSubclass(characterWizard);
       const warnings = wizardValidationWarnings();
       return `
         <div class="wizard-summary">
           ${warnings.length ? `<div class="wizard-summary-row" style="border-color:#F5C4B3;background:#FFF8F0;color:#993C1D"><b>Проверьте:</b> ${wizardEscape(warnings.join(', '))}. Можно всё равно заполнить лист и поправить вручную.</div>` : ''}
-          <div class="wizard-summary-row"><b>Персонаж:</b> ${wizardEscape(characterWizard.name || 'Безымянный герой')} · ${wizardEscape(raceName)} · ${wizardEscape(WIZARD_CLASS_LABELS[characterWizard.classKey])} 1 уровня</div>
+          <div class="wizard-summary-row"><b>Персонаж:</b> ${wizardEscape(characterWizard.name || 'Безымянный герой')} · ${wizardEscape(raceName)} · ${wizardEscape(WIZARD_CLASS_LABELS[characterWizard.classKey])} 1 уровня${subclass ? ' · ' + wizardEscape(subclass.name) : ''}</div>
           <div class="wizard-summary-row"><b>Характеристики:</b> ${wizardEscape(statText)}. Расовые бонусы применятся при заполнении листа.</div>
           <div class="wizard-summary-row"><b>Броня класса:</b> ${wizardEscape(WIZARD_CLASS_ARMOR_PROFS[characterWizard.classKey] || 'уточните вручную')}</div>
           <div class="wizard-summary-row"><b>Оружие класса:</b> ${wizardEscape(WIZARD_CLASS_WEAPON_PROFS[characterWizard.classKey] || 'уточните вручную')}</div>
@@ -4936,6 +5022,9 @@
       const cls = state.classKey || 'fighter';
       const classStart = WIZARD_CLASS_START[cls] || WIZARD_CLASS_START.fighter;
       const equipment = wizardSelectedEquipment(state);
+      wizardEnsureSubclass(state);
+      const subclass = wizardSelectedSubclass(state);
+      const subclassFeatures = subclass ? (SUBCLASS_FEATURES[cls]?.[subclass.key]?.[1] || []) : [];
       const classFeatures = WIZARD_CLASS_FEATURES[cls] || (classStart.ability ? [classStart.ability] : []);
       const spellLimits = WIZARD_SPELL_LIMITS[cls];
       const completedClassSkills = wizardCompletedClassSkills(state, bg);
@@ -4986,13 +5075,14 @@
 
       const classLines = [
         'Класс: ' + WIZARD_CLASS_LABELS[cls],
+        subclass ? 'Подкласс: ' + subclass.name : '',
         'Спасброски: ' + (WIZARD_CLASS_SAVE_PROFS[cls] || []).map(st => SAVE_NAMES[st]).join(', '),
         'Доспехи: ' + (WIZARD_CLASS_ARMOR_PROFS[cls] || 'уточните вручную'),
         'Оружие: ' + (WIZARD_CLASS_WEAPON_PROFS[cls] || 'уточните вручную'),
         'Навыки класса: ' + (completedClassSkills.join(', ') || 'не выбраны'),
         'Предыстория: ' + bg.name,
         'Навыки предыстории: ' + (bg.skills || []).join(', ')
-      ];
+      ].filter(Boolean);
       const raceText = v('profs').value.trim();
       v('profs').value = classLines.join('\n') + (raceText ? '\n\n' + raceText : '');
 
@@ -5004,6 +5094,8 @@
         addWizardWeaponAttack(attack);
       }
       classFeatures.forEach(feature => addAbility(feature[0], feature[1], 'wizardClass'));
+      if (subclass) addAbility('Подкласс: ' + subclass.name, subclass.desc, 'wizardClass');
+      subclassFeatures.forEach(feature => addAbility(feature.name, feature.desc, 'wizardClass'));
       knownSpells = new Set();
       extraKnownSpells = new Set();
       preparedSpells = new Set();
@@ -5025,6 +5117,8 @@
 
       v('features').value = [
         ...classFeatures.map(feature => `${feature[0]}: ${feature[1]}`),
+        ...(subclass ? [`Подкласс: ${subclass.name}: ${subclass.desc}`] : []),
+        ...subclassFeatures.map(feature => `${feature.name}: ${feature.desc}`),
         'Стартовая КД: ' + wizardAcFromMode(equipment.acMode, true) + ' (' + (equipment.acNote || classStart.ac || 'снаряжение') + '). Проверьте броню и щит, если выбираете другое снаряжение.'
       ].filter(Boolean).join('\n\n');
       v('personality').value = bg.personality || '';
@@ -5060,7 +5154,9 @@
       const hitDie = HIT_DICE[v('classSelect').value] || 'd8';
       const sides = parseInt(hitDie.replace(/\D/g, ''), 10) || 8;
       const conMod = getMod('con');
-      const asiAvailable = ASI_LEVELS.includes(targetLevel);
+      const asiAvailable = classAsiLevels(classKey).includes(targetLevel);
+      const subclassKey = currentSubclassKeyForLevelUp(classKey);
+      const subclassChoiceLevel = SUBCLASS_CHOICE_LEVELS[classKey] || 3;
       return {
         step: 0,
         currentLevel,
@@ -5081,7 +5177,8 @@
         asiSingle: 'str',
         fightingStyle: null,
         blessedCantrips: [],
-        subclassKey: currentSubclassKeyForLevelUp(classKey),
+        subclassKey,
+        subclassWasMissing: !!((SUBCLASS_OPTIONS[classKey] || []).length && targetLevel >= subclassChoiceLevel && !subclassKey),
         knownSpells: [...knownSpells],
         extraKnownSpells: [...extraKnownSpells],
         preparedSpells: [...preparedSpells]
@@ -5168,7 +5265,11 @@
       const classItems = (LEVEL_CLASS_FEATURES[levelWizard.classKey] && LEVEL_CLASS_FEATURES[levelWizard.classKey][levelWizard.targetLevel]) || [];
       const subclass = levelWizardSelectedSubclass();
       const subclassTable = subclass && SUBCLASS_FEATURES[levelWizard.classKey]?.[subclass.key];
-      const subclassItems = (subclassTable && subclassTable[levelWizard.targetLevel]) || [];
+      const subclassItems = subclassTable
+        ? Object.entries(subclassTable)
+          .filter(([lvl]) => levelWizard.subclassWasMissing ? parseInt(lvl, 10) <= levelWizard.targetLevel : parseInt(lvl, 10) === levelWizard.targetLevel)
+          .flatMap(([, items]) => items || [])
+        : [];
       const raceTable = LEVEL_RACE_FEATURES[levelWizard.raceKey] || {};
       const raceItems = []
         .concat(raceTable.every || [])
@@ -5189,6 +5290,7 @@
     }
 
     function levelWizardNeedsSubclass() {
+      if ((SUBCLASS_OPTIONS[levelWizard.classKey] || []).length && levelWizard.subclassWasMissing) return true;
       const names = new Set([
         'Путь варвара', 'Коллегия барда', 'Божественный домен', 'Круг друидов',
         'Воинский архетип', 'Монастырская традиция', 'Священная клятва',
@@ -5224,7 +5326,7 @@
           <span>${wizardEscape(item.desc)}</span>
         </div>`).join('');
       return `
-        <div class="wizard-full wizard-summary-row"><b>Подкласс:</b> выберите направление персонажа. Мастер запишет выбор в умения; точные особенности подкласса добавим следующим слоем.</div>
+        <div class="wizard-full wizard-summary-row"><b>Подкласс:</b> выберите направление персонажа. Мастер запишет выбор и добавит особенности подкласса, доступные на этом уровне.</div>
         <div class="wizard-full wizard-choice-list" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">${cards}</div>`;
     }
 
@@ -5393,7 +5495,7 @@
       return `
         <div class="wizard-grid">
           <div class="wizard-full wizard-summary-row">
-            На ${levelWizard.targetLevel} уровне доступно повышение характеристик. Черты пока не подключены, поэтому мастер предлагает варианты +2 или +1/+1.
+            На ${levelWizard.targetLevel} уровне доступно повышение характеристик для класса ${wizardEscape(WIZARD_CLASS_LABELS[levelWizard.classKey] || 'персонажа')}. Черты мы пока не подключаем, поэтому мастер предлагает варианты +2 или +1/+1.
           </div>
           <div class="wizard-full" style="display:flex;gap:8px;flex-wrap:wrap">
             <button type="button" class="btn${levelWizard.asiMode === 'plus2' ? ' primary' : ''}" onclick="levelWizardSetAsi('asiMode','plus2')">+2 к одной</button>
@@ -5802,19 +5904,19 @@
     const SPELL_DB = [
       { name: "Волшебная рука", level: 0, school: "Вызов", classes: ["bard", "sorcerer", "warlock", "wizard"], cast: "1 действие", range: "30 фт.", dur: "1 минута", conc: false, comp: "В, С", desc: "в точке, которую вы выбираете в пределах дальности, появляется призрачная парящая рука. Рука существует, пока эффект длится или пока вы не отпустите её действием. Рука исчезает, если окажется более чем в 30 футах от вас или если вы повторно наложите это заклинание." },
       { name: "Вспышка мечей", level: 0, school: "Вызов", classes: ["sorcerer", "warlock", "wizard"], cast: "1 действие", range: "5 фт.", dur: "Мгновенно", conc: false, comp: "В", desc: "вы на мгновение создаёте круг из вращающихся вокруг вас призрачных лезвий. Все остальные существа в пределах 5 футов от вас делают спасбросок Ловкости; при провале получат 1к6 урона силовым полем. Урон этого заклинания увеличивается на 1к6, когда вы достигаете 5-го уровня (2к6), 11-го уровня (3к6) и 17-го уровня (4к6)." },
-      { name: "Зловещий вихрь", level: 0, school: "Воплощение", classes: ["warlock"], cast: "1 действие", range: "120 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы выпускаете сгусток магической энергии. Атака заклинанием дальнего боя: 1к10 урона силовым полем." },
-      { name: "Искра", level: 0, school: "Воплощение", classes: ["sorcerer", "wizard"], cast: "1 действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы бросаете в цель электрическую искру. Атака заклинанием дальнего боя: 1к8 урона электричеством." },
-      { name: "Кислотный всплеск", level: 0, school: "Вызов", classes: ["sorcerer", "wizard"], cast: "1 действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы метаете пузырь кислоты. Цель делает спасбросок (защитный бросок) Ловкости: 1к6 урона кислотой." },
-      { name: "Ледяной клинок", level: 0, school: "Воплощение", classes: ["druid", "sorcerer", "wizard"], cast: "1 действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы метаете ледяной осколок. Атака дальнего боя: 1к6 урона холодом. При попадании скорость цели −10 футов." },
+      { name: "Зловещий вихрь", level: 0, school: "Воплощение", classes: ["warlock"], cast: "1 действие", range: "120 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы выпускаете луч тёмной энергии в одно существо. Совершите дальнобойную атаку заклинанием; при попадании цель получает 1к10 урона силовым полем. Урон заговора растёт с уровнем персонажа: 2 луча на 5 уровне, 3 луча на 11 уровне и 4 луча на 17 уровне; лучи можно направлять в одну или разные цели." },
+      { name: "Искра", level: 0, school: "Воплощение", classes: ["sorcerer", "wizard"], cast: "1 действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы бросаете в цель электрическую искру. Совершите дальнобойную атаку заклинанием; при попадании цель получает 1к8 урона электричеством. Урон увеличивается до 2к8 на 5 уровне, 3к8 на 11 уровне и 4к8 на 17 уровне." },
+      { name: "Кислотный всплеск", level: 0, school: "Вызов", classes: ["sorcerer", "wizard"], cast: "1 действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы метаете кислотный пузырь в одно существо или в двух существ, стоящих рядом друг с другом. Каждая цель делает спасбросок Ловкости; при провале получает 1к6 урона кислотой. Урон увеличивается до 2к6 на 5 уровне, 3к6 на 11 уровне и 4к6 на 17 уровне." },
+      { name: "Ледяной клинок", level: 0, school: "Воплощение", classes: ["druid", "sorcerer", "wizard"], cast: "1 действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы метаете ледяной осколок в одно существо. Совершите дальнобойную атаку заклинанием; при попадании цель получает 1к6 урона холодом, а её скорость уменьшается на 10 футов до начала вашего следующего хода. Урон увеличивается до 2к6 на 5 уровне, 3к6 на 11 уровне и 4к6 на 17 уровне." },
       { name: "Огненный снаряд", level: 0, school: "Воплощение", classes: ["sorcerer", "wizard"], cast: "1 действие", range: "120 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы кидаете сгусток огня в существо или предмет в пределах дальности. Совершите по цели дальнобойную атаку заклинанием. При попадании цель получает урон огнём 1к10. Урон этого заклинания увеличивается на 1к10, когда вы достигаете 5-го уровня (2к10), 11-го уровня (3к10), 17-го уровня (4к10)." },
-      { name: "Отравляющий фонтан", level: 0, school: "Вызов", classes: ["cleric", "druid", "sorcerer", "wizard", "warlock"], cast: "1 действие", range: "10 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы выпускаете струю ядовитой слизи. Цель делает спасбросок (защитный бросок) Телосложения: 1к12 урона ядом." },
+      { name: "Отравляющий фонтан", level: 0, school: "Вызов", classes: ["cleric", "druid", "sorcerer", "wizard", "warlock"], cast: "1 действие", range: "10 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы выпускаете струю яда в существо рядом. Цель делает спасбросок Телосложения; при провале получает 1к12 урона ядом, при успехе урона нет. Урон увеличивается до 2к12 на 5 уровне, 3к12 на 11 уровне и 4к12 на 17 уровне." },
       { name: "Починка", level: 0, school: "Преобразование", classes: ["bard", "cleric", "druid", "sorcerer", "wizard"], cast: "1 минута", range: "Касание", dur: "Мгновенно", conc: false, comp: "В, С, М", desc: "это заклинание чинит одно повреждение или разрыв на предмете, которого касаетесь, например, разорванное звено цепи, две половинки сломанного ключа, порванный плащ или протекающий бурдюк. Если повреждение или разрыв не больше 1 фута в любом измерении, вы чините его, не оставляя следов. Это заклинание может физически починить магический предмет или Конструкта, но не может восстановить магию в таких предметах." },
-      { name: "Пресветлое слово", level: 0, school: "Воплощение", classes: ["cleric"], cast: "1 действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В", desc: "слово силы. Существо восстанавливает 1к4 + модификатор Мудрости хитов." },
+      { name: "Пресветлое слово", level: 0, school: "Воплощение", classes: ["cleric"], cast: "1 действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В", desc: "вы произносите святое слово, и до нескольких существ рядом с вами должны сделать спасбросок Телосложения. При провале цель получает 1к6 урона излучением, при успехе урона нет. Урон увеличивается до 2к6 на 5 уровне, 3к6 на 11 уровне и 4к6 на 17 уровне." },
       { name: "Священное пламя", level: 0, school: "Воплощение", classes: ["cleric"], cast: "1 действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "на существо, которое вы видите в пределах дальности, нисходит сияние, похожее на огонь. Цель делает спасбросок Ловкости; при провале получит 1к8 урона излучением. Для этого спасброска цель не получает преимуществ от укрытия. Урон этого заклинания увеличивается на 1к8, когда вы достигаете 5-го уровня (2к8), 11-го уровня (3к8) и 17-го уровня (4к8)." },
-      { name: "Фокусы", level: 0, school: "Преобразование", classes: ["bard", "sorcerer", "warlock", "wizard"], cast: "1 действие", range: "10 фт.", dur: "До 1 часа", conc: false, comp: "В, С", desc: "это заклинание — небольшой магический трюк, на котором практикуются начинающие заклинатели." },
-      { name: "Хватка ведьмы", level: 0, school: "Некромантия", classes: ["warlock"], cast: "1 действие", range: "Касание", dur: "Мгновенно", conc: false, comp: "В, С", desc: "атака заклинанием ближнего боя: 1к10 некротического урона. При убийстве восстанавливаете 1к6 + ваш уровень хитов." },
-      { name: "Хлыст шипов", level: 0, school: "Преобразование", classes: ["druid"], cast: "1 действие", range: "30 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы создаёте колючий растительный хлыст. Атака ближнего боя: 1к6 урона, цель притягивается на 10 футов к вам." },
-      { name: "Шёпот тьмы", level: 0, school: "Иллюзия", classes: ["warlock", "bard"], cast: "1 действие", range: "30 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "атака заклинанием дальнего боя: 1к6 урона психической энергией." },
+      { name: "Фокусы", level: 0, school: "Преобразование", classes: ["bard", "sorcerer", "warlock", "wizard"], cast: "1 действие", range: "10 фт.", dur: "До 1 часа", conc: false, comp: "В, С", desc: "вы создаёте маленький безвредный магический эффект: зажечь или погасить свечу, создать звук или запах, очистить или испачкать небольшой предмет, нагреть/охладить еду, оставить знак или сотворить крошечную безделушку. Это заклинание полезно для бытовых трюков, отвлечения и красивых сцен." },
+      { name: "Хватка ведьмы", level: 0, school: "Некромантия", classes: ["warlock"], cast: "1 действие", range: "Касание", dur: "Мгновенно", conc: false, comp: "В, С", desc: "совершите атаку заклинанием по существу. При попадании цель получает некротический урон и не может восстанавливать хиты до начала вашего следующего хода. Если вы попали по нежити, она также получает помеху на атаки по вам до конца вашего следующего хода. Урон увеличивается на 5, 11 и 17 уровнях персонажа." },
+      { name: "Хлыст шипов", level: 0, school: "Преобразование", classes: ["druid"], cast: "1 действие", range: "30 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы создаёте колючий растительный хлыст и совершаете рукопашную атаку заклинанием по существу в пределах дальности. При попадании цель получает 1к6 колющего урона; если цель Большого размера или меньше, вы можете притянуть её на 10 футов к себе. Урон увеличивается до 2к6 на 5 уровне, 3к6 на 11 уровне и 4к6 на 17 уровне." },
+      { name: "Шёпот тьмы", level: 0, school: "Иллюзия", classes: ["warlock", "bard"], cast: "1 действие", range: "30 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы вкладываете в разум цели тревожный шёпот. Цель делает спасбросок Мудрости; при провале получает 1к6 урона психической энергией. Урон увеличивается до 2к6 на 5 уровне, 3к6 на 11 уровне и 4к6 на 17 уровне." },
       { name: "Защита от оружия", level: 0, school: "Ограждение", classes: ["bard", "wizard", "warlock", "sorcerer"], cast: "1 действие", range: "На себя", dur: "1 раунд", conc: false, comp: "В, С", desc: "вы протягиваете руку и рисуете в воздухе ограждающий знак. Вы получаете до конца своего следующего хода сопротивление дробящему, колющему и рубящему урону, причиненному атаками оружием." },
       { name: "Клинок зелёного пламени", level: 0, school: "Воплощение", classes: ["wizard", "artificer", "warlock", "sorcerer"], cast: "1 действие", range: "На себя (5-фт радиус)", dur: "Мгновенная", conc: false, comp: "С, М (рукопашное оружие 1+ см)", desc: "вы взмахиваете оружием, выбранным в качестве материального компонента, и совершаете им рукопашную атаку оружием против одного существа в пределах 5 футов от вас. При попадании цель подвергается обычному эффекту атаки этим оружием, и вы можете заставить зелёный огонь перекинуться от цели к другому существу по вашему выбору, которое вы можете видеть в пределах 5 футов от цели. Второе существо получает урон огнём, равный вашему модификатору базовой характеристики. Урон этого заклинания увеличивается, когда вы достигаете определенных уровней. На 5-м уровне рукопашная атака наносит дополнительно 1к8 урона огнём, а урон, получаемый вторым существом, увеличивается до 1к8 + ваш модификатор базовой характеристики." },
       { name: "Лассо молнии", level: 0, school: "Воплощение", classes: ["wizard", "artificer", "warlock", "sorcerer"], cast: "1 действие", range: "На себя (15-фт радиус)", dur: "Мгновенная", conc: false, comp: "В", desc: "вы создаёте хлыст из молний, поражающий одно существо по вашему выбору, которое вы можете видеть в пределах 15 футов от вас. Цель делает спасбросок Силы; при провале будет притянута на 10 футов по прямой к вам, после чего получит 1к8 урона электричеством, если окажется в пределах 5 футов от вас. Урон этого заклинания увеличивается на 1к8, когда вы достигаете 5-го уровня (2к8), 11-го уровня (3к8) и 17-го уровня (4к8)." },
@@ -5834,10 +5936,10 @@
       { name: "Уход за умирающим", level: 0, school: "Некромантия", classes: ["cleric", "artificer", "warlock"], cast: "1 действие", range: "Касание", dur: "Мгновенная", conc: false, comp: "В, С", desc: "вы касаетесь живого существа, у которого 0 хитов. Оно становится стабилизированным. Это заклинание не оказывает никакого эффекта на Нежить и Конструктов." },
       { name: "Злая насмешка", level: 0, school: "Очарование", classes: ["bard"], cast: "1 действие", range: "60 футов", dur: "Мгновенная", conc: false, comp: "В", desc: "вы испускаете на существо, видимое в пределах дальности, поток оскорблений вперемешку с тонкой магией. Если цель слышит вас (при этом она не обязана вас понимать), она делает спасбросок Мудрости; при провале получит урон психической энергией 1к4, и следующий бросок атаки до конца своего следующего хода совершит с помехой. Урон этого заклинания увеличивается на 1к4, когда вы достигаете 5-го уровня (2к4), 11-го уровня (3к4) и 17-го уровня (4к4)." },
       { name: "Иссушающий укол", level: 0, school: "Некромантия", classes: ["wizard, warlock"], cast: "1 действие", range: "30 футов", dur: "Мгновенная", conc: false, comp: "В, С", desc: "вы вытягиваете жизненные силы одного видимого существа в пределах дальности. Цель делает спасбросок Телосложения; при провале получит 1к4 урона некротической энергией и упадёт ничком. Урон этого заклинания увеличивается на 1к4, когда вы достигаете 5-го уровня (2к4), 11-го уровня (3к4) и 17-го уровня (4к4)." },
-      { name: "Мистический заряд", level: 0, school: "Воплощение", classes: ["warlock"], cast: "1 действие", range: "120 футов", dur: "Мгновенная", conc: false, comp: "В, С", desc: "к существу, находящемуся в пределах дальности, устремляется луч потрескивающей энергии. Совершите дальнобойную атаку заклинанием по цели. При попадании цель получает урон силовым полем 1к10." },
+      { name: "Мистический заряд", level: 0, school: "Воплощение", classes: ["warlock"], cast: "1 действие", range: "120 футов", dur: "Мгновенная", conc: false, comp: "В, С", desc: "к существу в пределах дальности устремляется луч потрескивающей энергии. Совершите дальнобойную атаку заклинанием; при попадании цель получает 1к10 урона силовым полем. На 5 уровне вы выпускаете 2 луча, на 11 уровне — 3 луча, на 17 уровне — 4 луча. Лучи можно направлять в одну или разные цели." },
       { name: "Дружба", level: 0, school: "Очарование", classes: ["bard", "wizard", "warlock", "sorcerer"], cast: "1 действие", range: "На себя", dur: "1 минута", conc: true, comp: "С, М (немного грима на лицо)", desc: "пока эффект длится, вы совершаете с преимуществом все проверки Харизмы, направленные на одно выбранное вами существо, не враждебное по отношению к вам. Когда заклинание оканчивается, существо понимает, что вы влияли на её отношение с помощью магии, и становится враждебным по отношению к вам. Существо, склонное к насилию, может напасть на вас." },
       { name: "Адское возмездие", level: 1, school: "Воплощение", classes: ["warlock", "paladin"], cast: "1 реакция (когда тебе наносят урон)", range: "60 футов", dur: "Мгновенная", conc: false, comp: "В, С", desc: "вы указываете пальцем, и существо, причинившее вам урон, мгновенно окружается пламенем. Существо делает спасбросок Ловкости. При провале оно получает 2к10 урона огнём, при успехе — половину. На более высоких ячейках: урон увеличивается на 1к10 за каждый уровень ячейки выше первого." },
-      { name: "Дар готовности", level: 1, school: "Прорицание", classes: ["wizard"], cast: "1 минута", range: "Касание", dur: "8 часов", conc: false, comp: "В, С", desc: "вы касаетесь согласного существа. На время действия заклинания цель может прибавлять 1к8 к своим броскам инициативы." },
+      { name: "Дар готовности", level: 1, school: "Прорицание", classes: ["wizard"], cast: "1 минута", range: "Касание", dur: "8 часов", conc: false, comp: "В, С", desc: "вы касаетесь согласного существа и магически обостряете его реакцию. Пока заклинание действует, цель прибавляет 1к8 к броскам инициативы. Заклинание не требует концентрации, поэтому его удобно накладывать заранее перед опасным местом." },
       { name: "Доспех Агатиса", level: 1, school: "Ограждение", classes: ["warlock", "paladin"], cast: "1 действие", range: "На себя", dur: "1 час", conc: false, comp: "В, С", desc: "вас окружает защитное магическое поле, проявляющееся в виде призрачной изморози, покрывшей вас и ваше снаряжение. Вы получаете 5 временных хитов на период действия заклинания. Если существо попадает по вам рукопашной атакой, пока у вас есть эти хиты, оно получает 5 урона холодом. На более высоких ячейках: и временные хиты и урон холодом увеличиваются на 5 за каждый уровень ячейки выше первого." },
       { name: "Метка охотника", level: 1, school: "Прорицание", classes: ["ranger", "paladin"], cast: "1 бонусное действие", range: "90 футов", dur: "1 час", conc: true, comp: "В", desc: "вы выбираете существо, видимое в пределах дальности, и объявляете его своей добычей. Пока эффект длится, вы наносите цели дополнительно 1к6 урона каждый раз, когда попадаете по ней атакой оружием, и вы совершаете с преимуществом проверки Мудрости (Восприятие) и Мудрость (Выживание), совершённые для её поиска. Если хиты цели опускаются до 0, пока эффект длится, вы можете в один из своих следующих ходов бонусным действием выбрать целью новое существо. На более высоких ячейках: ячейка 3-го или 4-го уровня, вы можете поддерживать концентрацию 8 часов. Если вы используете ячейку заклинания 5-го уровня или выше, вы можете поддерживать концентрацию 24 часа." },
       { name: "Нанесение ран", level: 1, school: "Некромантия", classes: ["cleric", "warlock", "paladin", "sorcerer"], cast: "1 действие", range: "Касание", dur: "Мгновенная", conc: false, comp: "В, С", desc: "совершите рукопашную атаку заклинанием по существу в пределах досягаемости. При попадании цель получает 3к10 урона некротической энергией. На более высоких ячейках: урон увеличивается на 1к10 за каждый уровень ячейки выше первого." },
@@ -5857,19 +5959,19 @@
       { name: "Обнаружение зла и добра", level: 1, school: "Прорицание", classes: ["cleric", "paladin", "warlock"], cast: "1 действие", range: "На себя", dur: "10 минут", conc: true, comp: "В, С", desc: "пока эффект длится, вы знаете, есть ли в пределах 30 футов от вас Аберрации, Исчадия, Небожители, Нежить, Феи или Элементали, а также их местоположение. Кроме того, вы знаете, есть ли в пределах 30 футов от вас место или предмет, который был магически освящён или осквернён. Заклинание проницает большую часть барьеров, но блокируется 1 футом камня, 1 дюймом обычного металла, тонким листом свинца или 3 футами дерева или земли." },
       { name: "Палящая кара", level: 1, school: "Воплощение", classes: ["paladin", "ranger", "cleric"], cast: "1 бонусное действие", range: "На себя", dur: "1 минута", conc: true, comp: "В", desc: "когда вы в следующий раз попадёте по существу рукопашной атакой оружием, пока эффект длится, ваше оружие вспыхивает ярким белым светом, и атака причиняет цели дополнительный 1к6 урона огнём и поджигает её. Пока эффект длится, цель в начале каждого своего хода должна совершать спасбросок Телосложения. При провале она получает 1к6 урона огнём. На более высоких ячейках: первичный дополнительный урон от атаки увеличивается на 1к6 за каждый уровень ячейки выше первого." },
       { name: "Церемония", level: 1, school: "Ограждение", classes: ["cleric", "paladin"], cast: "1 час (ритуал)", range: "Касание", dur: "Мгновенная", conc: false, comp: "В, С, М", desc: "вы совершаете особую религиозную церемонию, наполненную магией. Когда вы накладываете заклинание, выберите один из следующих обрядов, цель которого должна находиться в пределах 10 футов от вас во время накладывания. Благословение воды. Существо может получить преимущества от этого обряда снова, только если оно овдовело. На следующие 24 часа, каждый раз, когда цель делает спасбросок, она может бросить к4 и добавить выпавшее число к результату." },
-      { name: "Щит веры", level: 1, school: "Ограждение", classes: ["cleric", "paladin"], cast: "1 бонусное действие", range: "60 фт.", dur: "10 минут", conc: true, comp: "В, С, М", desc: "появляется мерцающее поле, окружающее существо, выбранное вами в пределах дальности, даруя ему на время длительности бонус +2 к КД." },
-      { name: "Длинный шаг", level: 1, school: "Преобразование", classes: ["bard", "druid", "ranger", "wizard"], cast: "1 бонусное действие", range: "Касание", dur: "1 час", conc: false, comp: "В, С", desc: "скорость существа +10 футов на 1 час." },
-      { name: "Звук тишины", level: 2, school: "Иллюзия", classes: ["bard", "cleric", "ranger"], cast: "1 действие", range: "120 фт.", dur: "10 минут", conc: true, comp: "В, С", desc: "сфера тишины 20 футов. Внутри невозможны звуки и вербальные компоненты." },
+      { name: "Щит веры", level: 1, school: "Ограждение", classes: ["cleric", "paladin"], cast: "1 бонусное действие", range: "60 фт.", dur: "10 минут", conc: true, comp: "В, С, М", desc: "вы выбираете существо в пределах дальности, и вокруг него появляется мерцающая защита. Пока вы поддерживаете концентрацию, цель получает +2 к КД. Хорошее заклинание для защиты союзника на передней линии или себя перед опасной атакой." },
+      { name: "Длинный шаг", level: 1, school: "Преобразование", classes: ["bard", "druid", "ranger", "wizard"], cast: "1 бонусное действие", range: "Касание", dur: "1 час", conc: false, comp: "В, С", desc: "вы касаетесь существа, и его скорость увеличивается на 10 футов на время действия. На более высоких ячейках: можно выбрать ещё одно дополнительное существо за каждый уровень ячейки выше 1-го." },
+      { name: "Звук тишины", level: 2, school: "Иллюзия", classes: ["bard", "cleric", "ranger"], cast: "1 действие", range: "120 фт.", dur: "10 минут", conc: true, comp: "В, С", desc: "вы создаёте сферу тишины радиусом 20 футов. Внутри сферы нельзя слышать звуки, создавать звуковые эффекты и использовать вербальные компоненты заклинаний. Сфера полезна, чтобы сорвать магию, скрыть шум или устроить тихую засаду." },
       { name: "Героизм", level: 1, school: "Очарование", classes: ["bard", "paladin"], cast: "1 действие", range: "Касание", dur: "1 минута", conc: true, comp: "В, С", desc: "согласное существо, которого вы касаетесь, наполняется храбростью. Пока эффект длится, существо получает иммунитет к состоянию испуга, и в начале каждого своего хода получает временные хиты, равные модификатору вашей базовой характеристики. Когда это заклинание оканчивается, цель теряет все временные хиты, оставшиеся от этого заклинания. На более высоких ячейках: вы можете сделать целью одно дополнительное существо за каждый уровень ячейки выше первого." },
-      { name: "Команда", level: 1, school: "Очарование", classes: ["cleric", "paladin"], cast: "1 действие", range: "60 фт.", dur: "1 раунд", conc: false, comp: "В", desc: "слово команды: при провале спасброска Мудрости: «Стой», «Беги», «Пади», «Иди» или «Угрожай»." },
+      { name: "Команда", level: 1, school: "Очарование", classes: ["cleric", "paladin"], cast: "1 действие", range: "60 фт.", dur: "1 раунд", conc: false, comp: "В", desc: "вы произносите короткий приказ одному существу, которое вас понимает. Цель делает спасбросок Мудрости; при провале в свой следующий ход выполняет приказ вроде «Подойди», «Брось», «Падай», «Беги» или «Стой». Команда не сработает, если она очевидно ведёт цель к прямому вреду. На более высоких ячейках: можно выбрать ещё одно существо за каждый уровень ячейки выше 1-го." },
       { name: "Лечение ран", level: 1, school: "Воплощение", classes: ["bard", "cleric", "druid", "paladin", "ranger"], cast: "1 действие", range: "Касание", dur: "Мгновенно", conc: false, comp: "В, С", desc: "существо, которого вы касаетесь, восстанавливает количество хитов, равное 1к8 + ваш модификатор базовой характеристики. Это заклинание не оказывает никакого эффекта на Нежить и Конструктов. На более высоких ячейках: лечение увеличивается на 1к8 за каждый уровень ячейки выше первого." },
       { name: "Лечащее слово", level: 1, school: "Воплощение", classes: ["bard", "cleric", "druid"], cast: "1 бонусное действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В", desc: "существо на ваш выбор, видимое в пределах дальности, восстанавливает количество хитов, равное 1к4 + ваш модификатор базовой характеристики. Это заклинание не оказывает никакого эффекта на Нежить и Конструктов. На более высоких ячейках: количество восстанавливаемых хитов увеличивается на 1к4 за каждый уровень ячейки выше первого." },
-      { name: "Опутать", level: 1, school: "Воплощение", classes: ["bard", "cleric", "druid"], cast: "1 бонусное действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В", desc: "растения хватают врагов в радиусе 20 футов. Спасбросок Силы 12, при провале существо становится опутанным." },
-      { name: "Магическая стрела", level: 1, school: "Воплощение", classes: ["sorcerer", "wizard"], cast: "1 действие", range: "120 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "три светящиеся стрелы автоматически поражают цель. Каждая: 1к4+1 силового поля. +1 стрела за уровень выше 1." },
-      { name: "Незримый слуга", level: 1, school: "Вызов", classes: ["bard", "warlock", "wizard"], cast: "1 действие", range: "60 фт.", dur: "1 час", conc: false, comp: "В, С, М", desc: "невидимая сила выполняет простые задачи по команде." },
+      { name: "Опутать", level: 1, school: "Воплощение", classes: ["bard", "cleric", "druid"], cast: "1 бонусное действие", range: "60 фт.", dur: "Мгновенно", conc: false, comp: "В", desc: "в выбранной области вырастают цепкие растения. Существа в области делают спасбросок Силы; при провале становятся опутанными. Опутанное существо удерживается на месте, атаки по нему получают преимущество, а его атаки получают помеху. Существо может действием повторить проверку Силы и освободиться при успехе." },
+      { name: "Магическая стрела", level: 1, school: "Воплощение", classes: ["sorcerer", "wizard"], cast: "1 действие", range: "120 фт.", dur: "Мгновенно", conc: false, comp: "В, С", desc: "вы создаёте три магические стрелы. Каждая автоматически попадает в видимую цель в пределах дальности и наносит 1к4 + 1 урона силовым полем. Стрелы можно направить в одну или разные цели. На более высоких ячейках: появляется одна дополнительная стрела за каждый уровень ячейки выше 1-го." },
+      { name: "Незримый слуга", level: 1, school: "Вызов", classes: ["bard", "warlock", "wizard"], cast: "1 действие", range: "60 фт.", dur: "1 час", conc: false, comp: "В, С, М", desc: "вы создаёте невидимую безвольную силу, которая выполняет простые бытовые задачи по вашей команде: приносит предметы, открывает двери, убирает, подаёт еду, разжигает огонь. Слуга не атакует и не является боевым союзником, но удобен для осторожного взаимодействия с окружением." },
       { name: "Обнаружение магии", level: 1, school: "Прорицание", classes: ["bard", "cleric", "druid", "paladin", "ranger", "sorcerer", "wizard"], cast: "1 действие", range: "Личная", dur: "10 минут", conc: true, comp: "В, С", desc: "пока эффект длится, вы чувствуете присутствие магии в пределах 30 футов. Если вы почувствовали за счет этого заклинания присутствие магии, Действием можно увидеть слабую ауру вокруг видимого существа или предмета, несущего на себе магию, а также узнать школу этой магии, если она есть. Заклинание проницает большую часть барьеров, но блокируется 1 футом камня, 1 дюймом обычного металла, тонким листом свинца или 3 футами дерева или земли." },
       { name: "Очарование личности", level: 1, school: "Очарование", classes: ["bard", "cleric", "druid", "sorcerer", "warlock", "wizard"], cast: "1 действие", range: "30 фт.", dur: "1 час", conc: false, comp: "В, С", desc: "вы пытаетесь очаровать Гуманоида, которого видите в пределах дальности. Он делает спасбросок Мудрости; с преимуществом, если вы или ваши спутники сражаетесь с ним. Если он проваливает спасбросок, он очарован вами, пока эффект длится или пока вы или ваши спутники не причините ему вред. На более высоких ячейках: вы можете сделать целью одно дополнительное существо за каждый уровень ячейки выше первого." },
-      { name: "Погружение в воду", level: 1, school: "Преобразование", classes: ["druid", "ranger", "sorcerer", "wizard"], cast: "1 действие", range: "60 фт.", dur: "24 часа", conc: false, comp: "В, С", desc: "существо получает дыхание под водой и скорость плавания 30 футов." },
+      { name: "Погружение в воду", level: 1, school: "Преобразование", classes: ["druid", "ranger", "sorcerer", "wizard"], cast: "1 действие", range: "60 фт.", dur: "24 часа", conc: false, comp: "В, С", desc: "вы выбираете существо в пределах дальности. На время действия оно может дышать под водой и получает скорость плавания 30 футов. Заклинание полезно для разведки, побега, подводных сцен и спасения того, кто оказался в воде." },
       { name: "Поглощение стихий", level: 1, school: "Ограждение", classes: ["druid", "ranger", "sorcerer", "wizard"], cast: "1 реакция", range: "Личная", dur: "1 раунд", conc: false, comp: "С", desc: "заклинание поглощает часть энергии, направленной на вас, ослабляя эффект и запасая эту энергию для использования во время следующей рукопашной атаки. До начала своего следующего хода вы получаете сопротивление тому виду урона, который спровоцировал данное заклинание. Кроме того, когда вы впервые попадаете рукопашной атакой в своём следующем ходу, цель получает дополнительно 1к6 урона этого вида, после чего заклинание заканчивается. На более высоких ячейках: то дополнительный урон увеличивается на 1к6 за каждый уровень ячейки выше 1-го." },
       { name: "Проклятие", level: 1, school: "Некромантия", classes: ["bard", "cleric", "wizard", "warlock"], cast: "1 действие", range: "90 фт.", dur: "Конц., до 1 мин.", conc: true, comp: "В, С, М", desc: "вы касаетесь существа, и оно делает спасбросок Мудрости; при провале станет проклятым на период действия заклинания. Накладывая это заклинание, выберите характер проклятия из следующего списка: • Выберите одну характеристику. Будучи проклятой, цель совершает проверки и спасброски этой характеристики с помехой. • Будучи проклятой, цель совершает с помехой броски атаки по вам. • Будучи проклятой, цель должна в начале каждого своего хода совершать спасбросок Мудрости. При провале она впустую тратит свое действие. • Пока цель проклята, ваши атаки и заклинания наносят ей дополнительно 1к8 урона некротической энергией." },
       { name: "Священное оружие", level: 1, school: "Воплощение", classes: ["paladin"], cast: "1 бонусное действие", range: "Личная", dur: "1 минута", conc: true, comp: "В", desc: "вы наполняете оружие, которого касаетесь, святой силой. Пока эффект длится, оружие излучает яркий свет в пределах 30 футов и тусклый свет в пределах ещё 30 футов. Кроме того, атаки, совершенные этим оружием, наносят дополнительно 2к8 урона излучением при попадании. Каждое существо по вашему выбору, которое вы видите в пределах 30 футов от оружия, делает спасбросок Телосложения. При неудачном спасброске существо получает 4к8 урона излучением, и становится ослеплённым на 1 минуту." },
@@ -5881,7 +5983,7 @@
       { name: "Вызов страха", level: 1, school: "Некромантия", classes: ["wizard", "warlock"], cast: "1 действие", range: "60 футов", dur: "1 минута", conc: true, comp: "В", desc: "вы пробуждаете ощущение смертности у одного существа, которое можете видеть в пределах дальности. Конструкты или Нежить имеют иммунитет к этому эффекту. Цель делает спасбросок Мудрости; при провале становится испуганной вами пока заклинание не окончится. Испуганное существо может повторять спасброски в конце каждого своего хода, оканчивая эффект на себе при успехе. На более высоких ячейках: Когда вы накладываете это заклинание, ячейкой 2-го уровня или выше: вы можете сделать целью дополнительно ещё одно существо за каждый уровень ячейки выше 1-й." },
       { name: "Дрожь земли", level: 1, school: "Воплощение", classes: ["bard", "wizard", "druid", "sorcerer"], cast: "1 действие", range: "10 футов", dur: "Мгновенная", conc: false, comp: "В, С", desc: "вы сотрясаете землю в пределах дальности. Все существа, кроме вас, в этой области делают спасбросок Ловкости. При провале существо получает 1к6 дробящего урона и сбивается с ног. На более высоких ячейках: то урон увеличивается на 1к6 за каждый уровень ячейки выше 1-го." },
       { name: "Жуткий смех Таши", level: 1, school: "Очарование", classes: ["bard", "wizard", "warlock"], cast: "1 действие", range: "30 футов", dur: "1 минута", conc: true, comp: "В, С, М", desc: "существо на ваш выбор, видимое в пределах дальности, воспринимает всё невероятно смешным и корчится от смеха, если заклинание на него действует. Цель делает спасбросок Мудрости; при провале она падает ничком, становится недееспособной и в течение действия заклинания не может встать. Существа со значением Интеллекта 4 и ниже не попадают под действие этого заклинания. В конце каждого своего хода и каждый раз при получении урона цель может совершать новый спасбросок Мудрости. Спасбросок совершается с преимуществом, если он был вызван получением урона." },
-      { name: "Искажение цены", level: 1, school: "Иллюзия", classes: ["bard", "wizard", "warlock", "sorcerer"], cast: "1 минута", range: "Касание", dur: "8 часов", conc: false, comp: "В", desc: "вам нужно выжать ещё несколько золотых из торговца, которому вы пытаетесь продать странную статую осьминога, «освобождённую» вами из храма хаоса? Или занизить стоимость кое-каких магических ценностей, когда к вам заглянет сборщик налогов? Искажение цены вам в этом поможет. На более высоких ячейках: максимальная длина предмета увеличивается на 1 фут за каждый уровень ячейки выше первого." },
+      { name: "Искажение цены", level: 1, school: "Иллюзия", classes: ["bard", "wizard", "warlock", "sorcerer"], cast: "1 минута", range: "Касание", dur: "8 часов", conc: false, comp: "В", desc: "вы касаетесь предмета и временно меняете то, как он выглядит для оценки: он может казаться гораздо дороже или дешевле своей настоящей стоимости. Заклинание не меняет сам предмет, только впечатление от него, поэтому внимательная проверка или магия могут раскрыть обман. На более высоких ячейках: максимальный размер предмета увеличивается на 1 фут за каждый уровень ячейки выше 1-го." },
       { name: "Искусная острота", level: 1, school: "Очарование", classes: ["bard", "wizard", "sorcerer"], cast: "1 реакция (существо в 60 фт преуспевает в d20)", range: "60 футов", dur: "Мгновенная", conc: false, comp: "В", desc: "вы магическим образом отвлекаете спровоцировавшее реакцию существо и превращаете его секундное замешательство в ободрение другого существа. Спровоцировавшее вас существо должно повторно совершить бросок к20 и использовать меньшее значение. После этого вы можете выбрать другое существо, которое видите в пределах дальности (вы можете выбрать себя). Выбранное существо совершит с преимуществом следующий бросок атаки, проверку характеристики или спасбросок, который оно совершит в течение 1 минуты." },
       { name: "Катапульта", level: 1, school: "Преобразование", classes: ["wizard", "artificer", "sorcerer"], cast: "1 действие", range: "60 футов", dur: "Мгновенная", conc: false, comp: "С", desc: "выберите один предмет весом от 1 до 5 фунтов в пределах дальности, который никто не несёт и не носит. Предмет пролетает до 90 футов по прямой в выбранном вами направлении, прежде чем упасть на землю, и останавливается раньше, если ударится о твёрдую поверхность. Если предмет ударяется о существо, оно делает спасбросок Ловкости. Если предмет ударяет что-то, то и предмет и то, во что он ударился, получают 3к8 дробящего урона. На более высоких ячейках: максимальный вес предметов, которые вы можете использовать, увеличивается на 5 фунтов, а урон увеличивается на 1к8 за каждый уровень ячейки выше 1-го." },
       { name: "Ледяной кинжал", level: 1, school: "Вызов", classes: ["wizard", "druid", "sorcerer"], cast: "1 действие", range: "60 футов", dur: "Мгновенная", conc: false, comp: "С, М", desc: "вы создаёте осколок льда и метаете его в одно существо, находящееся в пределах дальности. Совершите по цели дальнобойную атаку заклинанием. При попадании цель получает 1к10 колющего урона. Цель и все существа в пределах 5 футов от места взрыва осколка делают спасбросок Ловкости; при провале получат 2к6 урона холодом. На более высоких ячейках: то урон холодом увеличивается на 1к6 за каждый уровень ячейки выше 1." },
@@ -5898,7 +6000,7 @@
       { name: "Понимание языков", level: 1, school: "Прорицание", classes: ["bard", "wizard", "warlock", "sorcerer"], cast: "1 действие", range: "На себя", dur: "1 час", conc: false, comp: "В, С, М (сажа и соль)", desc: "пока эффект длится, вы понимаете буквальный смысл всех услышанных речей на любых языках. Вы также понимаете письмена на любых языках, но вы должны касаться поверхности, на которой записаны слова. Требуется примерно 1 минута для чтения одной страницы текста." },
       { name: "Поиск фамильяра", level: 1, school: "Вызов", classes: ["wizard"], cast: "1 час", range: "10 футов", dur: "Мгновенная", conc: false, comp: "В, С, М", desc: "вы получаете в услужение фамильяра — духа, принимающего облик выбранного вами животного: ворона [raven], кошки [cat], краба [crab], крысы [rat], летучей мыши [bat], лягушки (жабы) [frog], морского конька [sea horse], осьминога [octopus], паука [spider], рыбы (пираньи) [quipper], совы [owl], куницы [weasel], ядовитой змеи [poisonous snake], ястреба [hawk] или ящерицы [lizard]. Появившись в свободном пространстве в пределах дальности, фамильяр приобретает характеристики выбранного облика, хотя он не Зверь, а Исчадие, Небожитель или Фея (по вашему выбору). Ваш фамильяр действует независимо от вас, но всегда повинуется вашим командам." },
       { name: "Поспешное отступление", level: 1, school: "Преобразование", classes: ["wizard", "artificer", "warlock", "sorcerer"], cast: "1 бонусное действие", range: "На себя", dur: "10 минут", conc: true, comp: "В, С", desc: "это заклинание позволяет перемещаться с невероятной скоростью. Когда вы накладываете это заклинание, а также бонусным действием в последующие ходы, пока активно заклинание, вы можете совершать действие Рывок." },
-      { name: "Прыжок", level: 1, school: "Преобразование", classes: ["wizard", "druid", "artificer", "ranger", "sorcerer"], cast: "1 действие", range: "Касание", dur: "1 минута", conc: false, comp: "В, С", desc: "вы касаетесь существа. Пока эффект длится, расстояние прыжка этого существа увеличивается в три раза." },
+      { name: "Прыжок", level: 1, school: "Преобразование", classes: ["wizard", "druid", "artificer", "ranger", "sorcerer"], cast: "1 действие", range: "Касание", dur: "1 минута", conc: false, comp: "В, С", desc: "вы касаетесь существа. Пока заклинание действует, расстояние его прыжков увеличивается втрое. Это влияет именно на дальность прыжка, но не даёт дополнительного перемещения сверх скорости существа, если мастер не разрешит иначе." },
       { name: "Псевдожизнь", level: 1, school: "Некромантия", classes: ["wizard", "artificer", "sorcerer", "cleric", "warlock"], cast: "1 действие", range: "На себя", dur: "1 час", conc: false, comp: "В, С", desc: "укрепив себя некромантским подобием жизни, вы получаете 1к4 + 4 временных хита на время длительности заклинания. На более высоких ячейках: вы получаете 5 дополнительных временных хитов за каждый уровень ячейки выше первого." },
       { name: "Сверкающие брызги", level: 1, school: "Иллюзия", classes: ["bard", "wizard", "sorcerer"], cast: "1 действие", range: "На себя (15-фт конус)", dur: "1 раунд", conc: false, comp: "В, С", desc: "из вашей руки вылетают яркие разноцветные лучи. Бросьте 6к10; результат покажет, сколько хитов существ попадает под эффект. Существа в 15-футовом конусе, исходящем от вас, попадают под эффект в порядке увеличения текущих хитов (игнорируя тех, кто без сознания и не может видеть). Начиная с существа с наименьшим числом текущих хитов, все существа, попавшие под действие заклинания, становятся ослеплёнными до конца вашего следующего хода. Вычитайте из остатка хиты уже ослеплённых существ и переходите к следующим. На более высоких ячейках: бросайте дополнительно 2к10 за каждый уровень ячейки выше первого." },
       { name: "Сигнал тревоги", level: 1, school: "Ограждение", classes: ["wizard", "artificer", "ranger", "paladin", "sorcerer"], cast: "1 минута", range: "30 футов", dur: "8 часов", conc: false, comp: "В, С", desc: "вы устанавливаете сигнализацию на случай вторжения. Выберите дверь, окно или область в пределах дальности не больше куба с длиной ребра 20 футов. До окончания действия заклинания тревога уведомляет вас каждый раз, когда охраняемой области касается или входит в неё существо с размером не меньше Крошечного." },
@@ -5958,7 +6060,7 @@
       { name: "Паутина", level: 2, school: "Вызов", classes: ["wizard", "artificer", "sorcerer", "druid", "ranger"], cast: "1 действие", range: "60 футов", dur: "1 час", conc: true, comp: "В, С", desc: "вы создаете массу густой и клейкой паутины в точке на ваш выбор в пределах дальности. Паутина заполняет куб с длиной ребра 20 футов на время длительности заклинания. Паутина является труднопроходимой местностью и слабо заслоняет местность. Все существа, начинающие ход в паутине, или входящие в неё в свой ход, должны совершать спасбросок Ловкости. Любой 5-футовый куб паутины, соприкоснувшийся с огнём, сгорает за 1 раунд, причиняя 2к4 урона огнём всем существам, начинающим ход в огне." },
       { name: "Пекло Аганаззара", level: 2, school: "Воплощение", classes: ["wizard", "sorcerer"], cast: "1 действие", range: "30 футов", dur: "Мгновенная", conc: false, comp: "В, С", desc: "вы выпускаете из себя линию ревущего пламени длиной 30 футов и шириной 5 футов в выбранном направлении. Все существа в области действия делают спасбросок Ловкости, получая 3к8 урона огнём при провале или половину урона при успехе. На более высоких ячейках: то урон увеличивается на 1к8 за каждый уровень ячейки выше 2." },
       { name: "Пиротехника", level: 2, school: "Преобразование", classes: ["bard", "wizard", "artificer", "sorcerer"], cast: "1 действие", range: "60 футов", dur: "Мгновенная", conc: false, comp: "В, С", desc: "выберите область немагического огня в кубе с длиной ребра 5 футов, которую вы видите в пределах дальности. Вы можете потушить огонь в этой области, а затем сотворить фейерверки или дымовую завесу. Дымовая завеса. Все существа в пределах 10 футов от области делают спасбросок Телосложения; при провале станут ослеплёнными до конца вашего следующего хода." },
-      { name: "Подарок болтуна", level: 2, school: "Очарование", classes: ["bard", "wizard"], cast: "1 реакция (когда говоришь с существом)", range: "На себя", dur: "Мгновенная", conc: false, comp: "В, С", desc: "говорят, что Джим Темномаг изобрёл это заклинание, изначально назвав его «Я сказал что?»! Вы в разговоре с местным монархом случайно упомянули, что его сын похож на вашего любимого борова из тех времён, когда вы росли на семейной ферме? Мы все побывали в такой ситуации!" },
+      { name: "Подарок болтуна", level: 2, school: "Очарование", classes: ["bard", "wizard"], cast: "1 реакция (когда говоришь с существом)", range: "На себя", dur: "Мгновенная", conc: false, comp: "В, С", desc: "когда вы сказали что-то неудачное, вы можете реакцией заставить существ по вашему выбору в пределах 5 футов забыть последние несколько секунд разговора. Они не помнят произнесённую фразу, а вы можете сразу сказать что-то другое. Заклинание полезно для переговоров, неловких признаний и попыток быстро исправить опасную оговорку." },
       { name: "Подмога", level: 2, school: "Ограждение", classes: ["bard", "cleric", "artificer", "paladin", "ranger", "sorcerer"], cast: "1 действие", range: "30 футов", dur: "8 часов", conc: false, comp: "В, С", desc: "ваше заклинание наделяет союзников стойкостью и решимостью. Выберите до трёх существ в пределах дальности. На время длительности максимум хитов и текущие хиты всех целей увеличиваются на 5. На более высоких ячейках: хиты целей увеличиваются ещё на 5 за каждый уровень ячейки выше второго." },
       { name: "Поиск животных или растений", level: 2, school: "Прорицание", classes: ["bard", "druid", "ranger"], cast: "1 действие", range: "На себя", dur: "Мгновенная", conc: false, comp: "В, С", desc: "назовите определённый вид Зверя или растения. Сконцентрировавшись на голосе природы в окружении, вы узнаёте направление и расстояние до ближайшего существа или растения этого вида в пределах 5 миль, если они вообще есть." },
       { name: "Поиск ловушек", level: 2, school: "Прорицание", classes: ["druid", "cleric", "ranger"], cast: "1 действие", range: "120 футов", dur: "Мгновенная", conc: false, comp: "В, С", desc: "вы чувствуете присутствие любых ловушек в пределах дальности, находящихся в пределах линии обзора. Для этого заклинания ловушкой считается всё, что причиняет неожиданный эффект, считающийся для вас вредным или нежелательным, и специально подготовленный таким своим создателем. Таким образом, это заклинание почувствует область, защищённую заклинанием сигнал тревоги [alarm], охранные руны [glyph of warding], или механической ловушкой, но не распознает ветхий пол, неустойчивый потолок, или промоину в земле." },
@@ -5984,7 +6086,7 @@
       { name: "Теневой клинок", level: 2, school: "Иллюзия", classes: ["wizard", "warlock", "sorcerer"], cast: "1 бонусное действие", range: "На себя", dur: "1 минута", conc: true, comp: "В, С", desc: "вы сплетаете воедино нити тени, чтобы создать в ваших руках меч затвердевшего мрака. Этот магический меч существует до тех пор, пока эффект длится. Он считается простым рукопашным оружием, которым вы владеете. Он наносит 2к8 урона психической энергией при попадании и обладает свойствами «лёгкое», «метательное» (дистанция 20/60) и «фехтовальное». Кроме того, когда вы используете меч для атаки цели, которая находится в тусклом освещении или темноте, вы совершаете бросок атаки с преимуществом. На более высоких ячейках: Когда вы накладываете это заклинание, используя ячейку заклинания 3-го или 4-го уровня, урон увеличивается до 3к8." },
       { name: "Тишина", level: 2, school: "Иллюзия", classes: ["bard", "cleric", "ranger", "druid", "warlock", "monk"], cast: "1 действие", range: "120 футов", dur: "10 минут", conc: true, comp: "В, С", desc: "пока эффект длится, никакие звуки не могут раздаться в сфере радиусом 20 футов с центром на точке, выбранной в пределах дальности, а также не могут проходить сквозь неё. Все существа и предметы, полностью находящиеся в сфере, получают иммунитет к урону звуком, и существа считаются оглохшими, когда полностью находятся в ней. Там невозможно накладывать заклинания с вербальным компонентом." },
       { name: "Трюк с верёвкой", level: 2, school: "Преобразование", classes: ["wizard", "artificer", "ranger"], cast: "1 действие", range: "Касание", dur: "1 час", conc: false, comp: "В, С", desc: "вы касаетесь верёвки длиной до 60 футов. Один её конец поднимается в воздух, а остальная часть висит перпендикулярно полу. На верхнем конце верёвки появляется невидимый вход в межпространство, существующий, пока эффект длится." },
-      { name: "Туманный шаг", level: 2, school: "Вызов", classes: ["wizard", "warlock", "sorcerer", "druid", "paladin", "ranger"], cast: "1 бонусное действие", range: "На себя", dur: "Мгновенная", conc: false, comp: "В", desc: "окутавшись серебристым туманом, вы телепортируетесь на расстояние до 30 футов в свободное пространство, видимое вами." },
+      { name: "Туманный шаг", level: 2, school: "Вызов", classes: ["wizard", "warlock", "sorcerer", "druid", "paladin", "ranger"], cast: "1 бонусное действие", range: "На себя", dur: "Мгновенная", conc: false, comp: "В", desc: "вы на мгновение окутываетесь серебристым туманом и телепортируетесь на расстояние до 30 футов в свободное пространство, которое видите. Это бонусное действие, поэтому после перемещения обычно остаётся действие для атаки, заклинания или другого манёвра." },
       { name: "Тьма", level: 2, school: "Воплощение", classes: ["wizard", "warlock", "sorcerer", "druid", "monk", "paladin"], cast: "1 действие", range: "60 футов", dur: "10 минут", conc: true, comp: "В", desc: "из точки, которую вы выбираете в пределах дальности, расползается магическая тьма сферой с радиусом 15 футов. Тьма огибает углы. Существа с тёмным зрением не могут видеть сквозь эту тьму, и немагический свет не может её осветить." },
       { name: "Увеличение/уменьшение", level: 2, school: "Преобразование", classes: ["bard", "wizard", "druid", "artificer", "sorcerer"], cast: "1 действие", range: "30 футов", dur: "1 минута", conc: true, comp: "В, С", desc: "на время действия заклинания вы увеличиваете или уменьшаете существо или предмет, которые вы видите в пределах дальности. Выберите либо существо, либо предмет, который никто не несёт и не носит. Если цель хочет, она может сделать спасбросок Телосложения. Пока эффект длится, цель совершает с преимуществом проверки и спасброски Силы. Атаки увеличенным оружием дополнительно причиняют 1к4 урона." },
       { name: "Увлекательная прогулка", level: 2, school: "Преобразование", classes: ["bard", "wizard", "artificer", "sorcerer"], cast: "1 бонусное действие", range: "На себя", dur: "1 минута", conc: true, comp: "С", desc: "вы магическим образом усиливаете свои движения танцевальными шагами, даруя себе следующие преимущества: • Ваша скорость ходьбы увеличивается на 10 футов. • Вы не провоцируете атаки. • Вы можете перемещаться сквозь других существ, и они не считаются для вас труднопроходимой местностью. Если вы оканчиваете свой ход в пространстве другого существа, то вас выталкивает в последнее занимаемое вами свободное пространство и вы получаете 1к8 урона силовым полем." },
@@ -5997,7 +6099,7 @@
       { name: "Шипы", level: 2, school: "Преобразование", classes: ["druid", "ranger", "cleric", "warlock"], cast: "1 действие", range: "150 футов", dur: "10 минут", conc: true, comp: "В, С", desc: "пол в пределах 20-футового радиуса с центром на точке в пределах дальности покрывается шипами и колючками. Эта местность становится труднопроходимой на время действия заклинания. Когда существо входит в область или передвигается внутри неё, оно получает 2к4 колющего урона за каждые 5 преодолеваемых футов." },
       { name: "Аура живучести", level: 3, school: "Воплощение", classes: ["druid", "cleric", "paladin", "artificer"], cast: "1 действие", range: "На себя (30-фт радиус)", dur: "1 минута", conc: true, comp: "В", desc: "от вас исходит аура живительной энергии с радиусом 30 футов. Пока эффект длится, аура перемещается вместе с вами, оставаясь с центром на вас. Бонусным действием можно восстанавливать одному любому существу в ауре (включая себя) 2к6 хитов." },
       { name: "Ашардалонова поступь", level: 3, school: "Преобразование", classes: ["wizard", "artificer", "ranger", "sorcerer"], cast: "1 бонусное действие", range: "На себя", dur: "1 минута", conc: true, comp: "В, С", desc: "из-под ваших ног вырывается бушующее драконье пламя, дарующее вам взрывное ускорение. Пока эффект длится, ваша скорость ходьбы увеличивается на 20 футов, и ваше движение не вызывает провоцированных атак. Когда вы перемещаетесь в пределах 5 футов от существа или предмета, который не несут и не носят, оно получает 1к6 урона огнём от вашего пылающего следа. Существо или предмет может получить этот урон только один раз за ход. На более высоких ячейках: скорость увеличивается на 5 футов за каждый уровень ячейки выше третьего." },
-      { name: "Быстрые друзья", level: 3, school: "Очарование", classes: ["bard", "wizard", "cleric"], cast: "1 действие", range: "30 футов", dur: "1 час", conc: true, comp: "В", desc: "когда вам нужно убедиться, что что-то сделано, вы не можете полагаться на чьи-то обещания, клятвы или обязательные трудовые договоры. Когда вы накладываете это заклинание, выберите одного Гуманоида в пределах дальности, который может видеть и слышать вас, и который может вас понять. Существо делает спасбросок Мудрости; при провале станет очарованным вами, пока эффект длится. Если ваши распоряжения могут причинить вред очарованному существу или если они противоречат обычной деятельности и желаниям существа, то существо может сделать ещё один спасбросок Мудрости, чтобы попытаться досрочно окончить действие эффекта." },
+      { name: "Быстрые друзья", level: 3, school: "Очарование", classes: ["bard", "wizard", "cleric"], cast: "1 действие", range: "30 футов", dur: "1 час", conc: true, comp: "В", desc: "вы выбираете гуманоида, который видит, слышит и понимает вас. Цель делает спасбросок Мудрости; при провале она становится очарованной вами на время действия и старается выполнять ваши просьбы. Если приказ вреден для цели или резко противоречит её желаниям, она может повторить спасбросок и окончить эффект при успехе. Когда заклинание заканчивается, цель понимает, что вы воздействовали на неё магией." },
       { name: "Водяная стена", level: 3, school: "Воплощение", classes: ["wizard", "druid", "sorcerer"], cast: "1 действие", range: "60 футов", dur: "10 минут", conc: true, comp: "В, С", desc: "вы создаёте стену воды в точке, которую можете видеть, в пределах дальности. Точка должна располагаться на земле. Стена может быть длиной до 30 футов, высотой до 10 футов и толщиной до 1 фута. Все атаки дальнобойным оружием, траектория которых проходит через пространство стены, совершаются с помехой. Огненный урон от эффектов, которые прошли через стену, уменьшается вдвое." },
       { name: "Возрождение", level: 3, school: "Некромантия", classes: ["druid", "cleric", "artificer", "paladin", "ranger", "warlock"], cast: "1 действие", range: "Касание", dur: "Мгновенная", conc: false, comp: "В, С", desc: "вы касаетесь существа, мёртвого не больше минуты. Это существо возвращается к жизни с 1 хитом. Это заклинание не может оживить существ, умерших от старости, а также не восстанавливает отсутствующие части тел." },
       { name: "Восставший труп", level: 3, school: "Некромантия", classes: ["wizard", "cleric", "druid", "paladin"], cast: "1 минута", range: "10 футов", dur: "Мгновенная", conc: false, comp: "В, С", desc: "это заклинание создаёт прислуживающую Нежить. Выберите груду костей или труп Гуманоида Среднего или Маленького размера в пределах дальности. Ваше заклинание наделяет цель мерзким подобием жизни, делая из него существо-Нежить. На более высоких ячейках: вы оживляете или продлеваете контроль над двумя дополнительными существами за каждый уровень ячейки выше третьего." },
@@ -6040,7 +6142,7 @@
       { name: "Подсматривание", level: 3, school: "Прорицание", classes: ["bard", "wizard", "cleric", "sorcerer", "warlock"], cast: "10 минут", range: "1 миля", dur: "10 минут", conc: true, comp: "В, С", desc: "вы создаёте невидимый сенсор в пределах дальности в известном вам месте (месте, которое вы уже видели или посещали) или очевидном месте, незнакомом вам (например, за дверью, за углом, или в роще деревьев). Сенсор остаётся на месте, и его нельзя атаковать, а также с ним нельзя как-то взаимодействовать. Накладывая заклинание, вы выбираете зрение или слух." },
       { name: "Покров духа", level: 3, school: "Некромантия", classes: ["wizard", "cleric", "warlock", "paladin"], cast: "1 бонусное действие", range: "На себя", dur: "1 минута", conc: true, comp: "В, С", desc: "вы взываете к духам умерших, и они окружают вас на протяжении длительности заклинания. Духи неосязаемы и неуязвимы. До окончания действия заклинания любая ваша атака наносит дополнительно 1к8 урона, если вы атакуете существо в пределах 10 футов от вас. Вы выбираете вид урона в момент накладывания этого заклинания из следующих вариантов: излучение, некротическая энергия или холод. Любое существо, получившее этот урон, не сможет восстанавливать хиты до начала вашего следующего хода. На более высоких ячейках: Когда вы накладываете это заклинание, ячейкой 4-го уровня или выше: дополнительный урон увеличивается на 1к8 за каждые два уровня ячейки выше третьего." },
       { name: "Полёт", level: 3, school: "Преобразование", classes: ["wizard", "artificer", "warlock", "sorcerer", "monk"], cast: "1 действие", range: "Касание", dur: "10 минут", conc: true, comp: "В, С", desc: "вы касаетесь согласного существа. Пока эффект длится, цель получает скорость полёта 60 футов. Когда заклинание оканчивается, цель падает, если всё ещё находится в полёте и ничем не может остановить падение. На более высоких ячейках: вы можете сделать целью одно дополнительное существо за каждый уровень ячейки выше 3-го." },
-      { name: "Послание", level: 3, school: "Воплощение", classes: ["bard", "wizard", "cleric", "warlock", "sorcerer"], cast: "1 действие", range: "Неограниченная", dur: "1 раунд", conc: false, comp: "В, С", desc: "вы отправляете короткое послание длиной не больше 25 слов существу, с которым вы знакомы. Это существо слышит послание в своём сознании, распознает вас в качестве отправителя, если оно вас знает, и может тут же ответить аналогичным образом. Это заклинание позволяет существам с Интеллектом как минимум 1 понимать смысл вашего послания." },
+      { name: "Послание", level: 3, school: "Воплощение", classes: ["bard", "wizard", "cleric", "warlock", "sorcerer"], cast: "1 действие", range: "Неограниченная", dur: "1 раунд", conc: false, comp: "В, С", desc: "вы отправляете знакомому существу короткое сообщение до 25 слов, где бы оно ни находилось на том же плане существования. Цель слышит сообщение в сознании, узнаёт вас, если знакома с вами, и может сразу ответить таким же коротким сообщением. Заклинание может не сработать через другие планы, магические помехи или по решению мастера." },
       { name: "Призрачный скакун", level: 3, school: "Иллюзия", classes: ["wizard", "warlock", "sorcerer"], cast: "1 минута", range: "30 футов", dur: "1 час", conc: false, comp: "В, С", desc: "на полу в свободном пространстве на ваш выбор в пределах дальности появляется Большое полуреальное похожее на лошадь существо. Вы сами определяете его внешность, но у него есть седло, удила и уздечка. Все снаряжение, созданное этим заклинанием, исчезает в клубах дыма, если его отнести на 10 футов от скакуна. Используется статистика ездовой лошади [riding horse], за исключением того, что скорость существа — 100 футов, и оно может проскакать 10 миль за час или 13 миль в быстром темпе. Заклинание оканчивается, если вы окончите его действием или если скакун получит какой-либо урон." },
       { name: "Призыв духа нежити", level: 3, school: "Некромантия", classes: ["wizard", "warlock"], cast: "1 действие", range: "90 футов", dur: "1 час", conc: true, comp: "В, С", desc: "вы призываете духа нежити [undead spirit]. Он проявляется в свободном пространстве, которое вы можете видеть в пределах дальности. Воплощённая форма духа использует блок статистики духа нежити [undead spirit]. Существо исчезает, когда его хиты опускаются до 0 или когда заклинание заканчивается. На более высоких ячейках: Когда вы накладываете это заклинание, ячейкой 4-го уровня или выше: характеристики призываемого существа изменяются в соответствии с описанием в блоке статистики." },
       { name: "Призыв духа тени", level: 3, school: "Вызов", classes: ["wizard", "warlock"], cast: "1 действие", range: "90 футов", dur: "1 час", conc: true, comp: "В, С", desc: "вы призываете духа тени [shadow spirit]. Он проявляется в свободном пространстве, которое вы можете видеть в пределах дальности. Воплощённая форма духа использует блок статистики духа тени [shadow spirit]. Существо исчезает, когда его хиты опускаются до 0 или когда заклинание заканчивается. На более высоких ячейках: Когда вы накладываете это заклинание, ячейкой 4-го уровня или выше: характеристики призываемого существа изменяются в соответствии с описанием в блоке статистики." },
@@ -6253,7 +6355,7 @@
       { name: "Проклятие стихии", level: 4, school: "Преобразование", classes: ["druid", "warlock", "wizard", "artificer"], cast: "1 действие", range: "90 футов", dur: "Концентрация, вплоть до 1 минуты", conc: true, comp: "В, С", desc: "выберите одно существо, которое вы можете видеть в пределах дальности, а затем выберите один из следующих видов урона: звук, кислота, огонь, холод или электричество. Цель делает спасбросок Телосложения; при провале будет подвержена эффекту заклинания в течение времени его действия. Когда цель впервые за ход получает урон выбранного вида, она также получает дополнительно 2к6 урона этого вида. Кроме того, цель теряет любые сопротивления урону этого вида, пока заклинание не окончится. На более высоких ячейках: вы можете выбрать одну дополнительную цель за каждый уровень ячейки выше 4-го." },
       { name: "Сотворение магического руля", level: 5, school: "Преобразование", classes: ["wizard", "artificer"], cast: "1 действие", range: "Касание", dur: "Мгновенная", conc: false, comp: "В, С, М (кристаллический жезл стоимостью как минимум 5000 зм, расходуемый заклинанием)", desc: "удерживая жезл, используемый для накладывания заклинания, вы касаетесь незанятого сиденья не более Большого размера. Жезл исчезает, а сиденье превращается в магический руль [spelljamming helm]." },
       { name: "Поражение", level: 6, school: "Некромантия", classes: ["cleric"], cast: "1 действие", range: "60 футов", dur: "Мгновенная", conc: false, comp: "В, С", desc: "вы насылаете смертельную болезнь на существо, которое видите в пределах дальности. Цель делает спасбросок Телосложения. При провале она получает 14к6 урона некротической энергией или половину урона при успехе. Этот урон не может опустить хиты цели ниже 1. Если цель проваливает спасбросок, максимум её хитов уменьшается, на 1 час, на количество, равное полученному урону некротической энергией." },
-      { name: "Потусторонний облик Таши", level: 6, school: "Преобразование", classes: ["sorcerer", "warlock", "wizard"], cast: "1 бонусное действие", range: "На себя", dur: "Концентрация, вплоть до 1 минуты", conc: true, comp: "В, С, М (предмет с выгравированным символом Внешних планов стоимостью не менее 500 зм)", desc: "накладывая заклинание, вы обращаетесь к магии Нижних или Верхних планов (по вашему выбору), чтобы преобразовать себя." },
+      { name: "Потусторонний облик Таши", level: 6, school: "Преобразование", classes: ["sorcerer", "warlock", "wizard"], cast: "1 бонусное действие", range: "На себя", dur: "Концентрация, вплоть до 1 минуты", conc: true, comp: "В, С, М (предмет с выгравированным символом Внешних планов стоимостью не менее 500 зм)", desc: "вы принимаете облик силы Нижних или Верхних планов. Пока заклинание действует, вы получаете временные боевые преимущества: повышенную защиту, особое передвижение, сопротивления или иммунитеты к некоторым состояниям, а также можете атаковать несколько раз магическим оружием/энергией облика. Конкретные бонусы зависят от выбранного варианта облика." },
       { name: "Предосторожность", level: 6, school: "Воплощение", classes: ["wizard"], cast: "10 минут", range: "На себя", dur: "10 дней", conc: false, comp: "В, С, М (ваша статуэтка, вырезанная из слоновой кости, украшенная драгоценными камнями и стоящая как минимум 1500 зм)", desc: "выберите заклинание 5-го уровня или ниже, которое вы можете наложить, у которого время накладывания «1 действие», и которое может нацеливаться на вас. Вы накладываете это заклинание частью накладывания предосторожности, тратя ячейки заклинаний для обоих, но эффект заготовленного заклинания не проявляется. Этот эффект вступает в силу, когда произойдёт определённое условие." },
       { name: "Призыв духа исчадия", level: 6, school: "Вызов", classes: ["warlock", "wizard"], cast: "1 действие", range: "90 футов", dur: "Концентрация, вплоть до 1 часа", conc: true, comp: "В, С, М (кровь Гуманоида внутри рубинового флакона стоимостью не менее 600 зм)", desc: "вы призываете духа исчадия [fiendish spirit]. Он проявляется в свободном пространстве, которое вы можете видеть в пределах дальности. Воплощённая форма духа использует блок статистики духа исчадия [fiendish spirit]. Существо исчезает, когда его хиты опускаются до 0 или когда заклинание заканчивается. На более высоких ячейках: Когда вы накладываете это заклинание, ячейкой 7-го уровня или выше: характеристики призываемого существа изменяются в соответствии с описанием в блоке статистики." },
       { name: "Призыв феи", level: 6, school: "Вызов", classes: ["druid", "warlock"], cast: "1 минута", range: "90 футов", dur: "Концентрация, вплоть до 1 часа", conc: true, comp: "В, С", desc: "вы призываете фейское существо с показателем опасности 6 или меньше, или фейского духа, который принимает облик Зверя с показателем опасности 6 или меньше. Существо появляется в свободном месте, которое вы видите в пределах дальности. Оно исчезает, когда его хиты опускаются до 0, или когда заклинание оканчивается. Если ваша концентрация нарушена, существо не исчезает. На более высоких ячейках: показатель опасности увеличивается на 1 за каждый уровень ячейки выше шестого." },
@@ -6332,7 +6434,7 @@
       { name: "Метеоритный дождь", level: 9, school: "Воплощение", classes: ["sorcerer", "wizard"], cast: "1 действие", range: "1 миля", dur: "Мгновенная", conc: false, comp: "В, С", desc: "пылающие шары ударяют о землю в четырёх разных точках, видимых в пределах дальности. Все существа в сфере с радиусом 40 футов с центром на каждой из точек делают спасбросок Ловкости. Сфера огибает углы. При провале существо получает 20к6 урона огнём и 20к6 дробящего урона, при успехе — половину. Существо, находящееся в области нескольких взрывов, получает урон только один раз." },
       { name: "Множественное полное исцеление", level: 9, school: "Воплощение", classes: ["cleric"], cast: "1 действие", range: "60 футов", dur: "Мгновенная", conc: false, comp: "В, С", desc: "от вас к раненым существам перетекает поток целительной энергии. Вы восстанавливаете до 700 хитов, разделённых на ваш выбор между любым количеством существ, видимых вами в пределах дальности. Существа, вылеченные этим заклинанием, также исцеляются от всех эффектов, делающих их ослеплёнными или оглохшими, а также от всех болезней." },
       { name: "Множественное превращение", level: 9, school: "Преобразование", classes: ["bard", "sorcerer", "wizard"], cast: "1 действие", range: "120 футов", dur: "Концентрация, вплоть до 1 часа", conc: true, comp: "В, С, М (кокон гусеницы)", desc: "вы преобразуете до десяти существ по вашему выбору, которых вы можете видеть в пределах дальности. Несогласная цель делает спасбросок Мудрости, чтобы противостоять преображению. Несогласный перевёртыш автоматически преуспевает в спасброске. Игровая статистика цели, включая значения ментальных характеристик, заменяются статистикой выбранного Зверя, но цель сохраняет хиты, мировоззрение и личность. Каждая цель получает временные хиты в количестве, равном количеству хитов её нового облика." },
-      { name: "Неуязвимость", level: 9, school: "Ограждение", classes: ["wizard"], cast: "1 действие", range: "На себя", dur: "Концентрация, вплоть до 10 минут", conc: true, comp: "В, С, М (небольшой кусочек адамантина стоящий не менее 500 зм, расходуемый заклинанием)", desc: "вы обладаете иммунитетом ко всему урону, пока эффект длится." },
+      { name: "Неуязвимость", level: 9, school: "Ограждение", classes: ["wizard"], cast: "1 действие", range: "На себя", dur: "Концентрация, вплоть до 10 минут", conc: true, comp: "В, С, М (небольшой кусочек адамантина стоящий не менее 500 зм, расходуемый заклинанием)", desc: "пока вы поддерживаете концентрацию, вы получаете иммунитет ко всему урону. Эффекты без урона всё ещё могут мешать вам, а потеря концентрации сразу заканчивает защиту." },
       { name: "Остановка времени", level: 9, school: "Преобразование", classes: ["sorcerer", "wizard"], cast: "1 действие", range: "На себя", dur: "Мгновенная", conc: false, comp: "В", desc: "вы ненадолго останавливаете поток времени для всех, кроме себя. Для всех остальных существ время перестаёт течь, а вы получаете 1к4 + 1 ход подряд, во время которых можете совершать действия и перемещаться как обычно. Это заклинание оканчивается, если одно из ваших действий, совершённых за этот период, или любой из эффектов, созданных вами за этот период, воздействует на других существ или предмет, несомый или носимый кем-то другим." },
       { name: "Полное превращение", level: 9, school: "Преобразование", classes: ["druid", "wizard"], cast: "1 действие", range: "На себя", dur: "Концентрация, вплоть до 1 часа", conc: true, comp: "В, С, М (нефритовый обруч, стоящий как минимум 1 500 зм, который вы должны надеть на голову перед накладыванием заклинания)", desc: "вы принимаете на время действия заклинания облик другого существа. Новый облик может принадлежать существу с показателем опасности не больше вашего уровня. Это не может быть Конструкт или Нежить, и вы должны хотя бы раз видеть такое существо. Вы также сохраняете все владения навыками и спасбросками, но также получаете те, что есть у нового облика. Вы принимаете хиты и Кость Хитов нового облика." },
       { name: "Предвидение", level: 9, school: "Прорицание", classes: ["bard", "druid", "warlock", "wizard"], cast: "1 минута", range: "Касание", dur: "8 часов", conc: false, comp: "В, С, М (перо колибри)", desc: "вы касаетесь согласного существа, даруя ограниченную способность предвидеть будущее. Пока эффект длится, цель нельзя застать врасплох, и она совершает с преимуществом броски атаки, проверки характеристик и спасброски. Кроме того, пока эффект длится, другие существа совершают по цели броски атаки с помехой." },
