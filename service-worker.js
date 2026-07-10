@@ -1,7 +1,9 @@
-const CACHE_NAME = 'dnd-sheet-v78';
+const CACHE_NAME = 'dnd-sheet-v88';
 const APP_SHELL = [
   './',
   './index.html',
+  './dashboard-theme.css?v=88',
+  './dashboard-ui.js?v=88',
   './bestiary.html',
   './timeline.html',
   './obr-sheet-link/manifest.json',

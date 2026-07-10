@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="D&D Лист">
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="stylesheet" href="./dashboard-theme.css?v=88">
   <title>Лист персонажа D&D 5e</title>
   <style>
     * {
@@ -1425,380 +1426,786 @@
     </div>
 
     <div class="tab-bar">
-      <div class="tab active" onclick="showTab('main',this)">Основное</div>
-      <div class="tab" onclick="showTab('skills',this)">Навыки</div>
-      <div class="tab" onclick="showTab('resources',this)">Ресурсы</div>
-      <div class="tab" onclick="showTab('inventory',this)">Инвентарь</div>
-      <div class="tab" onclick="showTab('abilities',this)">Умения</div>
-      <div class="tab" onclick="showTab('notes',this)">Заметки</div>
+      <div class="tab active" data-sheet-tab="main" onclick="showTab('main',this)">Основное</div>
+      <div class="tab" data-sheet-tab="skills" onclick="showTab('skills',this)">Навыки</div>
+      <div class="tab" data-sheet-tab="resources" onclick="showTab('resources',this)">Ресурсы</div>
+      <div class="tab" data-sheet-tab="inventory" onclick="showTab('inventory',this)">Инвентарь</div>
+      <div class="tab" data-sheet-tab="abilities" onclick="showTab('abilities',this)">Умения</div>
+      <div class="tab" data-sheet-tab="notes" onclick="showTab('notes',this)">Заметки</div>
     </div>
 
     <!-- MAIN TAB -->
-    <div id="tab-main" class="tab-panel active">
-      <div class="section">
-        <div
-          style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-          <div class="section-title" style="margin-bottom:0">Характеристики</div>
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <span style="font-size:12px;color:#888">Очки покупки:</span>
-            <span id="pointsLeft" style="font-size:16px;font-weight:700;color:#534AB7">27</span>
-            <span style="font-size:12px;color:#aaa">/ 27</span>
-            <span id="asiInfo" style="font-size:12px;color:#888;display:none">| ASI:</span>
-            <span id="asiLeft" style="font-size:14px;font-weight:700;color:#D85A30;display:none">0</span>
-            <span id="asiTotal" style="font-size:12px;color:#aaa;display:none"></span>
+    <div id="tab-main" class="tab-panel active main-page">
+      <section class="section main-stats-section" id="mainStatsSection">
+        <div class="main-section-head">
+          <div>
+            <div class="section-title">Характеристики</div>
+            <p class="main-section-subtitle">Главные параметры героя. Редактирование можно скрыть, чтобы оставить только чистую сводку.</p>
+          </div>
+          <div class="main-stats-tools">
+            <div class="main-points-summary" aria-label="Очки характеристик">
+              <span>Очки покупки</span>
+              <strong id="pointsLeft">27</strong>
+              <small>/ 27</small>
+              <span id="asiInfo" style="display:none">ASI</span>
+              <strong id="asiLeft" style="display:none">0</strong>
+              <small id="asiTotal" style="display:none"></small>
+            </div>
+            <button type="button" class="btn main-stats-edit-btn" id="mainStatsEditBtn" onclick="toggleMainStatsEdit()">✎ Изменить</button>
           </div>
         </div>
         <div class="stats-grid" id="statsGrid" style="min-height:80px"></div>
-        <div id="asiPanel"
-          style="display:none;margin-top:10px;padding:10px;background:#FFF8F0;border:1px solid #F5C4B3;border-radius:8px">
-          <div style="font-size:12px;font-weight:600;color:#993C1D;margin-bottom:6px">Повышение характеристик (ASI) —
-            уровень <span id="asiLevelLabel"></span></div>
-          <div style="font-size:12px;color:#666;margin-bottom:8px">Распределите +2 очка между характеристиками (максимум
-            +2 к одной). Максимальное значение: 20.</div>
-          <div id="asiButtons" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        <div id="asiPanel" class="main-asi-panel" style="display:none">
+          <div class="main-asi-title">Повышение характеристик — уровень <span id="asiLevelLabel"></span></div>
+          <div class="main-asi-copy">Распределите +2 очка между характеристиками. Максимальное значение характеристики: 20.</div>
+          <div id="asiButtons" class="main-asi-buttons"></div>
         </div>
-      </div>
+      </section>
 
-      <div class="grid2">
-        <div>
-          <div class="section">
-            <div class="section-title">Хиты</div>
-            <div class="field-row">
-              <div class="field"><label>Текущие</label><input type="number" id="hpCur" value="8" min="0"
-                  oninput="updateHpBar()" style="text-align:center;font-size:16px"></div>
-              <div class="field"><label>Максимум</label><input type="number" id="hpMax" value="8" min="1"
-                  oninput="updateHpBar()" style="text-align:center;font-size:16px"></div>
-              <div class="field"><label>Временные</label><input type="number" id="hpTemp" value="0" min="0"
-                  style="text-align:center;font-size:16px"></div>
-            </div>
-            <div class="hp-bar">
-              <div class="hp-fill" id="hpFill" style="width:100%"></div>
-            </div>
-            <div style="margin-top:12px">
-              <div class="section-title" style="margin-bottom:4px">Смерть — спасброски</div>
-              <div class="death-saves">
-                <div class="saves-group"><label>Успех</label>
-                  <span class="dot" style="border-color:#3B6D11" onclick="toggleDot(this,'#639922')"></span>
-                  <span class="dot" style="border-color:#3B6D11" onclick="toggleDot(this,'#639922')"></span>
-                  <span class="dot" style="border-color:#3B6D11" onclick="toggleDot(this,'#639922')"></span>
-                </div>
-                <div class="saves-group"><label>Провал</label>
-                  <span class="dot" style="border-color:#993C1D" onclick="toggleDot(this,'#D85A30')"></span>
-                  <span class="dot" style="border-color:#993C1D" onclick="toggleDot(this,'#D85A30')"></span>
-                  <span class="dot" style="border-color:#993C1D" onclick="toggleDot(this,'#D85A30')"></span>
-                </div>
-              </div>
-            </div>
+      <section class="section main-state-panel">
+        <div class="main-section-head">
+          <div>
+            <div class="section-title">Состояние персонажа</div>
+            <p class="main-section-subtitle">Хиты, вдохновение, спасброски от смерти и запас сил — всё, что меняется прямо во время игры.</p>
           </div>
-          <div class="section">
-            <div class="section-title">Боевые показатели</div>
-            <div class="field-row">
-              <div class="field center-section"><label>КД</label><input type="number" id="ac" value="10"
-                  style="text-align:center;font-size:20px;font-weight:600" readonly></div>
-              <div class="field center-section"><label>Инициатива</label><input type="text" id="initField" value="+0"
-                  style="text-align:center;font-size:20px;font-weight:600"></div>
-              <div class="field center-section"><label>Скорость</label><input type="text" id="speed" value="30 фт."
-                  style="text-align:center"></div>
-            </div>
-            <div class="field-row" style="margin-top:6px">
-              <div class="field" style="flex:2"><label>Броня</label>
-                <select id="armorSelect" onchange="updateArmorClass();fbSync()"></select>
-              </div>
-              <div class="field center-section" style="max-width:80px"><label>Щит</label>
-                <select id="shieldEquipped" onchange="updateArmorClass();fbSync()">
-                  <option value="0">Нет</option>
-                  <option value="1">Да</option>
-                </select>
-              </div>
-              <div class="field center-section" style="max-width:110px"><label>Бонус КД</label>
-                <input type="number" id="acBonus" value="0" oninput="updateArmorClass();fbSync()"
-                  style="text-align:center">
-              </div>
-              <div class="field center-section" style="max-width:120px"><label>КД вручную</label>
-                <input type="number" id="acManual" value="" placeholder="Авто" oninput="updateArmorClass();fbSync()"
-                  style="text-align:center">
-              </div>
-            </div>
-            <div id="armorHint" style="font-size:12px;color:#888;margin-top:4px;text-align:center"></div>
-            <div class="field-row" style="margin-top:6px">
-              <div class="field"><label>Кость хитов</label><input type="text" id="hitDie" value="d8" readonly
-                  style="color:#888;text-align:center"></div>
-              <div class="field"><label>Всего КХ</label><input type="number" id="hdTotal" value="1" readonly
-                  style="color:#888;text-align:center"></div>
-              <div class="field"><label>Осталось</label><input type="number" id="hdCur" value="1" min="0"
-                  style="text-align:center"></div>
-            </div>
-            <button class="add-btn" id="levelHpRollBtn" onclick="rollLevelHp()" style="margin-top:8px">Бросить ХП за
-              уровень</button>
-            <div id="levelHpRollInfo" style="font-size:12px;color:#888;margin-top:5px;text-align:center"></div>
-          </div>
+          <span class="main-panel-emblem" aria-hidden="true">✦</span>
         </div>
-        <div>
-          <div class="section center-section">
-            <div class="section-title">Вдохновение</div>
-            <div class="inspiration-counter" title="Количество вдохновения">
-              <button type="button" class="counter-btn" onclick="adjustInspiration(-1)"
-                aria-label="Убавить вдохновение">−</button>
-              <input type="number" id="inspirationCount" class="inspiration-input" value="0" min="0" step="1"
-                inputmode="numeric" oninput="setInspiration(this.value)" aria-label="Вдохновение">
-              <button type="button" class="counter-btn" onclick="adjustInspiration(1)"
-                aria-label="Добавить вдохновение">+</button>
-            </div>
-            <div style="margin-top:14px">
-              <div class="section-title">Бонус мастерства</div>
-              <div class="big-num" id="profBonusDisplay">+2</div>
-            </div>
-            <div style="margin-top:14px">
-              <div class="section-title">Пассивная внимательность</div>
-              <div class="big-num" id="passivePerc">10</div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="section">
-        <div class="section-title">Атаки и оружие</div>
-        <div class="field-row" style="margin-bottom:10px">
-          <div class="field" style="flex:2"><label>Оружие</label>
-            <select id="weaponSelect"></select>
+        <div class="main-state-grid">
+          <div class="main-state-card main-hp-card">
+            <div class="main-state-card-head">
+              <div>
+                <span class="main-state-kicker">Жизненная сила</span>
+                <strong>Хиты</strong>
+              </div>
+              <span class="main-state-icon" aria-hidden="true">♥</span>
+            </div>
+            <div class="main-hp-fields">
+              <label><span>Текущие</span><input type="number" id="hpCur" value="8" min="0" oninput="updateHpBar()"></label>
+              <span class="main-hp-divider">/</span>
+              <label><span>Максимум</span><input type="number" id="hpMax" value="8" min="1" oninput="updateHpBar()"></label>
+              <label class="main-temp-hp"><span>Временные</span><input type="number" id="hpTemp" value="0" min="0"></label>
+            </div>
+            <div class="hp-bar main-hp-track"><div class="hp-fill" id="hpFill" style="width:100%"></div></div>
           </div>
-          <div class="field" style="max-width:140px"><label>Характеристика</label>
-            <select id="weaponStat">
-              <option value="">Авто</option>
-              <option value="str">Сила</option>
-              <option value="dex">Ловкость</option>
-            </select>
-          </div>
-          <div class="field" style="max-width:100px"><label>Маг. бонус</label>
-            <input type="number" id="weaponMagicBonus" value="0" style="text-align:center">
-          </div>
-        </div>
-        <button class="add-btn" onclick="addWeaponAttack()" style="margin-bottom:8px">+ Добавить атаку из оружия</button>
-        <div class="attack-header">
-          <div class="col-label">Название</div>
-          <div class="col-label">Бонус атаки</div>
-          <div class="col-label">Урон / тип</div>
-          <div></div>
-        </div>
-        <div id="attackList"></div>
-        <button class="add-btn" onclick="addAttack()">+ Добавить атаку</button>
-      </div>
 
-      <div class="section">
-        <div class="section-title">Черты, способности, особенности</div>
-        <textarea id="features"
-          placeholder="Описание классовых способностей, расовых черт, подвигов и других особенностей..."
-          style="width:100%;min-height:120px"></textarea>
-      </div>
+          <div class="main-state-card main-inspiration-card">
+            <div class="main-state-card-head">
+              <div>
+                <span class="main-state-kicker">Героический импульс</span>
+                <strong>Вдохновение</strong>
+              </div>
+              <span class="main-state-icon" aria-hidden="true">✧</span>
+            </div>
+            <div class="inspiration-counter main-inspiration-counter" title="Количество вдохновения">
+              <button type="button" class="counter-btn" onclick="adjustInspiration(-1)" aria-label="Убавить вдохновение">−</button>
+              <input type="number" id="inspirationCount" class="inspiration-input" value="0" min="0" step="1" inputmode="numeric" oninput="setInspiration(this.value)" aria-label="Вдохновение">
+              <button type="button" class="counter-btn" onclick="adjustInspiration(1)" aria-label="Добавить вдохновение">+</button>
+            </div>
+          </div>
+
+          <div class="main-state-card main-hitdice-card">
+            <div class="main-state-card-head">
+              <div>
+                <span class="main-state-kicker">Восстановление</span>
+                <strong>Кости хитов</strong>
+              </div>
+              <span class="main-state-icon" aria-hidden="true">⬢</span>
+            </div>
+            <div class="main-hitdice-fields">
+              <label><span>Кость</span><input type="text" id="hitDie" value="d8" readonly></label>
+              <label><span>Осталось</span><input type="number" id="hdCur" value="1" min="0"></label>
+              <label><span>Всего</span><input type="number" id="hdTotal" value="1" readonly></label>
+            </div>
+            <button class="btn main-level-hp-btn" id="levelHpRollBtn" onclick="rollLevelHp()">Бросить ХП за уровень</button>
+            <div id="levelHpRollInfo" class="main-level-hp-info"></div>
+          </div>
+
+          <div class="main-state-card main-death-card">
+            <div class="main-state-card-head">
+              <div>
+                <span class="main-state-kicker">На грани</span>
+                <strong>Спасброски от смерти</strong>
+              </div>
+              <span class="main-state-icon" aria-hidden="true">◇</span>
+            </div>
+            <div class="death-saves main-death-saves">
+              <div class="saves-group"><label>Успех</label>
+                <span class="dot" style="border-color:#3B6D11" onclick="toggleDot(this,'#639922')"></span>
+                <span class="dot" style="border-color:#3B6D11" onclick="toggleDot(this,'#639922')"></span>
+                <span class="dot" style="border-color:#3B6D11" onclick="toggleDot(this,'#639922')"></span>
+              </div>
+              <div class="saves-group"><label>Провал</label>
+                <span class="dot" style="border-color:#993C1D" onclick="toggleDot(this,'#D85A30')"></span>
+                <span class="dot" style="border-color:#993C1D" onclick="toggleDot(this,'#D85A30')"></span>
+                <span class="dot" style="border-color:#993C1D" onclick="toggleDot(this,'#D85A30')"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section main-combat-panel">
+        <div class="main-section-head">
+          <div>
+            <div class="section-title">Боевая сводка</div>
+            <p class="main-section-subtitle">Ключевые показатели для хода. Настройки брони спрятаны ниже и не мешают во время боя.</p>
+          </div>
+          <span class="main-panel-emblem" aria-hidden="true">⚔</span>
+        </div>
+
+        <div class="main-combat-metrics">
+          <label class="main-combat-metric main-ac-metric">
+            <span class="main-combat-icon" aria-hidden="true">⬡</span>
+            <span class="main-combat-label">КД</span>
+            <input type="number" id="ac" value="10" readonly>
+            <small>Защита</small>
+          </label>
+          <label class="main-combat-metric">
+            <span class="main-combat-icon" aria-hidden="true">⚡</span>
+            <span class="main-combat-label">Инициатива</span>
+            <input type="text" id="initField" value="+0">
+            <small>Порядок хода</small>
+          </label>
+          <label class="main-combat-metric">
+            <span class="main-combat-icon" aria-hidden="true">➤</span>
+            <span class="main-combat-label">Скорость</span>
+            <input type="text" id="speed" value="30 фт.">
+            <small>Передвижение</small>
+          </label>
+          <div class="main-combat-metric">
+            <span class="main-combat-icon" aria-hidden="true">✦</span>
+            <span class="main-combat-label">Мастерство</span>
+            <strong id="profBonusDisplay">+2</strong>
+            <small>Бонус</small>
+          </div>
+          <div class="main-combat-metric">
+            <span class="main-combat-icon" aria-hidden="true">◉</span>
+            <span class="main-combat-label">Внимательность</span>
+            <strong id="passivePerc">10</strong>
+            <small>Пассивная</small>
+          </div>
+        </div>
+
+        <details class="main-gear-editor">
+          <summary>
+            <span><b>Снаряжение и защита</b><small id="mainArmorSummary">Настройка брони, щита и дополнительных бонусов</small></span>
+            <span class="main-details-chevron" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="main-gear-editor-body">
+            <div class="field-row main-gear-fields">
+              <div class="field" style="flex:2"><label>Броня</label><select id="armorSelect" onchange="updateArmorClass();fbSync()"></select></div>
+              <div class="field"><label>Щит</label><select id="shieldEquipped" onchange="updateArmorClass();fbSync()"><option value="0">Нет</option><option value="1">Да</option></select></div>
+              <div class="field"><label>Бонус КД</label><input type="number" id="acBonus" value="0" oninput="updateArmorClass();fbSync()"></div>
+              <div class="field"><label>КД вручную</label><input type="number" id="acManual" value="" placeholder="Авто" oninput="updateArmorClass();fbSync()"></div>
+            </div>
+            <div id="armorHint" class="main-armor-hint"></div>
+          </div>
+        </details>
+      </section>
+
+      <section class="section main-attacks-panel">
+        <div class="main-section-head main-attacks-head">
+          <div>
+            <div class="section-title">Атаки и оружие</div>
+            <p class="main-section-subtitle">Готовые боевые действия — крупно и без таблицы. Редактор каждой атаки открывается отдельно.</p>
+          </div>
+          <button type="button" class="btn primary" onclick="toggleAttackCreator(true)">＋ Добавить атаку</button>
+        </div>
+
+        <details id="attackCreator" class="main-attack-creator">
+          <summary>Создание новой атаки <span class="main-details-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="main-attack-creator-body">
+            <div class="main-weapon-builder">
+              <div class="main-builder-copy"><strong>Из оружия</strong><span>Бонус атаки и урон рассчитаются автоматически.</span></div>
+              <div class="field-row">
+                <div class="field" style="flex:2"><label>Оружие</label><select id="weaponSelect"></select></div>
+                <div class="field"><label>Характеристика</label><select id="weaponStat"><option value="">Авто</option><option value="str">Сила</option><option value="dex">Ловкость</option></select></div>
+                <div class="field"><label>Маг. бонус</label><input type="number" id="weaponMagicBonus" value="0"></div>
+                <button class="btn primary main-builder-add" type="button" onclick="addWeaponAttack();toggleAttackCreator(false)">Добавить оружие</button>
+              </div>
+            </div>
+            <div class="main-custom-attack">
+              <div><strong>Своя атака или особый случай</strong><span>Создайте пустую карточку и заполните её вручную.</span></div>
+              <button class="btn" type="button" onclick="addAttack();toggleAttackCreator(false)">＋ Создать вручную</button>
+            </div>
+          </div>
+        </details>
+
+        <div id="attackList" class="main-attack-list"></div>
+        <div id="mainAttackEmpty" class="main-empty-state"><span aria-hidden="true">⚔</span><strong>Атаки пока не добавлены</strong><p>Добавьте оружие или создайте особую атаку вручную.</p></div>
+      </section>
+
+      <section class="section main-quick-abilities-panel">
+        <div class="main-section-head">
+          <div>
+            <div class="section-title">Быстрые умения</div>
+            <p class="main-section-subtitle">Закреплённые способности из вкладки «Умения». Нажмите на карточку, чтобы прочитать полное описание.</p>
+          </div>
+          <button class="btn" type="button" onclick="openSheetTab('abilities')">Открыть все умения →</button>
+        </div>
+        <div id="quickAbilityList" class="main-quick-ability-grid"></div>
+        <div id="quickAbilityEmpty" class="main-empty-state"><span aria-hidden="true">◆</span><strong>Нет закреплённых умений</strong><p>Закрепите важные способности ромбом во вкладке «Умения».</p></div>
+      </section>
+
+      <details class="section main-legacy-features">
+        <summary><span><b>Старые заметки об особенностях</b><small>Поле сохранено для совместимости со старыми листами.</small></span><span class="main-details-chevron" aria-hidden="true">⌄</span></summary>
+        <div class="main-legacy-features-body">
+          <textarea id="features" placeholder="Описание классовых способностей, расовых черт, подвигов и других особенностей..."></textarea>
+        </div>
+      </details>
     </div>
 
     <!-- SKILLS TAB -->
-    <div id="tab-skills" class="tab-panel">
-      <div class="grid2">
-        <div class="section">
-          <div class="section-title">Спасброски</div>
-          <div id="savingThrows"></div>
+    <div id="tab-skills" class="tab-panel skills-page">
+      <section class="skills-page-hero" aria-labelledby="skillsPageTitle">
+        <div class="skills-page-hero-copy">
+          <div class="skills-page-kicker">Проверки персонажа</div>
+          <h2 id="skillsPageTitle">Навыки и владения</h2>
+          <p>Спасброски, экспертиза и всё, что определяет, насколько уверенно герой справляется с испытаниями вне боя.</p>
         </div>
-        <div class="section">
-          <div class="section-title">Владения и языки</div>
-          <textarea id="profs" placeholder="Языки, инструменты, оружие, доспехи..."
-            style="width:100%;min-height:120px"></textarea>
+        <div class="skills-page-summary" aria-label="Сводка навыков">
+          <div class="skills-summary-card">
+            <span class="skills-summary-icon">●</span>
+            <div><strong id="skillSummaryProficient">0</strong><span>Владений</span></div>
+          </div>
+          <div class="skills-summary-card">
+            <span class="skills-summary-icon">◆</span>
+            <div><strong id="skillSummaryExpert">0</strong><span>Экспертиз</span></div>
+          </div>
+          <div class="skills-summary-card skills-summary-best">
+            <span class="skills-summary-icon">✦</span>
+            <div><strong id="skillSummaryBestBonus">+0</strong><span id="skillSummaryBestName">Лучший навык</span></div>
+          </div>
         </div>
+      </section>
+
+      <div class="skills-overview-grid">
+        <section class="section skills-panel saving-throws-panel">
+          <div class="skills-panel-head">
+            <div>
+              <div class="section-title">Спасброски</div>
+              <div class="skills-panel-subtitle">Нажмите на щит, чтобы отметить владение спасброском.</div>
+            </div>
+            <span class="skills-panel-emblem" aria-hidden="true">⬡</span>
+          </div>
+          <div id="savingThrows" class="saving-throw-grid"></div>
+        </section>
+
+        <section class="section skills-panel proficiencies-panel">
+          <div class="skills-panel-head">
+            <div>
+              <div class="section-title">Владения и языки</div>
+              <div class="skills-panel-subtitle">Языки, инструменты, оружие, доспехи и другие владения героя.</div>
+            </div>
+            <span class="skills-panel-emblem" aria-hidden="true">⌁</span>
+          </div>
+          <textarea id="profs" class="proficiency-editor" placeholder="Например: Общий язык, Эльфийский, лютня, тяжёлые доспехи..."></textarea>
+          <div id="proficiencyTagPreview" class="proficiency-tags" aria-live="polite"></div>
+        </section>
       </div>
-      <div class="section">
-        <div class="section-title">Навыки <span style="font-size:11px;font-weight:400;color:#aaa">(отметьте навыки
-            владения)</span></div>
+
+      <section class="section skills-library">
+        <div class="skills-library-head">
+          <div>
+            <div class="section-title">Навыки</div>
+            <div class="skills-library-subtitle">Нажимайте на символ слева: нет владения → владение → экспертиза.</div>
+          </div>
+          <div class="skills-legend" aria-label="Обозначения">
+            <span><i class="rank-mark rank-none">○</i> Нет</span>
+            <span><i class="rank-mark rank-proficient">●</i> Владение</span>
+            <span><i class="rank-mark rank-expert">◆</i> Экспертиза</span>
+          </div>
+        </div>
+
+        <div class="skills-toolbar">
+          <label class="skills-search" for="skillSearch">
+            <span aria-hidden="true">⌕</span>
+            <input id="skillSearch" type="search" placeholder="Найти навык..." oninput="applySkillFilters()">
+          </label>
+          <div class="skills-filter-group" role="group" aria-label="Фильтр навыков">
+            <button type="button" class="skills-filter active" data-skill-filter="all" onclick="setSkillFilter('all',this)">Все</button>
+            <button type="button" class="skills-filter" data-skill-filter="proficient" onclick="setSkillFilter('proficient',this)">Владение</button>
+            <button type="button" class="skills-filter" data-skill-filter="expert" onclick="setSkillFilter('expert',this)">Экспертиза</button>
+          </div>
+        </div>
+
         <div class="skill-list" id="skillList"></div>
-      </div>
+      </section>
     </div>
 
     <!-- RESOURCES TAB -->
-    <div id="tab-resources" class="tab-panel">
-      <div class="section">
-        <div class="section-title">Классовые ресурсы</div>
-        <div id="classResources"></div>
-      </div>
-      <div id="spellSection" class="section hidden">
-        <div class="section-title">Ячейки заклинаний</div>
-        <div id="spellStatsBlock" style="display:none;margin-bottom:10px">
-          <div class="field-row">
-            <div class="field center-section"><label>Характеристика</label><input type="text" id="spellAbility"
-                value="" readonly style="text-align:center;font-weight:600"></div>
-            <div class="field center-section"><label>Атака заклинанием</label><input type="text" id="spellAttackBonus"
-                value="" readonly style="text-align:center;font-size:18px;font-weight:600"></div>
-            <div class="field center-section"><label>Сл спасброска</label><input type="text" id="spellSaveDc" value=""
-                readonly style="text-align:center;font-size:18px;font-weight:600"></div>
+    <div id="tab-resources" class="tab-panel resource-page">
+      <section class="resource-page-hero" aria-labelledby="resourcePageTitle">
+        <div class="resource-page-hero-copy">
+          <div class="resource-page-kicker">Боевой пульт</div>
+          <h2 id="resourcePageTitle">Ресурсы и магия</h2>
+          <p>Использования способностей, ячейки заклинаний и подготовленная магия — всё, что меняется прямо во время игры.</p>
+        </div>
+        <div class="resource-page-summary" aria-label="Сводка ресурсов">
+          <div class="resource-summary-card">
+            <span class="resource-summary-icon">◆</span>
+            <div><strong id="resourceSummaryClass">0 / 0</strong><span>Классовый ресурс</span></div>
+          </div>
+          <div class="resource-summary-card">
+            <span class="resource-summary-icon">✦</span>
+            <div><strong id="resourceSummarySlots">0 / 0</strong><span>Ячейки доступны</span></div>
+          </div>
+          <div class="resource-summary-card">
+            <span class="resource-summary-icon">☰</span>
+            <div><strong id="resourceSummaryPrepared">0</strong><span>Подготовлено</span></div>
           </div>
         </div>
-        <div id="spellSlots"></div>
+      </section>
+
+      <div class="resource-overview-grid">
+        <section class="section resource-panel resource-panel-class">
+          <div class="resource-panel-head">
+            <div>
+              <div class="section-title">Классовые ресурсы</div>
+              <div class="resource-panel-subtitle">Нажмите на метку, когда расходуете использование.</div>
+            </div>
+            <span class="resource-panel-emblem" aria-hidden="true">◈</span>
+          </div>
+          <div id="classResources" class="class-resource-grid"></div>
+        </section>
+
+        <section id="spellSection" class="section resource-panel resource-panel-slots hidden">
+          <div class="resource-panel-head">
+            <div>
+              <div class="section-title">Ячейки заклинаний</div>
+              <div class="resource-panel-subtitle">Заполненная руна означает потраченную ячейку.</div>
+            </div>
+            <span class="resource-panel-emblem" aria-hidden="true">✧</span>
+          </div>
+          <div id="spellStatsBlock" class="spell-stats-block" style="display:none">
+            <div class="spell-stat-card"><span>Характеристика</span><strong id="spellAbilityVisual">—</strong></div>
+            <div class="spell-stat-card"><span>Атака</span><strong id="spellAttackVisual">—</strong></div>
+            <div class="spell-stat-card"><span>Сл спасброска</span><strong id="spellDcVisual">—</strong></div>
+            <div class="spell-stats-source" aria-hidden="true">
+              <input type="text" id="spellAbility" value="" readonly>
+              <input type="text" id="spellAttackBonus" value="" readonly>
+              <input type="text" id="spellSaveDc" value="" readonly>
+            </div>
+          </div>
+          <div id="spellSlots" class="spell-slot-grid"></div>
+        </section>
       </div>
+
       <!-- SPELL SYSTEM -->
-      <div class="section" id="spellBookSection">
-        <div
-          style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-          <div class="section-title" style="margin-bottom:0">Книга заклинаний</div>
-          <div id="concBar"
-            style="display:flex;gap:6px;align-items:center;background:#FFF8F0;border:1px solid #F5C4B3;border-radius:8px;padding:4px 10px">
-            <span style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.04em">Концентрация:</span>
-            <span id="concSpellName" style="font-size:13px;color:#993C1D;font-style:italic;font-weight:500">нет</span>
-            <button id="concClearBtn" onclick="clearConcentration()"
-              style="display:none;font-size:11px;padding:1px 7px;border:1px solid #F5C4B3;border-radius:5px;background:#fff;cursor:pointer;color:#993C1D">✕</button>
+      <section class="section spellbook-panel" id="spellBookSection">
+        <div class="spellbook-head">
+          <div>
+            <div class="section-title">Книга заклинаний</div>
+            <div class="resource-panel-subtitle">Изучайте, подготавливайте и быстро находите нужную магию.</div>
+          </div>
+          <div id="concBar" class="concentration-bar is-empty">
+            <span class="concentration-pulse" aria-hidden="true"></span>
+            <div>
+              <span class="concentration-label">Концентрация</span>
+              <strong id="concSpellName">нет</strong>
+            </div>
+            <button id="concClearBtn" class="concentration-clear" onclick="clearConcentration()" style="display:none" aria-label="Прекратить концентрацию">✕</button>
           </div>
         </div>
-        <div style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap">
-          <button class="spell-vtab active" id="svt-all" onclick="setSpellTab('all',this)">Все заклинания</button>
-          <button class="spell-vtab" id="svt-known" onclick="setSpellTab('known',this)">Изученные <span
-              id="knownBadge"></span></button>
-          <button class="spell-vtab" id="svt-extra" onclick="setSpellTab('extra',this)">Дополнительно <span
-              id="extraBadge"></span></button>
-          <button class="spell-vtab" id="svt-prepared" onclick="setSpellTab('prepared',this)">Подготовленные <span
-              id="prepBadge"></span></button>
+
+        <div class="spellbook-toolbar">
+          <div class="spellbook-tabs" role="tablist" aria-label="Разделы книги заклинаний">
+            <button class="spell-vtab active" id="svt-all" onclick="setSpellTab('all',this)">Все заклинания</button>
+            <button class="spell-vtab" id="svt-known" onclick="setSpellTab('known',this)">Изученные <span id="knownBadge"></span></button>
+            <button class="spell-vtab" id="svt-extra" onclick="setSpellTab('extra',this)">Дополнительно <span id="extraBadge"></span></button>
+            <button class="spell-vtab" id="svt-prepared" onclick="setSpellTab('prepared',this)">Подготовленные <span id="prepBadge"></span></button>
+          </div>
+
+          <div class="spellbook-filters">
+            <label class="spell-filter-field">
+              <span>Класс</span>
+              <select id="sfClass" onchange="renderSpellBook()">
+                <option value="">Все классы</option>
+                <option value="bard">Бард</option>
+                <option value="cleric">Жрец</option>
+                <option value="druid">Друид</option>
+                <option value="paladin">Паладин</option>
+                <option value="ranger">Следопыт</option>
+                <option value="sorcerer">Чародей</option>
+                <option value="warlock">Колдун</option>
+                <option value="wizard">Волшебник</option>
+              </select>
+            </label>
+            <label class="spell-filter-field">
+              <span>Круг</span>
+              <select id="sfLevel" onchange="renderSpellBook()">
+                <option value="">Все круги</option>
+                <option value="0">Заговоры</option>
+                <option value="1">1 круг</option>
+                <option value="2">2 круг</option>
+                <option value="3">3 круг</option>
+                <option value="4">4 круг</option>
+                <option value="5">5 круг</option>
+                <option value="6">6 круг</option>
+                <option value="7">7 круг</option>
+                <option value="8">8 круг</option>
+                <option value="9">9 круг</option>
+              </select>
+            </label>
+            <label class="spell-filter-field">
+              <span>Школа</span>
+              <select id="sfSchool" onchange="renderSpellBook()">
+                <option value="">Все школы</option>
+                <option value="Воплощение">Воплощение</option>
+                <option value="Вызов">Вызов</option>
+                <option value="Иллюзия">Иллюзия</option>
+                <option value="Некромантия">Некромантия</option>
+                <option value="Очарование">Очарование</option>
+                <option value="Прорицание">Прорицание</option>
+                <option value="Преобразование">Преобразование</option>
+                <option value="Ограждение">Ограждение</option>
+              </select>
+            </label>
+            <label class="spell-filter-field spell-filter-search">
+              <span>Поиск</span>
+              <input type="search" id="sfSearch" oninput="renderSpellBook()" placeholder="Название или эффект...">
+            </label>
+          </div>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
-          <select id="sfClass" onchange="renderSpellBook()"
-            style="font-size:12px;padding:4px 8px;border:1px solid #e0ddd4;border-radius:6px;background:#f5f4f0;color:#555">
-            <option value="">Все классы</option>
-            <option value="bard">Бард</option>
-            <option value="cleric">Жрец</option>
-            <option value="druid">Друид</option>
-            <option value="paladin">Паладин</option>
-            <option value="ranger">Следопыт</option>
-            <option value="sorcerer">Чародей</option>
-            <option value="warlock">Колдун</option>
-            <option value="wizard">Волшебник</option>
-          </select>
-          <select id="sfLevel" onchange="renderSpellBook()"
-            style="font-size:12px;padding:4px 8px;border:1px solid #e0ddd4;border-radius:6px;background:#f5f4f0;color:#555">
-            <option value="">Все круги</option>
-            <option value="0">Заговоры</option>
-            <option value="1">1 круг</option>
-            <option value="2">2 круг</option>
-            <option value="3">3 круг</option>
-            <option value="4">4 круг</option>
-            <option value="5">5 круг</option>
-            <option value="6">6 круг</option>
-            <option value="7">7 круг</option>
-            <option value="8">8 круг</option>
-            <option value="9">9 круг</option>
-          </select>
-          <select id="sfSchool" onchange="renderSpellBook()"
-            style="font-size:12px;padding:4px 8px;border:1px solid #e0ddd4;border-radius:6px;background:#f5f4f0;color:#555">
-            <option value="">Все школы</option>
-            <option value="Воплощение">Воплощение</option>
-            <option value="Вызов">Вызов</option>
-            <option value="Иллюзия">Иллюзия</option>
-            <option value="Некромантия">Некромантия</option>
-            <option value="Очарование">Очарование</option>
-            <option value="Прорицание">Прорицание</option>
-            <option value="Преобразование">Преобразование</option>
-            <option value="Ограждение">Ограждение</option>
-          </select>
-          <input type="text" id="sfSearch" oninput="renderSpellBook()" placeholder="Поиск..."
-            style="font-size:12px;padding:4px 8px;border:1px solid #e0ddd4;border-radius:6px;background:#f5f4f0;color:#555;width:130px">
+
+        <div class="spellbook-content">
+          <div id="spellListEl" class="spell-list-modern"></div>
+          <div id="noSpellsMsg" class="spell-empty" style="display:none">
+            <span>✦</span>
+            <strong>Заклинаний не найдено</strong>
+            <small>Попробуйте изменить фильтры или поисковый запрос.</small>
+          </div>
         </div>
-        <div id="spellListEl"
-          style="display:flex;flex-direction:column;gap:3px;max-height:480px;overflow-y:auto;padding-right:2px"></div>
-        <div id="noSpellsMsg" style="display:none;font-size:13px;color:#aaa;text-align:center;padding:20px">Заклинаний
-          не найдено</div>
-      </div>
+      </section>
+
       <!-- Spell detail popup -->
-      <div id="spellPopup" onclick="if(event.target===this)closeSpellPopup()"
-        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:10000;align-items:flex-start;justify-content:center;padding-top:60px">
-        <div
-          style="background:#fff;border-radius:12px;padding:20px 22px;max-width:460px;width:92%;max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.18)">
-          <button onclick="closeSpellPopup()"
-            style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;line-height:1">&#x2715;</button>
+      <div id="spellPopup" class="spell-popup-overlay" onclick="if(event.target===this)closeSpellPopup()" style="display:none">
+        <article class="spell-popup-card">
+          <button onclick="closeSpellPopup()" class="spell-popup-close" aria-label="Закрыть">&#x2715;</button>
           <div id="spellPopupBody"></div>
-        </div>
+        </article>
       </div>
     </div>
 
     <!-- INVENTORY TAB -->
-    <div id="tab-inventory" class="tab-panel">
-      <div class="section">
-        <div class="section-title">Монеты</div>
-        <div class="currency-row">
-          <div class="currency-box"><label>Платина</label><input type="number" id="pp" value="0" min="0"></div>
-          <div class="currency-box"><label>Золото</label><input type="number" id="gp" value="0" min="0"></div>
-          <div class="currency-box"><label>Электрум</label><input type="number" id="ep" value="0" min="0"></div>
-          <div class="currency-box"><label>Серебро</label><input type="number" id="sp" value="0" min="0"></div>
-          <div class="currency-box"><label>Медь</label><input type="number" id="cp" value="0" min="0"></div>
+    <div id="tab-inventory" class="tab-panel inventory-page">
+      <section class="inventory-page-hero" aria-labelledby="inventoryPageTitle">
+        <div class="inventory-page-hero-copy">
+          <div class="inventory-page-kicker">Походное снаряжение</div>
+          <h2 id="inventoryPageTitle">Инвентарь героя</h2>
+          <p>Экипировка, припасы, сокровища и всё то подозрительное, что партия решила «временно» унести с собой.</p>
         </div>
-      </div>
-      <div class="section">
-        <div class="section-title">Снаряжение</div>
-        <div class="inv-header">
-          <div class="col-label">Предмет</div>
-          <div class="col-label">Кол-во</div>
-          <div class="col-label">Вес (фн)</div>
-          <div></div>
+        <div class="inventory-page-summary" aria-label="Сводка инвентаря">
+          <div class="inventory-summary-card wealth">
+            <span class="inventory-summary-icon" aria-hidden="true">◉</span>
+            <div><strong id="inventorySummaryWealth">0 зм.</strong><span>Общее богатство</span></div>
+          </div>
+          <div class="inventory-summary-card load">
+            <span class="inventory-summary-icon" aria-hidden="true">◫</span>
+            <div><strong id="inventorySummaryWeight">0 / 120 фн.</strong><span>Нагрузка</span></div>
+          </div>
+          <div class="inventory-summary-card">
+            <span class="inventory-summary-icon" aria-hidden="true">◇</span>
+            <div><strong id="inventorySummaryItems">0</strong><span>Позиций</span></div>
+          </div>
+          <div class="inventory-summary-card">
+            <span class="inventory-summary-icon" aria-hidden="true">◆</span>
+            <div><strong id="inventorySummaryEquipped">0</strong><span>Снаряжено</span></div>
+          </div>
         </div>
-        <div id="invList"></div>
-        <button class="add-btn" onclick="addInvItem()">+ Добавить предмет</button>
+        <div class="inventory-load-track" aria-hidden="true"><div id="inventoryLoadFill" class="inventory-load-fill"></div></div>
+      </section>
+
+      <section class="section inventory-wallet">
+        <div class="inventory-section-heading">
+          <div>
+            <div class="section-title">Кошель героя</div>
+            <p>Все монеты автоматически пересчитываются в золотой эквивалент.</p>
+          </div>
+          <div class="inventory-wallet-total"><span>Всего</span><strong id="inventoryWalletTotal">0 зм.</strong></div>
+        </div>
+        <div class="currency-row inventory-currency-grid">
+          <label class="currency-box coin-card platinum"><span class="coin-symbol">PP</span><span class="coin-name">Платина</span><input type="number" id="pp" value="0" min="0" inputmode="numeric"></label>
+          <label class="currency-box coin-card gold"><span class="coin-symbol">GP</span><span class="coin-name">Золото</span><input type="number" id="gp" value="0" min="0" inputmode="numeric"></label>
+          <label class="currency-box coin-card electrum"><span class="coin-symbol">EP</span><span class="coin-name">Электрум</span><input type="number" id="ep" value="0" min="0" inputmode="numeric"></label>
+          <label class="currency-box coin-card silver"><span class="coin-symbol">SP</span><span class="coin-name">Серебро</span><input type="number" id="sp" value="0" min="0" inputmode="numeric"></label>
+          <label class="currency-box coin-card copper"><span class="coin-symbol">CP</span><span class="coin-name">Медь</span><input type="number" id="cp" value="0" min="0" inputmode="numeric"></label>
+        </div>
+      </section>
+
+      <section class="section inventory-library">
+        <div class="inventory-library-head">
+          <div>
+            <div class="section-title">Снаряжение и находки</div>
+            <div class="inventory-library-subtitle">Нажмите на карточку, чтобы прочитать описание. Стрелка раскрывает редактор предмета.</div>
+          </div>
+          <button class="btn inventory-add-top" type="button" onclick="addInvItem()">＋ Новый предмет</button>
+        </div>
+
+        <div class="inventory-toolbar">
+          <div class="inventory-filters" role="tablist" aria-label="Фильтр инвентаря">
+            <button class="inventory-filter active" type="button" data-inventory-filter="all" onclick="setInventoryFilter('all', this)">Все</button>
+            <button class="inventory-filter" type="button" data-inventory-filter="equipped" onclick="setInventoryFilter('equipped', this)">◆ Снаряжено</button>
+            <button class="inventory-filter" type="button" data-inventory-filter="weapon" onclick="setInventoryFilter('weapon', this)">Оружие</button>
+            <button class="inventory-filter" type="button" data-inventory-filter="armor" onclick="setInventoryFilter('armor', this)">Броня</button>
+            <button class="inventory-filter" type="button" data-inventory-filter="consumable" onclick="setInventoryFilter('consumable', this)">Расходники</button>
+            <button class="inventory-filter" type="button" data-inventory-filter="gear" onclick="setInventoryFilter('gear', this)">Снаряжение</button>
+            <button class="inventory-filter" type="button" data-inventory-filter="magic" onclick="setInventoryFilter('magic', this)">✦ Магическое</button>
+            <button class="inventory-filter" type="button" data-inventory-filter="quest" onclick="setInventoryFilter('quest', this)">Квестовое</button>
+          </div>
+          <label class="inventory-search" aria-label="Поиск по инвентарю">
+            <span aria-hidden="true">⌕</span>
+            <input id="inventorySearch" type="search" placeholder="Найти предмет..." oninput="applyInventoryFilters()">
+          </label>
+        </div>
+
+        <div id="inventoryEquippedPanel" class="inventory-equipped-panel" hidden>
+          <div class="inventory-equipped-title"><span aria-hidden="true">◆</span> Быстрый доступ</div>
+          <div id="inventoryEquippedList" class="inventory-equipped-list"></div>
+        </div>
+
+        <div id="invList" class="inventory-card-grid"></div>
+        <div id="inventoryEmptyState" class="inventory-empty-state" hidden>
+          <span aria-hidden="true">◇</span>
+          <strong>Ничего не найдено</strong>
+          <p>Смените фильтр или добавьте новый предмет.</p>
+        </div>
+        <button class="add-btn inventory-add-bottom" onclick="addInvItem()">+ Добавить предмет</button>
+      </section>
+
+      <div id="inventoryPopup" class="spell-popup-overlay inventory-popup-overlay" onclick="if(event.target===this)closeInventoryPopup()" style="display:none">
+        <article id="inventoryPopupCard" class="spell-popup-card inventory-popup-card" data-category="other" role="dialog" aria-modal="true" aria-labelledby="inventoryPopupTitle">
+          <button onclick="closeInventoryPopup()" class="spell-popup-close" aria-label="Закрыть">&#x2715;</button>
+          <div id="inventoryPopupBody"></div>
+        </article>
       </div>
     </div>
 
     <!-- ABILITIES TAB -->
-    <div id="tab-abilities" class="tab-panel">
-      <div class="section">
-        <div class="section-title">Умения и особенности</div>
-        <div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">
-          Записывайте здесь расовые, классовые и сюжетные умения: Божественное чувство, кошачью ловкость, карабканье,
-          благословения, черты и другие важные особенности.
+    <div id="tab-abilities" class="tab-panel ability-page">
+      <section class="ability-page-hero" aria-labelledby="abilityPageTitle">
+        <div class="ability-page-hero-copy">
+          <div class="ability-page-kicker">Арсенал героя</div>
+          <h2 id="abilityPageTitle">Умения и особенности</h2>
+          <p>Классовые таланты, расовые черты, благословения и сюжетные способности — в одной живой библиотеке.</p>
         </div>
-        <div class="ability-header">
-          <div class="col-label">Умение</div>
-          <div class="col-label">Описание</div>
-          <div></div>
+        <div class="ability-page-summary" aria-label="Сводка умений">
+          <div class="ability-summary-card">
+            <span class="ability-summary-icon" aria-hidden="true">✦</span>
+            <div><strong id="abilitySummaryTotal">0</strong><span>Всего умений</span></div>
+          </div>
+          <div class="ability-summary-card">
+            <span class="ability-summary-icon" aria-hidden="true">◆</span>
+            <div><strong id="abilitySummaryPinned">0</strong><span>Закреплено</span></div>
+          </div>
+          <div class="ability-summary-card">
+            <span class="ability-summary-icon" aria-hidden="true">◈</span>
+            <div><strong id="abilitySummaryUses">0 / 0</strong><span>Использований</span></div>
+          </div>
         </div>
-        <div id="abilityList"></div>
-        <button class="add-btn" onclick="addAbility()">+ Добавить умение</button>
+      </section>
+
+      <section class="section ability-library">
+        <div class="ability-library-head">
+          <div>
+            <div class="section-title">Библиотека способностей</div>
+            <div class="ability-library-subtitle">Нажмите на карточку, чтобы прочитать полное описание. Стрелка раскрывает редактор умения.</div>
+          </div>
+          <button class="btn ability-add-top" type="button" onclick="addAbility()">＋ Новое умение</button>
+        </div>
+
+        <div class="ability-toolbar">
+          <div class="ability-filters" role="tablist" aria-label="Фильтр умений">
+            <button class="ability-filter active" type="button" data-filter="all" onclick="setAbilityFilter('all', this)">Все</button>
+            <button class="ability-filter" type="button" data-filter="pinned" onclick="setAbilityFilter('pinned', this)">◆ Важные</button>
+            <button class="ability-filter" type="button" data-filter="class" onclick="setAbilityFilter('class', this)">Класс</button>
+            <button class="ability-filter" type="button" data-filter="race" onclick="setAbilityFilter('race', this)">Раса</button>
+            <button class="ability-filter" type="button" data-filter="feat" onclick="setAbilityFilter('feat', this)">Черты</button>
+            <button class="ability-filter" type="button" data-filter="item" onclick="setAbilityFilter('item', this)">Предметы</button>
+            <button class="ability-filter" type="button" data-filter="story" onclick="setAbilityFilter('story', this)">Сюжетные</button>
+            <button class="ability-filter" type="button" data-filter="other" onclick="setAbilityFilter('other', this)">Другое</button>
+          </div>
+          <label class="ability-search" aria-label="Поиск по умениям">
+            <span aria-hidden="true">⌕</span>
+            <input id="abilitySearch" type="search" placeholder="Найти умение..." oninput="event.stopPropagation(); applyAbilityFilters()">
+          </label>
+        </div>
+
+        <div id="abilityList" class="ability-card-grid"></div>
+        <div id="abilityEmptyState" class="ability-empty-state" hidden>
+          <span aria-hidden="true">✧</span>
+          <strong>Здесь пока ничего нет</strong>
+          <p>Смените фильтр или добавьте новую способность.</p>
+        </div>
+        <button class="add-btn ability-add-bottom" onclick="addAbility()">+ Добавить умение</button>
+      </section>
+
+      <!-- Ability detail popup -->
+      <div id="abilityPopup" class="spell-popup-overlay ability-popup-overlay" onclick="if(event.target===this)closeAbilityPopup()" style="display:none">
+        <article id="abilityPopupCard" class="spell-popup-card ability-popup-card" data-category="other" role="dialog" aria-modal="true" aria-labelledby="abilityPopupTitle">
+          <button onclick="closeAbilityPopup()" class="spell-popup-close" aria-label="Закрыть">&#x2715;</button>
+          <div id="abilityPopupBody"></div>
+        </article>
       </div>
     </div>
 
     <!-- NOTES TAB -->
-    <div id="tab-notes" class="tab-panel">
-      <div class="grid2">
-        <div>
-          <div class="section">
-            <div class="section-title">Черты характера</div><textarea id="personality"
-              placeholder="Характерные черты и манеры поведения..." style="width:100%"></textarea>
+    <div id="tab-notes" class="tab-panel notes-page">
+      <section class="notes-page-hero" aria-labelledby="notesPageTitle">
+        <div class="notes-page-hero-copy">
+          <div class="notes-page-kicker">Летопись персонажа</div>
+          <h2 id="notesPageTitle">История и заметки</h2>
+          <p>Характер героя, его прошлое, важные связи и записи о приключениях — собраны в одном живом дневнике.</p>
+        </div>
+        <div class="notes-page-summary" aria-label="Сводка заметок">
+          <div class="notes-summary-card">
+            <span class="notes-summary-icon" aria-hidden="true">✦</span>
+            <div><strong id="notesSummaryTraits">0 / 4</strong><span>Грани личности</span></div>
           </div>
-          <div class="section">
-            <div class="section-title">Идеалы</div><textarea id="ideals" placeholder="Ценности, убеждения, принципы..."
-              style="width:100%"></textarea>
+          <div class="notes-summary-card">
+            <span class="notes-summary-icon" aria-hidden="true">⌁</span>
+            <div><strong id="notesSummaryStory">0</strong><span>Слов в истории</span></div>
+          </div>
+          <div class="notes-summary-card">
+            <span class="notes-summary-icon" aria-hidden="true">☰</span>
+            <div><strong id="notesSummaryJournal">0</strong><span>Записей и строк</span></div>
+          </div>
+          <div class="notes-summary-card">
+            <span class="notes-summary-icon" aria-hidden="true">◆</span>
+            <div><strong id="notesSummaryAllies">0</strong><span>Связей</span></div>
           </div>
         </div>
-        <div>
-          <div class="section">
-            <div class="section-title">Привязанности</div><textarea id="bonds"
-              placeholder="Семья, союзники, важные места и вещи..." style="width:100%"></textarea>
+      </section>
+
+      <section class="section notes-personality-panel">
+        <div class="notes-section-heading">
+          <div>
+            <div class="section-title">Портрет героя</div>
+            <p>Нажмите на карточку, чтобы прочитать текст. Стрелка раскрывает редактор.</p>
           </div>
-          <div class="section">
-            <div class="section-title">Слабости</div><textarea id="flaws"
-              placeholder="Пороки, страхи, слабости характера..." style="width:100%"></textarea>
+          <span class="notes-section-emblem" aria-hidden="true">◈</span>
+        </div>
+
+        <div class="notes-personality-grid">
+          <article class="note-aspect-card" data-note-id="personality" data-note-tone="personality" tabindex="0" role="button" onclick="openNotePopup('personality', event)" onkeydown="handleNoteCardKey(event, 'personality')">
+            <div class="note-aspect-card-head">
+              <span class="note-aspect-icon" aria-hidden="true">◉</span>
+              <div><span class="note-aspect-kicker">Манера героя</span><h3>Черты характера</h3></div>
+              <button type="button" class="note-editor-toggle" aria-label="Редактировать черты характера" onclick="toggleNoteEditor('personality', event)">⌄</button>
+            </div>
+            <p class="note-card-preview" data-note-preview="personality">Характерные черты пока не описаны.</p>
+            <div class="note-card-editor" onclick="event.stopPropagation()">
+              <textarea id="personality" placeholder="Характерные черты и манеры поведения..."></textarea>
+            </div>
+          </article>
+
+          <article class="note-aspect-card" data-note-id="ideals" data-note-tone="ideals" tabindex="0" role="button" onclick="openNotePopup('ideals', event)" onkeydown="handleNoteCardKey(event, 'ideals')">
+            <div class="note-aspect-card-head">
+              <span class="note-aspect-icon" aria-hidden="true">✦</span>
+              <div><span class="note-aspect-kicker">Внутренний компас</span><h3>Идеалы</h3></div>
+              <button type="button" class="note-editor-toggle" aria-label="Редактировать идеалы" onclick="toggleNoteEditor('ideals', event)">⌄</button>
+            </div>
+            <p class="note-card-preview" data-note-preview="ideals">Ценности и убеждения пока не указаны.</p>
+            <div class="note-card-editor" onclick="event.stopPropagation()">
+              <textarea id="ideals" placeholder="Ценности, убеждения, принципы..."></textarea>
+            </div>
+          </article>
+
+          <article class="note-aspect-card" data-note-id="bonds" data-note-tone="bonds" tabindex="0" role="button" onclick="openNotePopup('bonds', event)" onkeydown="handleNoteCardKey(event, 'bonds')">
+            <div class="note-aspect-card-head">
+              <span class="note-aspect-icon" aria-hidden="true">◇</span>
+              <div><span class="note-aspect-kicker">То, что дорого</span><h3>Привязанности</h3></div>
+              <button type="button" class="note-editor-toggle" aria-label="Редактировать привязанности" onclick="toggleNoteEditor('bonds', event)">⌄</button>
+            </div>
+            <p class="note-card-preview" data-note-preview="bonds">Важные люди, места и клятвы пока не записаны.</p>
+            <div class="note-card-editor" onclick="event.stopPropagation()">
+              <textarea id="bonds" placeholder="Семья, союзники, важные места и вещи..."></textarea>
+            </div>
+          </article>
+
+          <article class="note-aspect-card" data-note-id="flaws" data-note-tone="flaws" tabindex="0" role="button" onclick="openNotePopup('flaws', event)" onkeydown="handleNoteCardKey(event, 'flaws')">
+            <div class="note-aspect-card-head">
+              <span class="note-aspect-icon" aria-hidden="true">◫</span>
+              <div><span class="note-aspect-kicker">Трещины в доспехе</span><h3>Слабости</h3></div>
+              <button type="button" class="note-editor-toggle" aria-label="Редактировать слабости" onclick="toggleNoteEditor('flaws', event)">⌄</button>
+            </div>
+            <p class="note-card-preview" data-note-preview="flaws">Страхи и слабости героя пока не описаны.</p>
+            <div class="note-card-editor" onclick="event.stopPropagation()">
+              <textarea id="flaws" placeholder="Пороки, страхи, слабости характера..."></textarea>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <div class="notes-main-grid">
+        <section class="section note-document-card note-story-card" data-note-id="backstory" tabindex="0" role="button" onclick="openNotePopup('backstory', event)" onkeydown="handleNoteCardKey(event, 'backstory')">
+          <div class="note-document-head">
+            <div>
+              <div class="section-title">История персонажа</div>
+              <p>Происхождение, переломные события и путь к приключениям.</p>
+            </div>
+            <div class="note-document-actions">
+              <button type="button" class="note-read-button" onclick="openNotePopup('backstory', event)">Читать</button>
+              <button type="button" class="note-editor-toggle" aria-label="Редактировать историю" onclick="toggleNoteEditor('backstory', event)">⌄</button>
+            </div>
           </div>
+          <div class="note-story-preview" data-note-preview="backstory">История героя пока не написана.</div>
+          <div class="note-document-meta"><span id="backstoryWordCount">0 слов</span><span>Личная хроника</span></div>
+          <div class="note-card-editor note-document-editor" onclick="event.stopPropagation()">
+            <textarea id="backstory" placeholder="Расскажите о своём персонаже — откуда он, что его привело к приключениям..."></textarea>
+          </div>
+        </section>
+
+        <section class="section notes-allies-card" data-note-id="allies">
+          <div class="note-document-head">
+            <div>
+              <div class="section-title">Союзники и организации</div>
+              <p>Люди, фракции, покровители и отношения, которые двигают историю.</p>
+            </div>
+            <button type="button" class="note-editor-toggle" aria-label="Редактировать связи" onclick="toggleNoteEditor('allies', event)">⌄</button>
+          </div>
+          <div id="alliesPreview" class="allies-preview"></div>
+          <div class="note-card-editor note-document-editor" onclick="event.stopPropagation()">
+            <textarea id="allies" placeholder="Каждую связь можно писать с новой строки. Например: Геро — союзник — обещал помочь выбраться из города."></textarea>
+          </div>
+        </section>
+      </div>
+
+      <section class="section session-journal-card">
+        <div class="notes-section-heading session-journal-heading">
+          <div>
+            <div class="section-title">Журнал приключений</div>
+            <p>Квесты, NPC, важные события и зацепки во время сессии.</p>
+          </div>
+          <button type="button" class="btn session-entry-button" onclick="addSessionJournalEntry()">＋ Запись с датой</button>
         </div>
-      </div>
-      <div class="section">
-        <div class="section-title">История персонажа</div><textarea id="backstory"
-          placeholder="Расскажите о своём персонаже — откуда он, что его привело к приключениям..."
-          style="width:100%;min-height:160px"></textarea>
-      </div>
-      <div class="section">
-        <div class="section-title">Заметки по сессии</div><textarea id="notes"
-          placeholder="Квесты, NPC, важные события, зацепки..." style="width:100%;min-height:100px"></textarea>
-      </div>
-      <div class="section">
-        <div class="section-title">Журнал повышения уровня</div>
-        <div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">
-          Здесь автоматически сохраняются повышения уровня: хиты, бросок, выбранные особенности, ASI и изменения магии.
+        <div class="session-journal-meta">
+          <span id="sessionJournalLines">0 строк</span>
+          <span id="sessionJournalHooks">0 зацепок</span>
+          <span>Поддерживаются заголовки «###» и списки через «-»</span>
         </div>
-        <div id="levelHistoryList" style="display:flex;flex-direction:column;gap:8px"></div>
-      </div>
-      <div class="section">
-        <div class="section-title">Союзники и организации</div><textarea id="allies"
-          placeholder="Союзники, фракции, покровители..." style="width:100%;min-height:80px"></textarea>
+        <textarea id="notes" class="session-journal-editor" placeholder="### Новая сессия
+- Встретили загадочного торговца
+- Нужно найти ключ от старой башни"></textarea>
+      </section>
+
+      <section class="section level-history-panel">
+        <div class="notes-section-heading">
+          <div>
+            <div class="section-title">Путь становления</div>
+            <p>Повышения уровня, новые особенности и важные изменения героя.</p>
+          </div>
+          <span class="notes-section-emblem" aria-hidden="true">⌁</span>
+        </div>
+        <div id="levelHistoryList" class="level-history-timeline"></div>
+      </section>
+
+      <div id="notesPopup" class="spell-popup-overlay notes-popup-overlay" onclick="if(event.target===this)closeNotesPopup()" style="display:none">
+        <article id="notesPopupCard" class="spell-popup-card notes-popup-card" data-note-tone="personality" role="dialog" aria-modal="true" aria-labelledby="notesPopupTitle">
+          <button onclick="closeNotesPopup()" class="spell-popup-close" aria-label="Закрыть">&#x2715;</button>
+          <div id="notesPopupBody"></div>
+        </article>
       </div>
     </div>
 
@@ -2959,6 +3366,8 @@
     const ORDINALS = ["1-й", "2-й", "3-й", "4-й", "5-й", "6-й", "7-й", "8-й", "9-й"];
 
     let skillProf = {};
+    let skillExpertise = {};
+    let activeSkillFilter = 'all';
     let saveProf = { str: false, dex: false, con: false, int: false, wis: false, cha: false };
 
     // Point buy state
@@ -3061,6 +3470,7 @@
         box.appendChild(lbl); box.appendChild(row); box.appendChild(bonusRow); box.appendChild(asiDiv); box.appendChild(modDiv);
         grid.appendChild(box);
       });
+      requestAnimationFrame(() => toggleMainStatsEdit(mainStatsEditing));
     }
 
     function adjustStat(st, delta) {
@@ -3315,12 +3725,135 @@
       }
     }
 
+    let mainStatsEditing = false;
+
+    function toggleMainStatsEdit(force) {
+      const section = v('mainStatsSection');
+      const button = v('mainStatsEditBtn');
+      if (!section) return;
+      mainStatsEditing = force === undefined ? !section.classList.contains('is-editing') : !!force;
+      section.classList.toggle('is-editing', mainStatsEditing);
+      section.querySelectorAll('.stat-box button').forEach(control => {
+        control.tabIndex = mainStatsEditing ? 0 : -1;
+        control.setAttribute('aria-hidden', mainStatsEditing ? 'false' : 'true');
+      });
+      if (button) {
+        button.textContent = mainStatsEditing ? '✓ Готово' : '✎ Изменить';
+        button.classList.toggle('primary', mainStatsEditing);
+      }
+    }
+
+    function openSheetTab(id) {
+      const tab = document.querySelector(`.tab[data-sheet-tab="${id}"]`);
+      if (!tab) return;
+      showTab(id, tab);
+      const panel = v('tab-' + id);
+      if (panel) requestAnimationFrame(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    }
+
+    function updateMainArmorSummary() {
+      const summary = v('mainArmorSummary');
+      if (!summary) return;
+      const armor = v('armorSelect');
+      const armorName = armor?.selectedOptions?.[0]?.textContent || 'Без брони';
+      const bits = [armorName];
+      if (v('shieldEquipped')?.value === '1') bits.push('щит');
+      const bonus = parseInt(v('acBonus')?.value, 10) || 0;
+      if (bonus) bits.push(`бонус КД ${fmtMod(bonus)}`);
+      const manual = String(v('acManual')?.value || '').trim();
+      if (manual) bits.push(`КД вручную ${manual}`);
+      const ac = v('ac')?.value;
+      if (ac) bits.push(`итого ${ac}`);
+      summary.textContent = bits.join(' · ');
+    }
+
+    function updateQuickAbilities() {
+      const list = v('quickAbilityList');
+      const empty = v('quickAbilityEmpty');
+      if (!list || !empty) return;
+      const rows = [...document.querySelectorAll('#abilityList .ability-row')]
+        .filter(row => row.dataset.pinned === '1');
+      list.innerHTML = '';
+      rows.forEach(row => {
+        const name = row.querySelector('.ability-name-input')?.value.trim() || 'Новое умение';
+        const desc = row.querySelector('.ability-desc-input')?.value.trim() || 'Описание пока не добавлено.';
+        const category = row.querySelector('.ability-category-select')?.value || 'other';
+        const action = row.querySelector('.ability-action-select')?.value || 'passive';
+        const recovery = row.querySelector('.ability-recovery-select')?.value || 'none';
+        const max = clampAbilityNumber(row.querySelector('.ability-uses-max')?.value, 0, 30);
+        const remaining = clampAbilityNumber(row.querySelector('.ability-uses-remaining')?.value, 0, max);
+        const categoryInfo = ABILITY_CATEGORIES[category] || ABILITY_CATEGORIES.other;
+
+        const card = document.createElement('article');
+        card.className = 'main-quick-ability-card';
+        card.dataset.category = category;
+        card.tabIndex = 0;
+        card.innerHTML = `
+          <div class="main-quick-ability-accent" aria-hidden="true"></div>
+          <div class="main-quick-ability-head">
+            <span class="main-quick-ability-icon" aria-hidden="true">${wizardEscape(categoryInfo.icon || '✦')}</span>
+            <div><span class="main-quick-ability-kicker">${wizardEscape(categoryInfo.label || 'Умение')}</span><h3>${wizardEscape(name)}</h3></div>
+            <span class="main-quick-pin" aria-hidden="true">◆</span>
+          </div>
+          <p>${wizardEscape(desc)}</p>
+          <div class="main-quick-ability-meta">
+            <span>${wizardEscape(ABILITY_ACTIONS[action] || ABILITY_ACTIONS.passive)}</span>
+            ${recovery !== 'none' ? `<span>${wizardEscape(ABILITY_RECOVERY[recovery] || '')}</span>` : ''}
+          </div>
+          ${max > 0 ? `<div class="main-quick-uses"><strong>${remaining} / ${max}</strong><span>использований</span><button type="button" class="main-quick-use-btn" ${remaining < 1 ? 'disabled' : ''}>Использовать</button></div>` : ''}`;
+
+        const open = event => {
+          if (event?.target?.closest('button')) return;
+          openAbilityPopup(row);
+        };
+        card.addEventListener('click', open);
+        card.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            open(event);
+          }
+        });
+        const useButton = card.querySelector('.main-quick-use-btn');
+        if (useButton) useButton.onclick = event => {
+          event.stopPropagation();
+          adjustAbilityUses(row, -1);
+        };
+        list.appendChild(card);
+      });
+      empty.hidden = rows.length > 0;
+    }
+
+    function updateMainPage() {
+      updateMainArmorSummary();
+      updateAttackEmptyState();
+      updateQuickAbilities();
+    }
+
     function showTab(id, el) {
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       v('tab-' + id).classList.add('active');
       el.classList.add('active');
-      if (id === 'abilities') resizeAbilityTextareasSoon();
+      if (id === 'main') {
+        updateMainPage();
+      }
+      if (id === 'abilities') {
+        resizeAbilityTextareasSoon();
+        updateAbilitySummary();
+        applyAbilityFilters();
+      }
+      if (id === 'skills') {
+        updateSkills();
+        updateSaves();
+        renderProficiencyTags();
+      }
+      if (id === 'inventory') {
+        updateInventoryDashboard();
+      }
+      if (id === 'notes') {
+        updateNotesDashboard();
+        document.querySelectorAll('#tab-notes textarea').forEach(autoResizeTextarea);
+      }
     }
 
     function toggleDot(el, color) {
@@ -3339,6 +3872,9 @@
       updateWeaponAttacks();
       updateSpellStats();
       updateLevelHpRollUI();
+      updateInventoryDashboard();
+      updateNotesDashboard();
+      updateMainPage();
     }
 
     function buildArmorSelect() {
@@ -3399,6 +3935,7 @@
       acEl.value = result.ac;
       const hint = v('armorHint');
       if (hint) hint.textContent = result.hint;
+      updateMainArmorSummary();
     }
 
     function buildWeaponSelect() {
@@ -3463,6 +4000,7 @@
         const recalculated = makeWeaponAttack(meta.weaponKey, meta.weaponStat, meta.weaponMagic, inputs[0].value);
         inputs[1].value = recalculated.bonus;
         inputs[2].value = recalculated.dmg;
+        syncAttackCard(row);
       });
     }
 
@@ -3500,17 +4038,63 @@
       }
     }
 
-    function updateSkills() {
+    function skillRank(name) {
+      if (skillExpertise[name]) return 2;
+      if (skillProf[name]) return 1;
+      return 0;
+    }
+
+    function skillBonus(sk) {
       const pb = getPB(getLevel());
-      SKILLS.forEach((sk, i) => {
-        const base = Math.floor((getStatTotal(sk.stat) - 10) / 2);
-        const prof = skillProf[sk.name] || false;
-        const val = base + (prof ? pb : 0);
-        const el = v('skv' + i);
-        if (el) el.textContent = fmtMod(val);
-        const cb = v('sk' + i);
-        if (cb) skillProf[sk.name] = cb.checked;
-      });
+      const base = Math.floor((getStatTotal(sk.stat) - 10) / 2);
+      return base + (skillProf[sk.name] ? pb : 0) + (skillExpertise[sk.name] ? pb : 0);
+    }
+
+    function updateSkillCardState(sk, i, value) {
+      const card = v('skillCard' + i);
+      const button = v('skillRank' + i);
+      const mark = v('skillMark' + i);
+      const rank = skillRank(sk.name);
+      if (card) {
+        card.dataset.rank = rank === 2 ? 'expert' : rank === 1 ? 'proficient' : 'none';
+        card.classList.toggle('is-proficient', rank >= 1);
+        card.classList.toggle('is-expert', rank === 2);
+      }
+      if (button) {
+        const label = rank === 2 ? 'Экспертиза' : rank === 1 ? 'Владение' : 'Нет владения';
+        button.title = `${sk.name}: ${label}. Нажмите, чтобы изменить.`;
+        button.setAttribute('aria-label', `${sk.name}: ${label}. Нажмите, чтобы изменить.`);
+      }
+      if (mark) mark.textContent = rank === 2 ? '◆' : rank === 1 ? '●' : '○';
+      const el = v('skv' + i);
+      if (el) el.textContent = fmtMod(value);
+      const cb = v('sk' + i);
+      if (cb) cb.checked = rank >= 1;
+    }
+
+    function updateSkills() {
+      SKILLS.forEach((sk, i) => updateSkillCardState(sk, i, skillBonus(sk)));
+      updateSkillsPageSummary();
+      applySkillFilters();
+    }
+
+    function cycleSkillRank(index) {
+      const sk = SKILLS[index];
+      if (!sk) return;
+      const rank = skillRank(sk.name);
+      if (rank === 0) {
+        skillProf[sk.name] = true;
+        skillExpertise[sk.name] = false;
+      } else if (rank === 1) {
+        skillProf[sk.name] = true;
+        skillExpertise[sk.name] = true;
+      } else {
+        skillProf[sk.name] = false;
+        skillExpertise[sk.name] = false;
+      }
+      updateSkills();
+      updatePassive();
+      fbSync();
     }
 
     function updateSaves() {
@@ -3519,16 +4103,92 @@
         const base = Math.floor((getStatTotal(s) - 10) / 2);
         const cb = v('save_' + s);
         const prof = cb ? cb.checked : false;
+        const val = base + (prof ? pb : 0);
         const el = v('savv_' + s);
-        if (el) el.textContent = fmtMod(base + (prof ? pb : 0));
+        if (el) el.textContent = fmtMod(val);
+        const card = v('saveCard_' + s);
+        const mark = v('saveMark_' + s);
+        if (card) card.classList.toggle('is-proficient', prof);
+        if (mark) mark.textContent = prof ? '◆' : '◇';
       });
+    }
+
+    function toggleSaveProficiency(stat) {
+      const cb = v('save_' + stat);
+      if (!cb) return;
+      cb.checked = !cb.checked;
+      updateSaves();
+      fbSync();
     }
 
     function updatePassive() {
       const pb = getPB(getLevel());
       const base = Math.floor((getStatTotal('wis') - 10) / 2);
       const prof = skillProf['Внимательность'] || false;
-      v('passivePerc').textContent = 10 + base + (prof ? pb : 0);
+      const expert = skillExpertise['Внимательность'] || false;
+      v('passivePerc').textContent = 10 + base + (prof ? pb : 0) + (expert ? pb : 0);
+    }
+
+    function updateSkillsPageSummary() {
+      const profCount = SKILLS.filter(sk => !!skillProf[sk.name]).length;
+      const expertCount = SKILLS.filter(sk => !!skillExpertise[sk.name]).length;
+      const ranked = SKILLS.map(sk => ({ name: sk.name, value: skillBonus(sk) }))
+        .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name, 'ru'));
+      const best = ranked[0] || { name: 'Лучший навык', value: 0 };
+      if (v('skillSummaryProficient')) v('skillSummaryProficient').textContent = profCount;
+      if (v('skillSummaryExpert')) v('skillSummaryExpert').textContent = expertCount;
+      if (v('skillSummaryBestBonus')) v('skillSummaryBestBonus').textContent = fmtMod(best.value);
+      if (v('skillSummaryBestName')) v('skillSummaryBestName').textContent = best.name;
+    }
+
+    function setSkillFilter(filter, button) {
+      activeSkillFilter = filter || 'all';
+      document.querySelectorAll('.skills-filter').forEach(btn => btn.classList.toggle('active', btn === button));
+      applySkillFilters();
+    }
+
+    function applySkillFilters() {
+      const query = String(v('skillSearch')?.value || '').trim().toLocaleLowerCase('ru');
+      document.querySelectorAll('.skill-card').forEach(card => {
+        const matchesText = !query || String(card.dataset.name || '').toLocaleLowerCase('ru').includes(query);
+        const rank = card.dataset.rank || 'none';
+        const matchesFilter = activeSkillFilter === 'all' || rank === activeSkillFilter;
+        card.hidden = !(matchesText && matchesFilter);
+      });
+      document.querySelectorAll('.skill-stat-group').forEach(group => {
+        const visible = [...group.querySelectorAll('.skill-card')].some(card => !card.hidden);
+        group.hidden = !visible;
+      });
+    }
+
+    function renderProficiencyTags() {
+      const target = v('proficiencyTagPreview');
+      const editor = v('profs');
+      if (!target || !editor) return;
+      const tags = String(editor.value || '')
+        .split(/[;,\n]+/)
+        .map(item => item.trim().replace(/^[-•]\s*/, ''))
+        .filter(item => item && !/^\[\/?Пресет расы/i.test(item));
+      target.innerHTML = '';
+      if (!tags.length) {
+        const empty = document.createElement('span');
+        empty.className = 'proficiency-tags-empty';
+        empty.textContent = 'Добавьте владения — здесь появятся удобные метки.';
+        target.appendChild(empty);
+        return;
+      }
+      tags.slice(0, 18).forEach(text => {
+        const tag = document.createElement('span');
+        tag.className = 'proficiency-tag';
+        tag.textContent = text;
+        target.appendChild(tag);
+      });
+      if (tags.length > 18) {
+        const more = document.createElement('span');
+        more.className = 'proficiency-tag proficiency-tag-more';
+        more.textContent = `+${tags.length - 18}`;
+        target.appendChild(more);
+      }
     }
 
     function updateHpBar() {
@@ -3608,25 +4268,61 @@
     }
 
     function buildSkillList() {
-      const el = v('skillList'); el.innerHTML = '';
-      SKILLS.forEach((sk, i) => {
-        const d = document.createElement('div'); d.className = 'skill-item';
-        d.innerHTML = `<input type="checkbox" id="sk${i}" onchange="skillProf['${sk.name}']=this.checked;updateSkills();updatePassive()">
-      <span style="flex:1">${sk.name} <span style="font-size:11px;color:#aaa">(${sk.stat.toUpperCase()})</span></span>
-      <span class="skill-val" id="skv${i}">+0</span>`;
-        el.appendChild(d);
+      const el = v('skillList');
+      if (!el) return;
+      el.innerHTML = '';
+      const statOrder = ['str', 'dex', 'int', 'wis', 'cha'];
+      const statShort = { str: 'СИЛ', dex: 'ЛОВ', int: 'ИНТ', wis: 'МДР', cha: 'ХАР' };
+      statOrder.forEach(stat => {
+        const skills = SKILLS.map((sk, index) => ({ sk, index })).filter(entry => entry.sk.stat === stat);
+        if (!skills.length) return;
+        const group = document.createElement('section');
+        group.className = 'skill-stat-group';
+        group.dataset.stat = stat;
+        group.innerHTML = `<div class="skill-stat-heading"><span>${SAVE_NAMES[stat]}</span><small>${statShort[stat]} · ${skills.length}</small></div><div class="skill-stat-list"></div>`;
+        const list = group.querySelector('.skill-stat-list');
+        skills.forEach(({ sk, index }) => {
+          const d = document.createElement('article');
+          d.className = 'skill-card';
+          d.id = 'skillCard' + index;
+          d.dataset.name = sk.name;
+          d.dataset.stat = stat;
+          d.dataset.rank = 'none';
+          d.innerHTML = `<input class="skill-native-checkbox" type="checkbox" id="sk${index}" tabindex="-1" aria-hidden="true">
+            <button type="button" class="skill-rank-button" id="skillRank${index}" onclick="cycleSkillRank(${index})">
+              <span class="skill-rank-mark" id="skillMark${index}">○</span>
+            </button>
+            <div class="skill-card-copy">
+              <strong>${sk.name}</strong>
+              <span>${SAVE_NAMES[stat]}</span>
+            </div>
+            <span class="skill-stat-badge">${statShort[stat]}</span>
+            <span class="skill-val" id="skv${index}">+0</span>`;
+          list.appendChild(d);
+        });
+        el.appendChild(group);
       });
+      updateSkills();
     }
 
     function buildSaveList() {
-      const el = v('savingThrows'); el.innerHTML = '';
+      const el = v('savingThrows');
+      if (!el) return;
+      el.innerHTML = '';
+      const statShort = { str: 'СИЛ', dex: 'ЛОВ', con: 'ТЕЛ', int: 'ИНТ', wis: 'МДР', cha: 'ХАР' };
       SAVES.forEach(s => {
-        const d = document.createElement('div'); d.className = 'skill-item'; d.style.marginBottom = '6px';
-        d.innerHTML = `<input type="checkbox" id="save_${s}" onchange="updateSaves()">
-      <span style="flex:1">${SAVE_NAMES[s]}</span>
-      <span class="skill-val" id="savv_${s}">+0</span>`;
+        const d = document.createElement('article');
+        d.className = 'saving-throw-card';
+        d.id = 'saveCard_' + s;
+        d.innerHTML = `<input class="save-native-checkbox" type="checkbox" id="save_${s}" onchange="updateSaves();fbSync()">
+          <button type="button" class="save-shield" onclick="toggleSaveProficiency('${s}')" aria-label="Переключить владение спасброском ${SAVE_NAMES[s]}">
+            <span id="saveMark_${s}">◇</span>
+          </button>
+          <div class="saving-throw-copy"><strong>${SAVE_NAMES[s]}</strong><span>${statShort[s]}</span></div>
+          <span class="skill-val saving-throw-value" id="savv_${s}">+0</span>`;
         el.appendChild(d);
       });
+      updateSaves();
     }
 
     function onClassChange() { renderClass(); renderSpellBook(); }
@@ -3655,30 +4351,150 @@
       renderSpellSlots(cls, lvl);
     }
 
-    function renderClassResources(cls, lvl) {
-      const el = v('classResources'); el.innerHTML = '';
-      const data = CLASS_DATA[cls];
-      if (!data) { el.innerHTML = '<p style="color:#aaa;font-size:13px">Нет специальных ресурсов.</p>'; return; }
-      data.resources.forEach(res => {
-        let count = res.stat ? Math.max(res.min || 0, getMod(res.stat)) : res.perLevel[lvl - 1];
-        const d = document.createElement('div'); d.className = 'class-resource';
-        if (count === Infinity) {
-          d.innerHTML = `<div class="class-resource-title">${res.label} <span style="color:${res.color};font-size:14px">без ограничений</span></div>`;
-        } else if (!count || count === 0) {
-          d.innerHTML = `<div class="class-resource-title">${res.label}</div><div style="font-size:12px;color:#aaa">Недоступно на ${lvl} уровне</div>`;
-        } else {
-          d.innerHTML = `<div class="class-resource-title">${res.label} <span style="color:${res.color};font-size:14px">${count}</span></div><div class="resource-dots" id="dots_${res.id}"></div>`;
-          el.appendChild(d);
-          const dots = d.querySelector('.resource-dots');
-          for (let i = 0; i < count; i++) {
-            const dot = document.createElement('span'); dot.className = 'dot';
-            dot.style.borderColor = res.color;
-            dot.onclick = function () { this.classList.toggle('filled'); this.style.background = this.classList.contains('filled') ? res.color : 'transparent'; fbSync(); };
-            dots.appendChild(dot);
-          }
-        }
-        el.appendChild(d);
+    const RESOURCE_ICONS = {
+      rage: '✹', inspiration: '♫', channel: '☀', wild: '❧', secondWind: '✚', surge: '⚡',
+      ki: '◈', lay: '✦', favored: '➶', sneak: '◆', sorcery: '✧', pact: '◉', arcane: '⌁'
+    };
+
+    const RESOURCE_HINTS = {
+      rage: 'Восстанавливается после продолжительного отдыха',
+      inspiration: 'Восстановление зависит от уровня барда',
+      channel: 'Восстанавливается после отдыха',
+      wild: 'Восстанавливается после отдыха',
+      secondWind: 'Восстанавливается после короткого отдыха',
+      surge: 'Восстанавливается после короткого отдыха',
+      ki: 'Восстанавливается после короткого отдыха',
+      lay: 'Восстанавливается после продолжительного отдыха',
+      favored: 'Пассивный показатель класса',
+      sneak: 'Кость урона скрытой атаки',
+      sorcery: 'Восстанавливается после продолжительного отдыха',
+      pact: 'Восстанавливается после короткого отдыха',
+      arcane: 'Используется один раз между продолжительными отдыхами'
+    };
+
+    function updateResourceDashboard() {
+      let classTotal = 0;
+      let classSpent = 0;
+      document.querySelectorAll('#classResources .class-resource[data-total]').forEach(card => {
+        const total = Number(card.dataset.total) || 0;
+        const spent = card.querySelectorAll('.resource-dots .dot.filled').length;
+        const left = Math.max(0, total - spent);
+        classTotal += total;
+        classSpent += spent;
+        const count = card.querySelector('.class-resource-count');
+        const progress = card.querySelector('.class-resource-progress > span');
+        const label = card.querySelector('.resource-dot-label');
+        if (count) count.textContent = `${left} / ${total}`;
+        if (progress) progress.style.setProperty('--resource-left', total ? `${left / total * 100}%` : '0%');
+        if (label) label.textContent = spent ? `Потрачено: ${spent}` : 'Все использования доступны';
       });
+
+      let slotTotal = 0;
+      let slotSpent = 0;
+      document.querySelectorAll('#spellSlots .spell-slot-row[data-total]').forEach(row => {
+        const total = Number(row.dataset.total) || 0;
+        const spent = row.querySelectorAll('.resource-dots .dot.filled').length;
+        slotTotal += total;
+        slotSpent += spent;
+        const meta = row.querySelector('.spell-slot-meta');
+        if (meta) meta.textContent = spent ? `${spent} потрачено · ${Math.max(0, total - spent)} доступно` : `Все ${total} доступны`;
+      });
+
+      const classSummary = v('resourceSummaryClass');
+      const slotSummary = v('resourceSummarySlots');
+      const prepSummary = v('resourceSummaryPrepared');
+      if (classSummary) classSummary.textContent = classTotal ? `${Math.max(0, classTotal - classSpent)} / ${classTotal}` : '—';
+      if (slotSummary) slotSummary.textContent = slotTotal ? `${Math.max(0, slotTotal - slotSpent)} / ${slotTotal}` : '—';
+      if (prepSummary) prepSummary.textContent = String(preparedSpells ? preparedSpells.size : 0);
+
+      const abilityVisual = v('spellAbilityVisual');
+      const attackVisual = v('spellAttackVisual');
+      const dcVisual = v('spellDcVisual');
+      if (abilityVisual && v('spellAbility')) abilityVisual.textContent = v('spellAbility').value || '—';
+      if (attackVisual && v('spellAttackBonus')) attackVisual.textContent = v('spellAttackBonus').value || '—';
+      if (dcVisual && v('spellSaveDc')) dcVisual.textContent = v('spellSaveDc').value || '—';
+
+      const concBar = v('concBar');
+      if (concBar) concBar.classList.toggle('is-empty', !concSpell);
+    }
+
+    function renderClassResources(cls, lvl) {
+      const el = v('classResources');
+      el.innerHTML = '';
+      const data = CLASS_DATA[cls];
+      if (!data || !Array.isArray(data.resources) || !data.resources.length) {
+        el.innerHTML = '<div class="class-resource-unavailable"><div><strong>Специальных ресурсов нет</strong><span>Для этого класса на текущем уровне нечего отслеживать.</span></div></div>';
+        updateResourceDashboard();
+        return;
+      }
+
+      data.resources.forEach(res => {
+        const count = res.stat ? Math.max(res.min || 0, getMod(res.stat)) : res.perLevel[lvl - 1];
+        const card = document.createElement('article');
+        card.className = 'class-resource';
+        card.style.setProperty('--resource-color', res.color || 'var(--accent)');
+
+        if (count === Infinity) {
+          card.innerHTML = `
+            <div class="class-resource-top">
+              <div>
+                <div class="class-resource-title">${RESOURCE_ICONS[res.id] || '◆'}&nbsp; ${res.label}</div>
+                <div class="class-resource-rest">${RESOURCE_HINTS[res.id] || 'Постоянная особенность класса'}</div>
+              </div>
+              <div class="class-resource-count">∞</div>
+            </div>
+            <div class="resource-dot-label">Доступно без ограничений</div>`;
+          el.appendChild(card);
+          return;
+        }
+
+        if (!count || count <= 0) {
+          card.innerHTML = `
+            <div class="class-resource-unavailable">
+              <div><strong>${RESOURCE_ICONS[res.id] || '◆'} ${res.label}</strong><span>Недоступно на ${lvl} уровне</span></div>
+            </div>`;
+          el.appendChild(card);
+          return;
+        }
+
+        card.dataset.total = String(count);
+        card.innerHTML = `
+          <div class="class-resource-top">
+            <div>
+              <div class="class-resource-title">${RESOURCE_ICONS[res.id] || '◆'}&nbsp; ${res.label}</div>
+              <div class="class-resource-rest">${RESOURCE_HINTS[res.id] || 'Отмечайте потраченные использования'}</div>
+            </div>
+            <div class="class-resource-count">${count} / ${count}</div>
+          </div>
+          <div class="class-resource-progress"><span style="--resource-left:100%"></span></div>
+          <div class="resource-dots" id="dots_${res.id}"></div>
+          <span class="resource-dot-label">Все использования доступны</span>`;
+        el.appendChild(card);
+
+        const dots = card.querySelector('.resource-dots');
+        for (let i = 0; i < count; i++) {
+          const dot = document.createElement('span');
+          dot.className = 'dot';
+          dot.setAttribute('role', 'button');
+          dot.setAttribute('tabindex', '0');
+          dot.setAttribute('aria-label', `Использование ${i + 1}`);
+          dot.style.borderColor = res.color;
+          const toggle = () => {
+            dot.classList.toggle('filled');
+            updateResourceDashboard();
+            fbSync();
+          };
+          dot.onclick = toggle;
+          dot.onkeydown = event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              toggle();
+            }
+          };
+          dots.appendChild(dot);
+        }
+      });
+      updateResourceDashboard();
     }
 
     function renderSpellSlots(cls, lvl) {
@@ -3688,6 +4504,8 @@
       if (!SPELLCASTERS.includes(cls)) {
         sec.classList.add('hidden');
         if (statsBlock) statsBlock.style.display = 'none';
+        el.innerHTML = '';
+        updateResourceDashboard();
         return;
       }
       const slots = SPELL_SLOTS[cls];
@@ -3695,41 +4513,56 @@
       if (!slotData) {
         sec.classList.add('hidden');
         if (statsBlock) statsBlock.style.display = 'none';
+        el.innerHTML = '';
+        updateResourceDashboard();
         return;
       }
       sec.classList.remove('hidden');
       updateSpellStats();
       el.innerHTML = '';
-      if (cls === 'warlock') {
-        const slotLevel = slotData[0];
-        const count = slotData[1];
-        const row = document.createElement('div'); row.className = 'spell-slot-row';
-        const label = document.createElement('label');
-        label.textContent = (ORDINALS[slotLevel - 1] || slotLevel) + ' \u043a\u0440\u0443\u0433';
-        const dots = document.createElement('div');
-        dots.className = 'resource-dots';
-        dots.id = 'ss0';
-        row.appendChild(label);
-        row.appendChild(dots);
-        el.appendChild(row);
-        for (let j = 0; j < count; j++) {
-          const d = document.createElement('span'); d.className = 'dot'; d.style.borderColor = '#7F77DD';
-          d.onclick = function () { this.classList.toggle('filled'); this.style.background = this.classList.contains('filled') ? '#7F77DD' : 'transparent'; fbSync(); };
-          dots.appendChild(d);
-        }
-        return;
-      }
-      slotData.forEach((count, i) => {
-        const row = document.createElement('div'); row.className = 'spell-slot-row';
-        row.innerHTML = `<label>${ORDINALS[i]} круг</label><div class="resource-dots" id="ss${i}"></div>`;
+
+      const createSlotRow = (circleLabel, id, count) => {
+        const row = document.createElement('div');
+        row.className = 'spell-slot-row';
+        row.dataset.total = String(count);
+        row.innerHTML = `<label>${circleLabel}<span class="spell-slot-meta">Все ${count} доступны</span></label><div class="resource-dots" id="${id}"></div>`;
         el.appendChild(row);
         const dots = row.querySelector('.resource-dots');
         for (let j = 0; j < count; j++) {
-          const d = document.createElement('span'); d.className = 'dot'; d.style.borderColor = '#7F77DD';
-          d.onclick = function () { this.classList.toggle('filled'); this.style.background = this.classList.contains('filled') ? '#7F77DD' : 'transparent'; fbSync(); };
-          dots.appendChild(d);
+          const dot = document.createElement('span');
+          dot.className = 'dot';
+          dot.setAttribute('role', 'button');
+          dot.setAttribute('tabindex', '0');
+          dot.setAttribute('aria-label', `Ячейка ${j + 1}`);
+          dot.style.borderColor = '#7F77DD';
+          const toggle = () => {
+            dot.classList.toggle('filled');
+            updateResourceDashboard();
+            fbSync();
+          };
+          dot.onclick = toggle;
+          dot.onkeydown = event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              toggle();
+            }
+          };
+          dots.appendChild(dot);
         }
+      };
+
+      if (cls === 'warlock') {
+        const slotLevel = slotData[0];
+        const count = slotData[1];
+        createSlotRow(`${ORDINALS[slotLevel - 1] || slotLevel} круг`, 'ss0', count);
+        updateResourceDashboard();
+        return;
+      }
+
+      slotData.forEach((count, i) => {
+        if (count > 0) createSlotRow(`${ORDINALS[i]} круг`, `ss${i}`, count);
       });
+      updateResourceDashboard();
     }
 
     function updateSpellStats() {
@@ -3741,6 +4574,7 @@
       const slotData = slots && slots[getLevel() - 1];
       if (!stat || !slotData) {
         block.style.display = 'none';
+        updateResourceDashboard();
         return;
       }
       const pb = getPB(getLevel());
@@ -3752,104 +4586,1229 @@
       if (attack) attack.value = fmtMod(pb + mod);
       if (dc) dc.value = 8 + pb + mod;
       block.style.display = '';
+      updateResourceDashboard();
+    }
+
+    function attackStatLabel(row) {
+      const key = row?.dataset.weaponStat || '';
+      if (key === 'str') return 'Сила';
+      if (key === 'dex') return 'Ловкость';
+      return row?.dataset.weaponKey ? 'Авто' : 'Особая атака';
+    }
+
+    function syncAttackCard(row) {
+      if (!row) return;
+      const inputs = row.querySelectorAll('input');
+      if (inputs.length < 3) return;
+      const name = inputs[0].value.trim() || 'Новая атака';
+      const bonus = inputs[1].value.trim() || '—';
+      const damage = inputs[2].value.trim() || 'Урон не указан';
+      const title = row.querySelector('.main-attack-title');
+      const bonusEl = row.querySelector('.main-attack-bonus');
+      const damageEl = row.querySelector('.main-attack-damage');
+      const statEl = row.querySelector('.main-attack-stat');
+      if (title) title.textContent = name;
+      if (bonusEl) bonusEl.textContent = bonus;
+      if (damageEl) damageEl.textContent = damage;
+      if (statEl) statEl.textContent = attackStatLabel(row);
+      row.setAttribute('aria-label', `Атака ${name}: ${bonus} к атаке, ${damage}`);
+      updateAttackEmptyState();
+    }
+
+    function toggleAttackEditor(row, force) {
+      if (!row) return;
+      const editor = row.querySelector('.main-attack-editor');
+      const button = row.querySelector('.main-attack-edit');
+      const expanded = force === undefined ? !row.classList.contains('is-editing') : !!force;
+      row.classList.toggle('is-editing', expanded);
+      if (editor) editor.hidden = !expanded;
+      if (button) {
+        button.textContent = expanded ? '⌃' : '⌄';
+        button.title = expanded ? 'Свернуть редактор' : 'Редактировать атаку';
+        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      }
+      if (expanded) requestAnimationFrame(() => row.querySelector('input')?.focus());
+    }
+
+    function updateAttackEmptyState() {
+      const list = v('attackList');
+      const empty = v('mainAttackEmpty');
+      if (!list || !empty) return;
+      empty.hidden = !!list.querySelector('.attack-row');
+    }
+
+    function toggleAttackCreator(force) {
+      const creator = v('attackCreator');
+      if (!creator) return;
+      creator.open = force === undefined ? !creator.open : !!force;
+      if (creator.open) requestAnimationFrame(() => creator.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
     }
 
     function addAttack(name = '', bonus = '', dmg = '', weaponMeta = null) {
       const list = v('attackList');
-      const row = document.createElement('div'); row.className = 'attack-row';
+      if (!list) return;
+      const isNew = !name && !bonus && !dmg;
+      const row = document.createElement('article');
+      row.className = 'attack-row main-attack-card';
+      row.tabIndex = 0;
       if (weaponMeta && weaponMeta.weaponKey && WEAPON_DB[weaponMeta.weaponKey] && !WEAPON_DB[weaponMeta.weaponKey].custom) {
         row.dataset.weaponKey = weaponMeta.weaponKey;
         row.dataset.weaponStat = weaponMeta.weaponStat || '';
         row.dataset.weaponMagic = parseInt(weaponMeta.weaponMagic, 10) || 0;
       }
-      const nameInput = document.createElement('input');
-      nameInput.type = 'text';
-      nameInput.placeholder = 'Длинный меч';
-      nameInput.value = name;
-      const bonusInput = document.createElement('input');
-      bonusInput.type = 'text';
-      bonusInput.placeholder = '+5';
-      bonusInput.value = bonus;
-      bonusInput.style.textAlign = 'center';
-      const dmgInput = document.createElement('input');
-      dmgInput.type = 'text';
-      dmgInput.placeholder = '1к8+3';
-      dmgInput.value = dmg;
-      dmgInput.style.textAlign = 'center';
-      const removeBtn = document.createElement('button');
-      removeBtn.className = 'remove-btn';
-      removeBtn.type = 'button';
-      removeBtn.textContent = '✕';
-      removeBtn.onclick = function () { row.remove(); fbSync(); };
-      row.appendChild(nameInput);
-      row.appendChild(bonusInput);
-      row.appendChild(dmgInput);
-      row.appendChild(removeBtn);
+      row.innerHTML = `
+        <div class="main-attack-card-accent" aria-hidden="true"></div>
+        <div class="main-attack-card-view">
+          <div class="main-attack-icon" aria-hidden="true">⚔</div>
+          <div class="main-attack-copy">
+            <div class="main-attack-title-line">
+              <h3 class="main-attack-title">Новая атака</h3>
+              <span class="main-attack-stat"></span>
+            </div>
+            <div class="main-attack-values">
+              <span><small>Бонус атаки</small><strong class="main-attack-bonus">—</strong></span>
+              <span><small>Урон / тип</small><strong class="main-attack-damage">Урон не указан</strong></span>
+            </div>
+          </div>
+          <div class="main-attack-actions">
+            <button class="main-attack-edit" type="button" title="Редактировать атаку" aria-expanded="false">⌄</button>
+            <button class="remove-btn main-attack-remove" type="button" title="Удалить атаку" aria-label="Удалить атаку">✕</button>
+          </div>
+        </div>
+        <div class="main-attack-editor" hidden>
+          <label><span>Название</span><input type="text" placeholder="Длинный меч"></label>
+          <label><span>Бонус атаки</span><input type="text" placeholder="+5"></label>
+          <label><span>Урон / тип</span><input type="text" placeholder="1к8 + 3 рубящий"></label>
+          <div class="main-attack-editor-note"></div>
+        </div>`;
+
+      const inputs = row.querySelectorAll('input');
+      inputs[0].value = name;
+      inputs[1].value = bonus;
+      inputs[2].value = dmg;
+      inputs.forEach(input => input.addEventListener('input', () => {
+        syncAttackCard(row);
+        fbSync();
+      }));
+
+      const note = row.querySelector('.main-attack-editor-note');
+      if (note) note.textContent = row.dataset.weaponKey
+        ? 'Автоматическая атака: бонус и урон пересчитываются при изменении уровня и характеристик.'
+        : 'Свободная атака: значения можно указать вручную.';
+
+      row.querySelector('.main-attack-edit').onclick = event => {
+        event.stopPropagation();
+        toggleAttackEditor(row);
+      };
+      row.querySelector('.main-attack-remove').onclick = event => {
+        event.stopPropagation();
+        row.remove();
+        updateAttackEmptyState();
+        fbSync();
+      };
+      row.addEventListener('dblclick', event => {
+        if (event.target.closest('button,input,label')) return;
+        toggleAttackEditor(row, true);
+      });
+
       list.appendChild(row);
+      syncAttackCard(row);
+      if (isNew) toggleAttackEditor(row, true);
+      updateAttackEmptyState();
       fbSync();
     }
 
-    function addInvItem(name = '', qty = '1', wt = '0') {
+    const INVENTORY_CATEGORIES = {
+      weapon: { label: 'Оружие', icon: '⚔' },
+      armor: { label: 'Броня', icon: '⬡' },
+      consumable: { label: 'Расходник', icon: '✚' },
+      gear: { label: 'Снаряжение', icon: '◫' },
+      tool: { label: 'Инструмент', icon: '⚒' },
+      treasure: { label: 'Сокровище', icon: '◆' },
+      quest: { label: 'Квестовое', icon: '✦' },
+      other: { label: 'Другое', icon: '◇' }
+    };
+
+    let activeInventoryFilter = 'all';
+    let lastInventoryPopupTrigger = null;
+
+    function inferInventoryCategory(name = '') {
+      const title = String(name || '').toLowerCase();
+      if (/меч|кинжал|топор|лук|арбалет|копь|молот|булав|посох|рапир|сабл|дубин|оруж/.test(title)) return 'weapon';
+      if (/брон|доспех|кольчуг|латы|щит|шлем|кирас|кожан/.test(title)) return 'armor';
+      if (/зель|яд|свиток|стрел|болт|факел|па[её]к|еда|припас|бутылк/.test(title)) return 'consumable';
+      if (/набор|инструмент|лютн|флейт|воровск|ремесл|лопат|кирк|молоток/.test(title)) return 'tool';
+      if (/амулет|артефакт|ключ|печать|документ|письмо|карта/.test(title)) return 'quest';
+      if (/камень|самоцвет|рубин|алмаз|жемчуг|статуэт|кубок|корон|сокров/.test(title)) return 'treasure';
+      if (/вер[её]в|рюкзак|одеял|палат|крюк|фонар|масл|бурдюк|одежд|комплект/.test(title)) return 'gear';
+      return 'other';
+    }
+
+    function clampInventoryNumber(value, fallback = 0) {
+      const number = Number(value);
+      return Number.isFinite(number) ? Math.max(0, number) : fallback;
+    }
+
+    function formatInventoryNumber(value, digits = 1) {
+      const number = Number(value) || 0;
+      return number.toLocaleString('ru-RU', { maximumFractionDigits: digits });
+    }
+
+    function inventoryCoinValue() {
+      const read = id => clampInventoryNumber(v(id)?.value, 0);
+      return read('pp') * 10 + read('gp') + read('ep') * .5 + read('sp') * .1 + read('cp') * .01;
+    }
+
+    function addInvItem(name = '', qty = '1', wt = '0', meta = {}) {
       const list = v('invList');
-      const row = document.createElement('div'); row.className = 'inv-item';
-      const nameInput = document.createElement('input');
-      nameInput.type = 'text';
-      nameInput.placeholder = 'Название предмета';
+      if (!list) return;
+      if (!meta || typeof meta !== 'object') meta = {};
+
+      const category = INVENTORY_CATEGORIES[meta.category] ? meta.category : inferInventoryCategory(name);
+      const equipped = !!meta.equipped;
+      const magical = !!meta.magical;
+      const quest = !!meta.quest || category === 'quest';
+      const notes = String(meta.notes || '');
+      const isNew = !name && String(qty) === '1' && String(wt) === '0' && !notes;
+
+      const row = document.createElement('article');
+      row.className = 'inv-item inventory-card';
+      row.tabIndex = 0;
+      row.title = 'Открыть описание предмета';
+      row.dataset.category = category;
+      row.dataset.equipped = equipped ? '1' : '0';
+      row.dataset.magical = magical ? '1' : '0';
+      row.dataset.quest = quest ? '1' : '0';
+
+      row.innerHTML = `
+        <div class="inventory-card-accent" aria-hidden="true"></div>
+        <div class="inventory-card-head">
+          <button class="inventory-equip-button" type="button" title="Снарядить предмет" aria-label="Снарядить предмет">◆</button>
+          <div class="inventory-card-icon" aria-hidden="true"></div>
+          <div class="inventory-card-heading">
+            <div class="inventory-card-title-line">
+              <h3 class="inventory-card-title">Новый предмет</h3>
+              <span class="inventory-category-badge"></span>
+            </div>
+            <div class="inventory-card-badges"></div>
+          </div>
+          <div class="inventory-card-actions">
+            <button class="inventory-expand" type="button" aria-expanded="false" title="Редактировать">⌄</button>
+            <button class="inventory-remove remove-btn" type="button" title="Удалить предмет" aria-label="Удалить предмет">✕</button>
+          </div>
+        </div>
+        <p class="inventory-card-preview"></p>
+        <div class="inventory-card-stats">
+          <span><small>Количество</small><strong class="inventory-card-qty">1</strong></span>
+          <span><small>Вес единицы</small><strong class="inventory-card-unit-weight">0 фн.</strong></span>
+          <span><small>Общий вес</small><strong class="inventory-card-total-weight">0 фн.</strong></span>
+        </div>
+        <div class="inventory-editor" hidden>
+          <div class="inventory-editor-grid">
+            <label class="inventory-editor-field inventory-editor-name">
+              <span>Название</span>
+              <input class="inv-name-input" type="text" placeholder="Длинный меч">
+            </label>
+            <label class="inventory-editor-field">
+              <span>Категория</span>
+              <select class="inv-category-select">
+                <option value="weapon">Оружие</option>
+                <option value="armor">Броня</option>
+                <option value="consumable">Расходник</option>
+                <option value="gear">Снаряжение</option>
+                <option value="tool">Инструмент</option>
+                <option value="treasure">Сокровище</option>
+                <option value="quest">Квестовое</option>
+                <option value="other">Другое</option>
+              </select>
+            </label>
+            <label class="inventory-editor-field">
+              <span>Количество</span>
+              <input class="inv-qty-input" type="number" min="0" step="1" value="1">
+            </label>
+            <label class="inventory-editor-field">
+              <span>Вес единицы (фн.)</span>
+              <input class="inv-weight-input" type="number" min="0" step="0.1" value="0">
+            </label>
+            <div class="inventory-editor-flags">
+              <label class="inventory-toggle"><input class="inv-equipped-input" type="checkbox"><span>◆ Снаряжено</span></label>
+              <label class="inventory-toggle"><input class="inv-magical-input" type="checkbox"><span>✦ Магическое</span></label>
+              <label class="inventory-toggle"><input class="inv-quest-input" type="checkbox"><span>◇ Квестовое</span></label>
+            </div>
+            <label class="inventory-editor-field inventory-editor-notes">
+              <span>Описание и заметки</span>
+              <textarea class="inv-notes-input" placeholder="Свойства предмета, происхождение, кому принадлежал и почему его не стоит трогать..."></textarea>
+            </label>
+          </div>
+        </div>`;
+
+      const nameInput = row.querySelector('.inv-name-input');
+      const qtyInput = row.querySelector('.inv-qty-input');
+      const wtInput = row.querySelector('.inv-weight-input');
+      const categorySelect = row.querySelector('.inv-category-select');
+      const equippedInput = row.querySelector('.inv-equipped-input');
+      const magicalInput = row.querySelector('.inv-magical-input');
+      const questInput = row.querySelector('.inv-quest-input');
+      const notesInput = row.querySelector('.inv-notes-input');
+
       nameInput.value = name;
-      const qtyInput = document.createElement('input');
-      qtyInput.type = 'number';
-      qtyInput.value = qty;
-      qtyInput.min = '0';
-      qtyInput.style.textAlign = 'center';
-      const wtInput = document.createElement('input');
-      wtInput.type = 'number';
-      wtInput.value = wt;
-      wtInput.min = '0';
-      wtInput.step = '0.5';
-      wtInput.style.textAlign = 'center';
-      const removeBtn = document.createElement('button');
-      removeBtn.className = 'remove-btn';
-      removeBtn.type = 'button';
-      removeBtn.textContent = '✕';
-      removeBtn.onclick = function () { row.remove(); fbSync(); };
-      row.appendChild(nameInput);
-      row.appendChild(qtyInput);
-      row.appendChild(wtInput);
-      row.appendChild(removeBtn);
+      qtyInput.value = String(clampInventoryNumber(qty, 1));
+      wtInput.value = String(clampInventoryNumber(wt, 0));
+      categorySelect.value = category;
+      equippedInput.checked = equipped;
+      magicalInput.checked = magical;
+      questInput.checked = quest;
+      notesInput.value = notes;
+
+      row.querySelector('.inventory-equip-button').onclick = () => {
+        equippedInput.checked = !equippedInput.checked;
+        syncInventoryCard(row);
+      };
+      row.querySelector('.inventory-expand').onclick = () => toggleInventoryCard(row);
+      row.querySelector('.inventory-remove').onclick = () => {
+        row.remove();
+        updateInventoryDashboard();
+        fbSync();
+      };
+
+      row.addEventListener('click', event => {
+        if (row.classList.contains('is-expanded')) return;
+        if (event.target.closest('button, input, select, textarea, label, a, .inventory-editor')) return;
+        openInventoryPopup(row);
+      });
+      row.addEventListener('keydown', event => {
+        if (event.target !== row || row.classList.contains('is-expanded')) return;
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openInventoryPopup(row);
+        }
+      });
+
+      [nameInput, qtyInput, wtInput, notesInput].forEach(el => {
+        el.addEventListener('input', () => {
+          if (el === notesInput) autoResizeTextarea(notesInput);
+          syncInventoryCard(row);
+        });
+      });
+      [categorySelect, equippedInput, magicalInput, questInput].forEach(el => {
+        el.addEventListener('change', () => syncInventoryCard(row));
+      });
+
       list.appendChild(row);
+      syncInventoryCard(row, false);
+      autoResizeTextarea(notesInput);
+      if (isNew) {
+        toggleInventoryCard(row, true);
+        setTimeout(() => nameInput.focus(), 0);
+      }
+      updateInventoryDashboard();
       fbSync();
     }
 
-    function addAbility(name = '', desc = '', source = '') {
+    function syncInventoryCard(row, shouldSync = true) {
+      if (!row) return;
+      const name = row.querySelector('.inv-name-input')?.value.trim() || 'Новый предмет';
+      const category = row.querySelector('.inv-category-select')?.value || 'other';
+      const qty = clampInventoryNumber(row.querySelector('.inv-qty-input')?.value, 0);
+      const weight = clampInventoryNumber(row.querySelector('.inv-weight-input')?.value, 0);
+      const notes = row.querySelector('.inv-notes-input')?.value.trim() || '';
+      const equipped = !!row.querySelector('.inv-equipped-input')?.checked;
+      const magical = !!row.querySelector('.inv-magical-input')?.checked;
+      const questInput = row.querySelector('.inv-quest-input');
+      const quest = !!questInput?.checked || category === 'quest';
+      if (questInput && category === 'quest') questInput.checked = true;
+      const info = INVENTORY_CATEGORIES[category] || INVENTORY_CATEGORIES.other;
+
+      row.dataset.category = category;
+      row.dataset.equipped = equipped ? '1' : '0';
+      row.dataset.magical = magical ? '1' : '0';
+      row.dataset.quest = quest ? '1' : '0';
+      row.classList.toggle('is-equipped', equipped);
+      row.classList.toggle('is-magical', magical);
+      row.classList.toggle('is-quest', quest);
+
+      row.querySelector('.inventory-card-icon').textContent = info.icon;
+      row.querySelector('.inventory-card-title').textContent = name;
+      row.querySelector('.inventory-category-badge').textContent = info.label;
+      row.querySelector('.inventory-card-preview').textContent = notes || 'Описание предмета пока не добавлено.';
+      row.querySelector('.inventory-card-qty').textContent = formatInventoryNumber(qty, 0);
+      row.querySelector('.inventory-card-unit-weight').textContent = `${formatInventoryNumber(weight)} фн.`;
+      row.querySelector('.inventory-card-total-weight').textContent = `${formatInventoryNumber(qty * weight)} фн.`;
+
+      const badges = [];
+      if (equipped) badges.push('<span class="inventory-status-badge equipped">◆ Снаряжено</span>');
+      if (magical) badges.push('<span class="inventory-status-badge magical">✦ Магическое</span>');
+      if (quest) badges.push('<span class="inventory-status-badge quest">◇ Квестовое</span>');
+      row.querySelector('.inventory-card-badges').innerHTML = badges.join('');
+
+      const equipButton = row.querySelector('.inventory-equip-button');
+      equipButton.classList.toggle('active', equipped);
+      equipButton.setAttribute('aria-pressed', equipped ? 'true' : 'false');
+      equipButton.title = equipped ? 'Убрать из быстрого доступа' : 'Снарядить предмет';
+
+      updateInventoryDashboard();
+      if (shouldSync) fbSync();
+    }
+
+    function toggleInventoryCard(row, force) {
+      if (!row) return;
+      const expanded = force === undefined ? !row.classList.contains('is-expanded') : !!force;
+      row.classList.toggle('is-expanded', expanded);
+      const editor = row.querySelector('.inventory-editor');
+      const button = row.querySelector('.inventory-expand');
+      if (editor) editor.hidden = !expanded;
+      if (button) {
+        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        button.textContent = expanded ? '⌃' : '⌄';
+        button.title = expanded ? 'Свернуть редактор' : 'Редактировать';
+      }
+      if (expanded) requestAnimationFrame(() => autoResizeTextarea(row.querySelector('.inv-notes-input')));
+    }
+
+    function setInventoryFilter(filter, button) {
+      activeInventoryFilter = filter || 'all';
+      document.querySelectorAll('.inventory-filter').forEach(el => el.classList.toggle('active', el === button || el.dataset.inventoryFilter === activeInventoryFilter));
+      applyInventoryFilters();
+    }
+
+    function applyInventoryFilters() {
+      const search = String(v('inventorySearch')?.value || '').trim().toLowerCase();
+      const rows = [...document.querySelectorAll('#invList .inv-item')];
+      let shown = 0;
+      rows.forEach(row => {
+        const name = row.querySelector('.inv-name-input')?.value.toLowerCase() || '';
+        const notes = row.querySelector('.inv-notes-input')?.value.toLowerCase() || '';
+        const category = row.dataset.category || 'other';
+        let filterMatch = activeInventoryFilter === 'all';
+        if (activeInventoryFilter === 'equipped') filterMatch = row.dataset.equipped === '1';
+        else if (activeInventoryFilter === 'magic') filterMatch = row.dataset.magical === '1';
+        else if (activeInventoryFilter === 'quest') filterMatch = row.dataset.quest === '1' || category === 'quest';
+        else if (activeInventoryFilter !== 'all') filterMatch = category === activeInventoryFilter;
+        const searchMatch = !search || name.includes(search) || notes.includes(search) || (INVENTORY_CATEGORIES[category]?.label || '').toLowerCase().includes(search);
+        const visible = filterMatch && searchMatch;
+        row.hidden = !visible;
+        if (visible) shown++;
+      });
+      const empty = v('inventoryEmptyState');
+      if (empty) empty.hidden = shown > 0;
+    }
+
+    function renderInventoryEquipped(rows) {
+      const panel = v('inventoryEquippedPanel');
+      const list = v('inventoryEquippedList');
+      if (!panel || !list) return;
+      const equipped = rows.filter(row => row.dataset.equipped === '1');
+      panel.hidden = equipped.length === 0;
+      list.innerHTML = '';
+      equipped.forEach(row => {
+        const name = row.querySelector('.inv-name-input')?.value.trim() || 'Новый предмет';
+        const category = row.dataset.category || 'other';
+        const info = INVENTORY_CATEGORIES[category] || INVENTORY_CATEGORIES.other;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'inventory-equipped-chip';
+        button.innerHTML = `<span aria-hidden="true">${wizardEscape(info.icon)}</span><strong>${wizardEscape(name)}</strong>`;
+        button.onclick = () => openInventoryPopup(row);
+        list.appendChild(button);
+      });
+    }
+
+    function updateInventoryDashboard() {
+      const rows = [...document.querySelectorAll('#invList .inv-item')];
+      const totalWeight = rows.reduce((sum, row) => {
+        const qty = clampInventoryNumber(row.querySelector('.inv-qty-input')?.value, 0);
+        const weight = clampInventoryNumber(row.querySelector('.inv-weight-input')?.value, 0);
+        return sum + qty * weight;
+      }, 0);
+      const capacity = Math.max(1, getStatTotal('str')) * 15;
+      const equippedCount = rows.filter(row => row.dataset.equipped === '1').length;
+      const wealth = inventoryCoinValue();
+      const pct = Math.max(0, Math.min(100, totalWeight / capacity * 100));
+
+      if (v('inventorySummaryWealth')) v('inventorySummaryWealth').textContent = `${formatInventoryNumber(wealth, 2)} зм.`;
+      if (v('inventoryWalletTotal')) v('inventoryWalletTotal').textContent = `${formatInventoryNumber(wealth, 2)} зм.`;
+      if (v('inventorySummaryWeight')) v('inventorySummaryWeight').textContent = `${formatInventoryNumber(totalWeight)} / ${formatInventoryNumber(capacity, 0)} фн.`;
+      if (v('inventorySummaryItems')) v('inventorySummaryItems').textContent = String(rows.length);
+      if (v('inventorySummaryEquipped')) v('inventorySummaryEquipped').textContent = String(equippedCount);
+      const fill = v('inventoryLoadFill');
+      if (fill) {
+        fill.style.width = `${pct}%`;
+        fill.classList.toggle('is-heavy', totalWeight > capacity * .75 && totalWeight <= capacity);
+        fill.classList.toggle('is-overloaded', totalWeight > capacity);
+      }
+      renderInventoryEquipped(rows);
+      applyInventoryFilters();
+    }
+
+    function openInventoryPopup(row) {
+      if (!row) return;
+      const name = row.querySelector('.inv-name-input')?.value.trim() || 'Новый предмет';
+      const category = row.dataset.category || 'other';
+      const info = INVENTORY_CATEGORIES[category] || INVENTORY_CATEGORIES.other;
+      const qty = clampInventoryNumber(row.querySelector('.inv-qty-input')?.value, 0);
+      const weight = clampInventoryNumber(row.querySelector('.inv-weight-input')?.value, 0);
+      const notes = row.querySelector('.inv-notes-input')?.value.trim() || 'Описание для этого предмета пока не добавлено.';
+      const statuses = [];
+      if (row.dataset.equipped === '1') statuses.push('Снаряжено');
+      if (row.dataset.magical === '1') statuses.push('Магическое');
+      if (row.dataset.quest === '1') statuses.push('Квестовое');
+      const popup = v('inventoryPopup');
+      const popupCard = v('inventoryPopupCard');
+      const popupBody = v('inventoryPopupBody');
+      if (!popup || !popupCard || !popupBody) return;
+
+      popupCard.dataset.category = category;
+      popupBody.innerHTML = `
+        <header class="inventory-detail-head">
+          <div class="inventory-detail-icon" aria-hidden="true">${wizardEscape(info.icon)}</div>
+          <div>
+            <div class="inventory-detail-kicker">${wizardEscape(info.label)}</div>
+            <h2 id="inventoryPopupTitle">${wizardEscape(name)}</h2>
+            ${statuses.length ? `<div class="inventory-detail-status">${statuses.map(status => `<span>${wizardEscape(status)}</span>`).join('')}</div>` : ''}
+          </div>
+        </header>
+        <div class="inventory-detail-grid">
+          <div class="inventory-detail-stat"><span>Количество</span><strong>${formatInventoryNumber(qty, 0)}</strong></div>
+          <div class="inventory-detail-stat"><span>Вес единицы</span><strong>${formatInventoryNumber(weight)} фн.</strong></div>
+          <div class="inventory-detail-stat"><span>Общий вес</span><strong>${formatInventoryNumber(qty * weight)} фн.</strong></div>
+          <div class="inventory-detail-stat"><span>Состояние</span><strong>${statuses.length ? wizardEscape(statuses.join(' · ')) : 'В рюкзаке'}</strong></div>
+        </div>
+        <div class="inventory-detail-description">${wizardEscape(notes).replace(/\n/g, '<br>')}</div>`;
+
+      if (popup.parentElement !== document.body) document.body.appendChild(popup);
+      lastInventoryPopupTrigger = row;
+      popup.style.display = 'flex';
+      document.body.classList.add('modal-open');
+      requestAnimationFrame(() => popup.querySelector('.spell-popup-close')?.focus());
+    }
+
+    function closeInventoryPopup() {
+      const popup = v('inventoryPopup');
+      if (!popup) return;
+      popup.style.display = 'none';
+      document.body.classList.remove('modal-open');
+      if (lastInventoryPopupTrigger && document.contains(lastInventoryPopupTrigger)) {
+        lastInventoryPopupTrigger.focus({ preventScroll: true });
+      }
+      lastInventoryPopupTrigger = null;
+    }
+
+    document.addEventListener('keydown', event => {
+      const popup = v('inventoryPopup');
+      if (event.key === 'Escape' && popup && popup.style.display !== 'none') closeInventoryPopup();
+    });
+
+    const ABILITY_CATEGORIES = {
+      class: { label: 'Классовое', icon: '⚔' },
+      race: { label: 'Расовое', icon: '❧' },
+      feat: { label: 'Черта', icon: '◆' },
+      item: { label: 'Предмет', icon: '◇' },
+      story: { label: 'Сюжетное', icon: '✦' },
+      other: { label: 'Другое', icon: '◈' }
+    };
+
+    const ABILITY_ACTIONS = {
+      passive: 'Пассивное',
+      action: 'Действие',
+      bonus: 'Бонусное действие',
+      reaction: 'Реакция',
+      special: 'Особое'
+    };
+
+    const ABILITY_RECOVERY = {
+      none: 'Без восстановления',
+      short: 'Короткий отдых',
+      long: 'Долгий отдых',
+      turn: 'Начало хода',
+      special: 'Особое условие'
+    };
+
+    let activeAbilityFilter = 'all';
+    let lastAbilityPopupTrigger = null;
+
+    function inferAbilityCategory(source, name = '') {
+      const normalized = String(source || '').toLowerCase();
+      const title = String(name || '').toLowerCase();
+      if (normalized === 'racepreset' || title.includes('расов')) return 'race';
+      if (normalized === 'wizardclass' || normalized === 'levelup' || title.startsWith('подкласс:') || title.startsWith('боевой стиль:')) return 'class';
+      if (title.includes('черта')) return 'feat';
+      if (title.includes('амулет') || title.includes('кольцо') || title.includes('артефакт')) return 'item';
+      if (title.includes('благословение') || title.includes('дар ')) return 'story';
+      return 'other';
+    }
+
+    function abilitySourceLabel(source) {
+      return ({
+        racePreset: 'Добавлено пресетом расы',
+        wizardClass: 'Добавлено при создании персонажа',
+        levelUp: 'Получено при повышении уровня'
+      })[source] || (source ? 'Источник: ' + source : 'Добавлено вручную');
+    }
+
+    function clampAbilityNumber(value, min, max) {
+      const number = Math.floor(Number(value) || 0);
+      return Math.max(min, Math.min(max, number));
+    }
+
+    function addAbility(name = '', desc = '', source = '', meta = {}) {
       const list = v('abilityList');
-      const row = document.createElement('div'); row.className = 'ability-row';
+      if (!list) return;
+      if (!meta || typeof meta !== 'object') meta = {};
+
+      const category = ABILITY_CATEGORIES[meta.category] ? meta.category : inferAbilityCategory(source, name);
+      const action = ABILITY_ACTIONS[meta.action] ? meta.action : 'passive';
+      const recovery = ABILITY_RECOVERY[meta.recovery] ? meta.recovery : 'none';
+      const usesMax = Math.max(0, Math.floor(Number(meta.usesMax) || 0));
+      const usesRemaining = meta.usesRemaining === undefined
+        ? usesMax
+        : clampAbilityNumber(meta.usesRemaining, 0, usesMax);
+      const pinned = !!meta.pinned;
+      const isNew = !name && !desc && !source;
+
+      const row = document.createElement('article');
+      row.className = 'ability-row ability-card';
+      row.tabIndex = 0;
+      row.title = 'Открыть полное описание';
+      row.dataset.category = category;
+      row.dataset.pinned = pinned ? '1' : '0';
       if (source) row.dataset.source = source;
-      const nameInput = document.createElement('input');
-      nameInput.type = 'text';
-      nameInput.placeholder = 'Божественное чувство';
+      if (pinned) row.classList.add('is-pinned');
+
+      row.innerHTML = `
+        <div class="ability-card-accent" aria-hidden="true"></div>
+        <div class="ability-card-head">
+          <button class="ability-pin" type="button" title="Закрепить умение" aria-label="Закрепить умение">◆</button>
+          <div class="ability-card-icon" aria-hidden="true"></div>
+          <div class="ability-card-heading">
+            <div class="ability-card-title-line">
+              <h3 class="ability-card-title">Новое умение</h3>
+              <span class="ability-category-badge"></span>
+            </div>
+            <div class="ability-card-source"></div>
+          </div>
+          <div class="ability-card-actions">
+            <button class="ability-expand" type="button" aria-expanded="false" title="Редактировать">⌄</button>
+            <button class="ability-remove remove-btn" type="button" title="Удалить умение" aria-label="Удалить умение">✕</button>
+          </div>
+        </div>
+        <p class="ability-card-preview"></p>
+        <div class="ability-card-meta">
+          <span class="ability-meta-chip ability-action-chip"></span>
+          <span class="ability-meta-chip ability-recovery-chip"></span>
+        </div>
+        <div class="ability-uses" hidden>
+          <div class="ability-uses-head">
+            <span>Использования</span>
+            <div class="ability-uses-counter">
+              <button type="button" class="ability-use-adjust ability-use-minus" aria-label="Уменьшить оставшиеся использования">−</button>
+              <strong class="ability-use-count">0 / 0</strong>
+              <button type="button" class="ability-use-adjust ability-use-plus" aria-label="Увеличить оставшиеся использования">＋</button>
+            </div>
+          </div>
+          <div class="ability-use-pips" role="group" aria-label="Оставшиеся использования"></div>
+        </div>
+        <div class="ability-editor" hidden>
+          <div class="ability-editor-grid">
+            <label class="ability-editor-field ability-editor-name">
+              <span>Название</span>
+              <input class="ability-name-input" type="text" placeholder="Божественное чувство">
+            </label>
+            <label class="ability-editor-field">
+              <span>Категория</span>
+              <select class="ability-category-select">
+                <option value="class">Классовое</option>
+                <option value="race">Расовое</option>
+                <option value="feat">Черта</option>
+                <option value="item">Предмет</option>
+                <option value="story">Сюжетное</option>
+                <option value="other">Другое</option>
+              </select>
+            </label>
+            <label class="ability-editor-field">
+              <span>Активация</span>
+              <select class="ability-action-select">
+                <option value="passive">Пассивное</option>
+                <option value="action">Действие</option>
+                <option value="bonus">Бонусное действие</option>
+                <option value="reaction">Реакция</option>
+                <option value="special">Особое</option>
+              </select>
+            </label>
+            <label class="ability-editor-field">
+              <span>Восстановление</span>
+              <select class="ability-recovery-select">
+                <option value="none">Не требуется</option>
+                <option value="short">Короткий отдых</option>
+                <option value="long">Долгий отдых</option>
+                <option value="turn">Начало хода</option>
+                <option value="special">Особое условие</option>
+              </select>
+            </label>
+            <label class="ability-editor-field">
+              <span>Максимум использований</span>
+              <input class="ability-uses-max" type="number" min="0" max="30" step="1" value="0">
+            </label>
+            <label class="ability-editor-field">
+              <span>Осталось</span>
+              <input class="ability-uses-remaining" type="number" min="0" max="30" step="1" value="0">
+            </label>
+            <label class="ability-editor-field ability-editor-description">
+              <span>Описание</span>
+              <textarea class="ability-desc-input" placeholder="Краткое описание, условия применения и важные ограничения..."></textarea>
+            </label>
+          </div>
+        </div>`;
+
+      const nameInput = row.querySelector('.ability-name-input');
+      const descInput = row.querySelector('.ability-desc-input');
+      const categorySelect = row.querySelector('.ability-category-select');
+      const actionSelect = row.querySelector('.ability-action-select');
+      const recoverySelect = row.querySelector('.ability-recovery-select');
+      const maxInput = row.querySelector('.ability-uses-max');
+      const remainingInput = row.querySelector('.ability-uses-remaining');
+
       nameInput.value = name;
-      const descInput = document.createElement('textarea');
-      descInput.placeholder = 'Краткое описание, условия использования, количество раз, восстановление...';
       descInput.value = desc;
-      descInput.oninput = function () { autoResizeTextarea(this); };
-      const removeBtn = document.createElement('button');
-      removeBtn.className = 'remove-btn';
-      removeBtn.type = 'button';
-      removeBtn.textContent = '✕';
-      removeBtn.onclick = function () { row.remove(); fbSync(); };
-      row.appendChild(nameInput);
-      row.appendChild(descInput);
-      row.appendChild(removeBtn);
+      categorySelect.value = category;
+      actionSelect.value = action;
+      recoverySelect.value = recovery;
+      maxInput.value = String(usesMax);
+      remainingInput.value = String(usesRemaining);
+
+      row.querySelector('.ability-pin').onclick = () => toggleAbilityPinned(row);
+      row.querySelector('.ability-expand').onclick = () => toggleAbilityCard(row);
+      row.querySelector('.ability-remove').onclick = () => {
+        row.remove();
+        updateAbilitySummary();
+        applyAbilityFilters();
+        fbSync();
+      };
+      row.querySelector('.ability-use-minus').onclick = () => adjustAbilityUses(row, -1);
+      row.querySelector('.ability-use-plus').onclick = () => adjustAbilityUses(row, 1);
+
+      row.addEventListener('click', event => {
+        if (row.classList.contains('is-expanded')) return;
+        if (event.target.closest('button, input, select, textarea, label, a, .ability-editor')) return;
+        openAbilityPopup(row);
+      });
+      row.addEventListener('keydown', event => {
+        if (event.target !== row || row.classList.contains('is-expanded')) return;
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openAbilityPopup(row);
+        }
+      });
+
+      nameInput.addEventListener('input', () => syncAbilityCard(row));
+      descInput.addEventListener('input', () => {
+        autoResizeTextarea(descInput);
+        syncAbilityCard(row);
+      });
+      [categorySelect, actionSelect, recoverySelect].forEach(el => {
+        el.addEventListener('change', () => syncAbilityCard(row));
+      });
+      maxInput.addEventListener('input', () => {
+        const oldMax = Number(row.dataset.usesMax || 0);
+        const newMax = clampAbilityNumber(maxInput.value, 0, 30);
+        let remaining = clampAbilityNumber(remainingInput.value, 0, newMax);
+        if (oldMax === 0 && newMax > 0 && remaining === 0) remaining = newMax;
+        maxInput.value = String(newMax);
+        remainingInput.value = String(remaining);
+        syncAbilityCard(row);
+      });
+      remainingInput.addEventListener('input', () => syncAbilityCard(row));
+
       list.appendChild(row);
+      syncAbilityCard(row, false);
       autoResizeTextarea(descInput);
+      if (isNew) {
+        toggleAbilityCard(row, true);
+        setTimeout(() => nameInput.focus(), 0);
+      }
+      updateAbilitySummary();
+      applyAbilityFilters();
       fbSync();
     }
+
+    function openAbilityPopup(row) {
+      if (!row) return;
+      const name = row.querySelector('.ability-name-input')?.value.trim() || 'Новое умение';
+      const desc = row.querySelector('.ability-desc-input')?.value.trim() || 'Описание для этого умения пока не добавлено.';
+      const category = row.querySelector('.ability-category-select')?.value || 'other';
+      const action = row.querySelector('.ability-action-select')?.value || 'passive';
+      const recovery = row.querySelector('.ability-recovery-select')?.value || 'none';
+      const usesMax = clampAbilityNumber(row.querySelector('.ability-uses-max')?.value, 0, 30);
+      const usesRemaining = clampAbilityNumber(row.querySelector('.ability-uses-remaining')?.value, 0, usesMax);
+      const categoryInfo = ABILITY_CATEGORIES[category] || ABILITY_CATEGORIES.other;
+      const source = abilitySourceLabel(row.dataset.source || '');
+      const popup = v('abilityPopup');
+      const popupCard = v('abilityPopupCard');
+      const popupBody = v('abilityPopupBody');
+      if (!popup || !popupCard || !popupBody) return;
+
+      popupCard.dataset.category = category;
+      popupBody.innerHTML = `
+        <header class="ability-detail-head">
+          <div class="ability-detail-icon" aria-hidden="true">${wizardEscape(categoryInfo.icon || '✦')}</div>
+          <div>
+            <div class="ability-detail-kicker">${wizardEscape(categoryInfo.label || 'Умение')}</div>
+            <h2 id="abilityPopupTitle">${wizardEscape(name)}</h2>
+          </div>
+        </header>
+        <div class="ability-detail-grid">
+          <div class="ability-detail-stat"><span>Активация</span><strong>${wizardEscape(ABILITY_ACTIONS[action] || ABILITY_ACTIONS.passive)}</strong></div>
+          <div class="ability-detail-stat"><span>Восстановление</span><strong>${wizardEscape(ABILITY_RECOVERY[recovery] || ABILITY_RECOVERY.none)}</strong></div>
+          <div class="ability-detail-stat"><span>Использования</span><strong>${usesMax > 0 ? `${usesRemaining} из ${usesMax}` : 'Не ограничено'}</strong></div>
+          <div class="ability-detail-stat"><span>Источник</span><strong>${wizardEscape(source)}</strong></div>
+        </div>
+        <div class="ability-detail-description">${wizardEscape(desc).replace(/\n/g, '<br>')}</div>`;
+
+      if (popup.parentElement !== document.body) document.body.appendChild(popup);
+      lastAbilityPopupTrigger = row;
+      popup.style.display = 'flex';
+      document.body.classList.add('modal-open');
+      requestAnimationFrame(() => popup.querySelector('.spell-popup-close')?.focus());
+    }
+
+    function closeAbilityPopup() {
+      const popup = v('abilityPopup');
+      if (!popup) return;
+      popup.style.display = 'none';
+      document.body.classList.remove('modal-open');
+      if (lastAbilityPopupTrigger && document.contains(lastAbilityPopupTrigger)) {
+        lastAbilityPopupTrigger.focus({ preventScroll: true });
+      }
+      lastAbilityPopupTrigger = null;
+    }
+
+    document.addEventListener('keydown', event => {
+      const popup = v('abilityPopup');
+      if (event.key === 'Escape' && popup && popup.style.display !== 'none') {
+        closeAbilityPopup();
+      }
+    });
+
+    function toggleAbilityCard(row, force) {
+      if (!row) return;
+      const expanded = force === undefined ? !row.classList.contains('is-expanded') : !!force;
+      row.classList.toggle('is-expanded', expanded);
+      const editor = row.querySelector('.ability-editor');
+      const button = row.querySelector('.ability-expand');
+      if (editor) editor.hidden = !expanded;
+      if (button) {
+        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        button.textContent = expanded ? '⌃' : '⌄';
+        button.title = expanded ? 'Свернуть редактор' : 'Редактировать';
+      }
+      if (expanded) {
+        const textarea = row.querySelector('.ability-desc-input');
+        requestAnimationFrame(() => autoResizeTextarea(textarea));
+      }
+    }
+
+    function toggleAbilityPinned(row) {
+      if (!row) return;
+      const pinned = row.dataset.pinned !== '1';
+      row.dataset.pinned = pinned ? '1' : '0';
+      row.classList.toggle('is-pinned', pinned);
+      const pin = row.querySelector('.ability-pin');
+      if (pin) {
+        pin.title = pinned ? 'Открепить умение' : 'Закрепить умение';
+        pin.setAttribute('aria-label', pin.title);
+      }
+      updateAbilitySummary();
+      applyAbilityFilters();
+      fbSync();
+    }
+
+    function adjustAbilityUses(row, delta) {
+      const maxInput = row && row.querySelector('.ability-uses-max');
+      const remainingInput = row && row.querySelector('.ability-uses-remaining');
+      if (!maxInput || !remainingInput) return;
+      const max = clampAbilityNumber(maxInput.value, 0, 30);
+      const next = clampAbilityNumber(Number(remainingInput.value) + delta, 0, max);
+      remainingInput.value = String(next);
+      syncAbilityCard(row);
+      fbSync();
+    }
+
+    function setAbilityUses(row, value) {
+      const maxInput = row && row.querySelector('.ability-uses-max');
+      const remainingInput = row && row.querySelector('.ability-uses-remaining');
+      if (!maxInput || !remainingInput) return;
+      const max = clampAbilityNumber(maxInput.value, 0, 30);
+      const current = clampAbilityNumber(remainingInput.value, 0, max);
+      const requested = clampAbilityNumber(value, 0, max);
+      remainingInput.value = String(requested === current ? Math.max(0, requested - 1) : requested);
+      syncAbilityCard(row);
+      fbSync();
+    }
+
+    function renderAbilityUses(row) {
+      const wrap = row.querySelector('.ability-uses');
+      const pips = row.querySelector('.ability-use-pips');
+      const count = row.querySelector('.ability-use-count');
+      const maxInput = row.querySelector('.ability-uses-max');
+      const remainingInput = row.querySelector('.ability-uses-remaining');
+      if (!wrap || !pips || !count || !maxInput || !remainingInput) return;
+
+      const max = clampAbilityNumber(maxInput.value, 0, 30);
+      const remaining = clampAbilityNumber(remainingInput.value, 0, max);
+      row.dataset.usesMax = String(max);
+      maxInput.value = String(max);
+      remainingInput.value = String(remaining);
+      wrap.hidden = max < 1;
+      count.textContent = `${remaining} / ${max}`;
+      pips.innerHTML = '';
+
+      for (let index = 1; index <= max; index++) {
+        const pip = document.createElement('button');
+        pip.type = 'button';
+        pip.className = 'ability-use-pip' + (index <= remaining ? ' filled' : '');
+        pip.title = index <= remaining ? `Использование ${index} доступно` : `Использование ${index} потрачено`;
+        pip.setAttribute('aria-label', pip.title);
+        pip.onclick = () => setAbilityUses(row, index);
+        pips.appendChild(pip);
+      }
+    }
+
+    function syncAbilityCard(row, updateSummary = true) {
+      if (!row) return;
+      const name = row.querySelector('.ability-name-input')?.value.trim() || '';
+      const desc = row.querySelector('.ability-desc-input')?.value.trim() || '';
+      const category = row.querySelector('.ability-category-select')?.value || 'other';
+      const action = row.querySelector('.ability-action-select')?.value || 'passive';
+      const recovery = row.querySelector('.ability-recovery-select')?.value || 'none';
+      const categoryInfo = ABILITY_CATEGORIES[category] || ABILITY_CATEGORIES.other;
+
+      row.dataset.category = category;
+      row.querySelector('.ability-card-title').textContent = name || 'Новое умение';
+      row.querySelector('.ability-card-preview').textContent = desc || 'Добавьте описание, чтобы во время игры сразу помнить, как работает эта способность.';
+      row.setAttribute('aria-label', `Открыть описание умения: ${name || 'Новое умение'}`);
+      row.querySelector('.ability-card-icon').textContent = categoryInfo.icon;
+      row.querySelector('.ability-category-badge').textContent = categoryInfo.label;
+      row.querySelector('.ability-card-source').textContent = abilitySourceLabel(row.dataset.source || '');
+      row.querySelector('.ability-action-chip').textContent = ABILITY_ACTIONS[action] || ABILITY_ACTIONS.passive;
+
+      const recoveryChip = row.querySelector('.ability-recovery-chip');
+      recoveryChip.textContent = ABILITY_RECOVERY[recovery] || ABILITY_RECOVERY.none;
+      recoveryChip.hidden = recovery === 'none';
+
+      const pin = row.querySelector('.ability-pin');
+      const pinned = row.dataset.pinned === '1';
+      pin.classList.toggle('active', pinned);
+      pin.title = pinned ? 'Открепить умение' : 'Закрепить умение';
+
+      renderAbilityUses(row);
+      if (updateSummary) updateAbilitySummary();
+      applyAbilityFilters();
+    }
+
+    function setAbilityFilter(filter, button) {
+      activeAbilityFilter = filter || 'all';
+      document.querySelectorAll('.ability-filter').forEach(item => {
+        const active = item === button || item.dataset.filter === activeAbilityFilter;
+        item.classList.toggle('active', active);
+        item.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      applyAbilityFilters();
+    }
+
+    function applyAbilityFilters() {
+      const search = (v('abilitySearch')?.value || '').trim().toLowerCase();
+      let visible = 0;
+      document.querySelectorAll('#abilityList .ability-row').forEach(row => {
+        const category = row.dataset.category || 'other';
+        const pinned = row.dataset.pinned === '1';
+        const title = row.querySelector('.ability-name-input')?.value || '';
+        const desc = row.querySelector('.ability-desc-input')?.value || '';
+        const haystack = `${title} ${desc} ${(ABILITY_CATEGORIES[category] || ABILITY_CATEGORIES.other).label}`.toLowerCase();
+        const filterMatches = activeAbilityFilter === 'all'
+          || (activeAbilityFilter === 'pinned' && pinned)
+          || activeAbilityFilter === category;
+        const matches = filterMatches && (!search || haystack.includes(search));
+        row.hidden = !matches;
+        if (matches) visible++;
+      });
+      const empty = v('abilityEmptyState');
+      if (empty) empty.hidden = visible > 0;
+    }
+
+    function updateAbilitySummary() {
+      const rows = [...document.querySelectorAll('#abilityList .ability-row')];
+      const pinned = rows.filter(row => row.dataset.pinned === '1').length;
+      let remaining = 0;
+      let maximum = 0;
+      rows.forEach(row => {
+        const max = clampAbilityNumber(row.querySelector('.ability-uses-max')?.value, 0, 30);
+        const left = clampAbilityNumber(row.querySelector('.ability-uses-remaining')?.value, 0, max);
+        maximum += max;
+        remaining += left;
+      });
+      if (v('abilitySummaryTotal')) v('abilitySummaryTotal').textContent = String(rows.length);
+      if (v('abilitySummaryPinned')) v('abilitySummaryPinned').textContent = String(pinned);
+      if (v('abilitySummaryUses')) v('abilitySummaryUses').textContent = `${remaining} / ${maximum}`;
+      updateQuickAbilities();
+    }
+
+    const NOTE_SECTIONS = {
+      personality: {
+        title: 'Черты характера',
+        kicker: 'Манера героя',
+        tone: 'personality',
+        empty: 'Характерные черты пока не описаны.'
+      },
+      ideals: {
+        title: 'Идеалы',
+        kicker: 'Внутренний компас',
+        tone: 'ideals',
+        empty: 'Ценности и убеждения пока не указаны.'
+      },
+      bonds: {
+        title: 'Привязанности',
+        kicker: 'То, что дорого',
+        tone: 'bonds',
+        empty: 'Важные люди, места и клятвы пока не записаны.'
+      },
+      flaws: {
+        title: 'Слабости',
+        kicker: 'Трещины в доспехе',
+        tone: 'flaws',
+        empty: 'Страхи и слабости героя пока не описаны.'
+      },
+      backstory: {
+        title: 'История персонажа',
+        kicker: 'Личная хроника',
+        tone: 'backstory',
+        empty: 'История героя пока не написана.'
+      },
+      allies: {
+        title: 'Союзники и организации',
+        kicker: 'Круг связей',
+        tone: 'allies',
+        empty: 'Важные связи героя пока не записаны.'
+      }
+    };
+
+    let lastNotesPopupTrigger = null;
+
+    function noteText(id) {
+      return String(v(id)?.value || '').trim();
+    }
+
+    function noteWordCount(text) {
+      const matches = String(text || '').trim().match(/[\p{L}\p{N}’'-]+/gu);
+      return matches ? matches.length : 0;
+    }
+
+    function noteLines(text) {
+      return String(text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+    }
+
+    function notePreview(text, fallback, max = 280) {
+      const clean = String(text || '').replace(/^#{1,6}\s*/gm, '').replace(/^[-*•]\s*/gm, '').replace(/\s+/g, ' ').trim();
+      if (!clean) return fallback;
+      return clean.length > max ? clean.slice(0, max).trimEnd() + '…' : clean;
+    }
+
+    function notePlural(value, one, few, many) {
+      const n = Math.abs(Number(value) || 0) % 100;
+      const n1 = n % 10;
+      if (n > 10 && n < 20) return many;
+      if (n1 > 1 && n1 < 5) return few;
+      if (n1 === 1) return one;
+      return many;
+    }
+
+    function formatReadableNote(text) {
+      const lines = String(text || '').split(/\r?\n/);
+      const chunks = [];
+      let list = [];
+      let paragraph = [];
+      const flushParagraph = () => {
+        if (!paragraph.length) return;
+        chunks.push(`<p>${wizardEscape(paragraph.join(' '))}</p>`);
+        paragraph = [];
+      };
+      const flushList = () => {
+        if (!list.length) return;
+        chunks.push(`<ul>${list.map(item => `<li>${wizardEscape(item)}</li>`).join('')}</ul>`);
+        list = [];
+      };
+      lines.forEach(raw => {
+        const line = raw.trim();
+        if (!line) {
+          flushParagraph();
+          flushList();
+          return;
+        }
+        const heading = line.match(/^#{1,6}\s+(.+)$/);
+        if (heading) {
+          flushParagraph();
+          flushList();
+          chunks.push(`<h4>${wizardEscape(heading[1])}</h4>`);
+          return;
+        }
+        const bullet = line.match(/^[-*•]\s+(.+)$/);
+        if (bullet) {
+          flushParagraph();
+          list.push(bullet[1]);
+          return;
+        }
+        flushList();
+        paragraph.push(line);
+      });
+      flushParagraph();
+      flushList();
+      return chunks.join('');
+    }
+
+    function parseAllyLine(line) {
+      const parts = String(line || '').split(/\s+[—–-]\s+|:\s+/).map(part => part.trim()).filter(Boolean);
+      return {
+        name: parts[0] || line,
+        detail: parts.slice(1).join(' · ') || 'Связь с персонажем'
+      };
+    }
+
+    function renderAlliesPreview() {
+      const container = v('alliesPreview');
+      if (!container) return;
+      const lines = noteLines(noteText('allies'));
+      if (!lines.length) {
+        container.innerHTML = '<div class="allies-empty">Добавьте союзников, организации или покровителей — по одной связи на строку.</div>';
+        return;
+      }
+      const visible = lines.slice(0, 4).map(line => {
+        const ally = parseAllyLine(line);
+        return `<button type="button" class="ally-preview-card" onclick="openNotePopup('allies', event)"><strong>${wizardEscape(ally.name)}</strong><span>${wizardEscape(ally.detail)}</span></button>`;
+      }).join('');
+      const more = lines.length > 4 ? `<button type="button" class="ally-preview-card ally-preview-more" onclick="openNotePopup('allies', event)"><strong>Ещё ${lines.length - 4}</strong><span>Открыть полный список связей</span></button>` : '';
+      container.innerHTML = visible + more;
+    }
+
+    function updateNotesDashboard() {
+      Object.entries(NOTE_SECTIONS).forEach(([id, config]) => {
+        const text = noteText(id);
+        document.querySelectorAll(`[data-note-preview="${id}"]`).forEach(el => {
+          const max = id === 'backstory' ? 620 : 260;
+          el.textContent = notePreview(text, config.empty, max);
+          el.classList.toggle('is-empty', !text);
+        });
+      });
+
+      const traitsFilled = ['personality', 'ideals', 'bonds', 'flaws'].filter(id => noteText(id)).length;
+      const storyWords = noteWordCount(noteText('backstory'));
+      const journalLines = noteLines(noteText('notes'));
+      const journalHooks = journalLines.filter(line => /^[-*•]/.test(line) || /(?:нужно|надо|найти|узнать|поговорить|квест|зацепк)/i.test(line)).length;
+      const allyLines = noteLines(noteText('allies'));
+
+      if (v('notesSummaryTraits')) v('notesSummaryTraits').textContent = `${traitsFilled} / 4`;
+      if (v('notesSummaryStory')) v('notesSummaryStory').textContent = String(storyWords);
+      if (v('notesSummaryJournal')) v('notesSummaryJournal').textContent = String(journalLines.length);
+      if (v('notesSummaryAllies')) v('notesSummaryAllies').textContent = String(allyLines.length);
+      if (v('backstoryWordCount')) v('backstoryWordCount').textContent = `${storyWords} ${notePlural(storyWords, 'слово', 'слова', 'слов')}`;
+      if (v('sessionJournalLines')) v('sessionJournalLines').textContent = `${journalLines.length} ${notePlural(journalLines.length, 'строка', 'строки', 'строк')}`;
+      if (v('sessionJournalHooks')) v('sessionJournalHooks').textContent = `${journalHooks} ${notePlural(journalHooks, 'зацепка', 'зацепки', 'зацепок')}`;
+
+      renderAlliesPreview();
+    }
+
+    function toggleNoteEditor(id, event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      const textarea = v(id);
+      const card = textarea?.closest('[data-note-id]');
+      if (!textarea || !card) return;
+      const open = !card.classList.contains('editor-open');
+      card.classList.toggle('editor-open', open);
+      const button = card.querySelector('.note-editor-toggle');
+      if (button) {
+        button.setAttribute('aria-expanded', open ? 'true' : 'false');
+        button.title = open ? 'Свернуть редактор' : 'Редактировать';
+      }
+      if (open) {
+        requestAnimationFrame(() => {
+          autoResizeTextarea(textarea);
+          textarea.focus({ preventScroll: true });
+        });
+      }
+    }
+
+    function handleNoteCardKey(event, id) {
+      if (event.target !== event.currentTarget) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openNotePopup(id, event);
+      }
+    }
+
+    function openNotePopup(id, event) {
+      if (event) {
+        const cardClick = event.currentTarget && event.currentTarget.matches && event.currentTarget.matches('[data-note-id]');
+        if (cardClick && event.target.closest('button, textarea, input, select, label, .note-card-editor')) return;
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      const config = NOTE_SECTIONS[id];
+      const popup = v('notesPopup');
+      const card = v('notesPopupCard');
+      const body = v('notesPopupBody');
+      if (!config || !popup || !card || !body) return;
+      const text = noteText(id);
+      const readable = text ? formatReadableNote(text) : `<div class="notes-popup-empty">${wizardEscape(config.empty)}</div>`;
+      card.dataset.noteTone = config.tone;
+      body.innerHTML = `
+        <div class="notes-popup-content">
+          <div class="notes-popup-kicker">${wizardEscape(config.kicker)}</div>
+          <h2 id="notesPopupTitle" class="notes-popup-title">${wizardEscape(config.title)}</h2>
+          <div class="notes-popup-divider"></div>
+          <div class="notes-popup-text">${readable}</div>
+        </div>`;
+      if (popup.parentElement !== document.body) document.body.appendChild(popup);
+      lastNotesPopupTrigger = event?.currentTarget || document.querySelector(`[data-note-id="${id}"]`);
+      popup.style.display = 'flex';
+      document.body.classList.add('modal-open');
+      requestAnimationFrame(() => popup.querySelector('.spell-popup-close')?.focus());
+    }
+
+    function closeNotesPopup() {
+      const popup = v('notesPopup');
+      if (!popup) return;
+      popup.style.display = 'none';
+      document.body.classList.remove('modal-open');
+      if (lastNotesPopupTrigger && document.contains(lastNotesPopupTrigger)) {
+        lastNotesPopupTrigger.focus?.({ preventScroll: true });
+      }
+      lastNotesPopupTrigger = null;
+    }
+
+    function addSessionJournalEntry() {
+      const editor = v('notes');
+      if (!editor) return;
+      const date = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+      const heading = `### ${date}\n- `;
+      const existing = editor.value.trimEnd();
+      editor.value = existing ? `${existing}\n\n${heading}` : heading;
+      updateNotesDashboard();
+      autoResizeTextarea(editor);
+      editor.focus();
+      editor.setSelectionRange(editor.value.length, editor.value.length);
+      editor.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    document.addEventListener('keydown', event => {
+      const popup = v('notesPopup');
+      if (event.key === 'Escape' && popup && popup.style.display !== 'none') closeNotesPopup();
+    });
 
     function renderLevelHistory() {
       const list = v('levelHistoryList');
       if (!list) return;
       if (!Array.isArray(levelHistory) || !levelHistory.length) {
-        list.innerHTML = '<div style="font-size:13px;color:#aaa;padding:10px;border:1px dashed #d8d4ca;border-radius:8px;text-align:center">Пока нет записей. Они появятся после повышения уровня через мастер.</div>';
+        list.innerHTML = '<div class="level-history-empty"><strong>Путь только начинается</strong><br>Записи появятся после повышения уровня через мастер персонажа.</div>';
         return;
       }
       list.innerHTML = levelHistory.slice().reverse().map(entry => {
@@ -3863,13 +5822,13 @@
           entry.spellText
         ].filter(Boolean);
         return `
-          <div style="border:1px solid #e0ddd4;border-radius:8px;background:#fff;padding:10px 12px">
-            <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-              <strong style="font-size:13px;color:#1a1a18">${wizardEscape(entry.title || ('Уровень ' + entry.toLevel))}</strong>
-              <span style="font-size:11px;color:#aaa">${wizardEscape(when)}</span>
+          <article class="level-history-entry">
+            <div class="level-history-entry-head">
+              <strong class="level-history-entry-title">${wizardEscape(entry.title || ('Уровень ' + entry.toLevel))}</strong>
+              <span class="level-history-entry-date">${wizardEscape(when)}</span>
             </div>
-            <div style="font-size:12px;color:#666;line-height:1.55">${bits.map(wizardEscape).join('<br>')}</div>
-          </div>`;
+            <div class="level-history-entry-body">${bits.length ? bits.map(wizardEscape).join('<br>') : 'Новые возможности героя.'}</div>
+          </article>`;
       }).join('');
     }
 
@@ -3899,16 +5858,34 @@
         attacks.push(attack);
       });
       const inventory = [];
-      document.querySelectorAll('.inv-item').forEach(r => {
-        const ins = r.querySelectorAll('input');
-        inventory.push({ name: ins[0].value, qty: ins[1].value, wt: ins[2].value });
+      document.querySelectorAll('#invList .inv-item').forEach(r => {
+        inventory.push({
+          name: r.querySelector('.inv-name-input')?.value || '',
+          qty: r.querySelector('.inv-qty-input')?.value || '0',
+          wt: r.querySelector('.inv-weight-input')?.value || '0',
+          category: r.querySelector('.inv-category-select')?.value || r.dataset.category || 'other',
+          equipped: !!r.querySelector('.inv-equipped-input')?.checked,
+          magical: !!r.querySelector('.inv-magical-input')?.checked,
+          quest: !!r.querySelector('.inv-quest-input')?.checked,
+          notes: r.querySelector('.inv-notes-input')?.value || ''
+        });
       });
       const abilities = [];
-      document.querySelectorAll('.ability-row').forEach(r => {
-        const name = r.querySelector('input')?.value || '';
-        const desc = r.querySelector('textarea')?.value || '';
+      document.querySelectorAll('#abilityList .ability-row').forEach(r => {
+        const name = r.querySelector('.ability-name-input')?.value || '';
+        const desc = r.querySelector('.ability-desc-input')?.value || '';
         const source = r.dataset.source || '';
-        abilities.push(source ? { name, desc, source } : { name, desc });
+        const category = r.querySelector('.ability-category-select')?.value || 'other';
+        const action = r.querySelector('.ability-action-select')?.value || 'passive';
+        const recovery = r.querySelector('.ability-recovery-select')?.value || 'none';
+        const usesMax = clampAbilityNumber(r.querySelector('.ability-uses-max')?.value, 0, 30);
+        const usesRemaining = clampAbilityNumber(r.querySelector('.ability-uses-remaining')?.value, 0, usesMax);
+        const ability = {
+          name, desc, category, action, recovery, usesMax, usesRemaining,
+          pinned: r.dataset.pinned === '1'
+        };
+        if (source) ability.source = source;
+        abilities.push(ability);
       });
       const fields = ['charName', 'classSelect', 'levelInput', 'race', 'background', 'alignment', 'playerName',
         'hpMax', 'hpCur', 'hpTemp', 'ac', 'armorSelect', 'shieldEquipped', 'acBonus', 'acManual', 'initField', 'speed', 'hdCur',
@@ -3923,6 +5900,7 @@
       data.inventory = inventory;
       data.abilities = abilities;
       data.skillProf = Object.assign({}, skillProf);
+      data.skillExpertise = Object.assign({}, skillExpertise);
       data.saveProf = {};
       SAVES.forEach(s => { const cb = v('save_' + s); if (cb) data.saveProf[s] = cb.checked; });
       data.inspirationCount = getInspirationCount();
@@ -3941,6 +5919,7 @@
       };
       data.resourceDots = captureDotMap('#classResources .resource-dots');
       data.spellSlotDots = captureDotMap('#spellSlots .resource-dots');
+      data.characterAccent = document.body.dataset.characterAccent || 'class';
       return data;
     }
 
@@ -3975,6 +5954,7 @@
           dot.style.background = filled ? (dot.style.borderColor || getComputedStyle(dot).borderColor) : 'transparent';
         });
       });
+      updateResourceDashboard();
     }
 
     function isSheetMeaningful(data) {
@@ -3997,7 +5977,7 @@
       if (data.saveProf && Object.values(data.saveProf).some(Boolean)) return true;
       if ((parseInt(data.inspirationCount) || 0) > 0 || data.inspiration) return true;
       if (data.attacks && data.attacks.some(a => Object.values(a || {}).some(v => String(v || '').trim() !== '' && String(v) !== '0'))) return true;
-      if (data.inventory && data.inventory.some(it => String((it && it.name) || '').trim() !== '' || String((it && it.qty) || '1') !== '1' || String((it && it.wt) || '0') !== '0')) return true;
+      if (data.inventory && data.inventory.some(it => String((it && it.name) || '').trim() !== '' || String((it && it.qty) || '1') !== '1' || String((it && it.wt) || '0') !== '0' || !!(it && (it.equipped || it.magical || it.quest || it.notes)))) return true;
       if (data.abilities && data.abilities.some(a => String((a && a.name) || '').trim() !== '' || String((a && a.desc) || '').trim() !== '')) return true;
       if (data.knownSpells && data.knownSpells.length) return true;
       if (data.extraKnownSpells && data.extraKnownSpells.length) return true;
@@ -4006,6 +5986,7 @@
       if (data.deathSaves && ([...(data.deathSaves.success || []), ...(data.deathSaves.failure || [])].some(Boolean))) return true;
       if (data.resourceDots && Object.values(data.resourceDots).some(arr => Array.isArray(arr) && arr.some(Boolean))) return true;
       if (data.spellSlotDots && Object.values(data.spellSlotDots).some(arr => Array.isArray(arr) && arr.some(Boolean))) return true;
+      if (data.characterAccent && data.characterAccent !== 'class') return true;
       return false;
     }
 
@@ -4112,10 +6093,15 @@
       if (data.statValues) Object.assign(statValues, data.statValues);
       if (data.statBonus) Object.assign(statBonus, data.statBonus);
       if (data.asiBonus) Object.assign(asiBonus, data.asiBonus);
-      if (data.skillProf) {
-        Object.assign(skillProf, data.skillProf);
-        SKILLS.forEach((sk, i) => { const cb = v('sk' + i); if (cb) cb.checked = !!skillProf[sk.name]; });
-      }
+      skillProf = {};
+      skillExpertise = {};
+      if (data.skillProf) Object.assign(skillProf, data.skillProf);
+      if (data.skillExpertise) Object.assign(skillExpertise, data.skillExpertise);
+      SKILLS.forEach((sk, i) => {
+        if (skillExpertise[sk.name]) skillProf[sk.name] = true;
+        const cb = v('sk' + i);
+        if (cb) cb.checked = !!skillProf[sk.name];
+      });
       if (data.saveProf) {
         SAVES.forEach(s => { const cb = v('save_' + s); if (cb) cb.checked = !!data.saveProf[s]; });
       }
@@ -4132,19 +6118,21 @@
       v('attackList').innerHTML = '';
       (data.attacks || []).forEach(a => addAttack(a.name, a.bonus, a.dmg, a.weapon || inferWeaponMetaFromAttack(a)));
       v('invList').innerHTML = '';
-      (data.inventory || []).forEach(it => addInvItem(it.name, it.qty, it.wt));
+      (data.inventory || []).forEach(it => addInvItem(it.name, it.qty, it.wt, it));
       v('abilityList').innerHTML = '';
-      (data.abilities || []).forEach(a => addAbility(a.name, a.desc, a.source || ''));
+      (data.abilities || []).forEach(a => addAbility(a.name, a.desc, a.source || '', a));
       knownSpells = new Set(Array.isArray(data.knownSpells) ? data.knownSpells : (data.knownSpells ? [data.knownSpells] : []));
       extraKnownSpells = new Set(Array.isArray(data.extraKnownSpells) ? data.extraKnownSpells : (data.extraKnownSpells ? [data.extraKnownSpells] : []));
       preparedSpells = new Set(Array.isArray(data.preparedSpells) ? data.preparedSpells : (data.preparedSpells ? [data.preparedSpells] : []));
       concSpell = data.concSpell || null;
+      if (typeof window.setCharacterAccent === 'function') window.setCharacterAccent(data.characterAccent || 'class', false);
       renderClass(); updateAll(); updateArmorClass(); updateHpBar(); updateConcBar(); renderSpellBook(); renderLevelHistory();
       applyDotStates('.death-saves .saves-group:first-child .dot', data.deathSaves?.success || []);
       applyDotStates('.death-saves .saves-group:last-child .dot', data.deathSaves?.failure || []);
       applyDotMap(data.resourceDots || {});
       applyDotMap(data.spellSlotDots || {});
       resizeAbilityTextareasSoon();
+      renderProficiencyTags();
     }
 
     function resetSheet() {
@@ -4152,12 +6140,18 @@
         el.value = el.defaultValue || '';
       });
       v('attackList').innerHTML = ''; v('invList').innerHTML = ''; v('abilityList').innerHTML = '';
-      skillProf = {}; SAVES.forEach(s => { const cb = v('save_' + s); if (cb) cb.checked = false; });
+      skillProf = {}; skillExpertise = {}; activeSkillFilter = 'all'; activeInventoryFilter = 'all';
+      if (v('skillSearch')) v('skillSearch').value = '';
+      if (v('inventorySearch')) v('inventorySearch').value = '';
+      document.querySelectorAll('.inventory-filter').forEach(btn => btn.classList.toggle('active', btn.dataset.inventoryFilter === 'all'));
+      document.querySelectorAll('.skills-filter').forEach(btn => btn.classList.toggle('active', btn.dataset.skillFilter === 'all'));
+      SAVES.forEach(s => { const cb = v('save_' + s); if (cb) cb.checked = false; });
       setInspiration(0, false);
       STATS.forEach(st => { statValues[st] = 8; statBonus[st] = 0; asiBonus[st] = 0; });
       levelHpRolls = {}; levelHistory = []; appliedRacePreset = null; appliedRaceStatBonus = {};
       syncRaceFieldUI();
       knownSpells = new Set(); extraKnownSpells = new Set(); preparedSpells = new Set(); concSpell = null;
+      if (typeof window.setCharacterAccent === 'function') window.setCharacterAccent('class', false);
       buildSkillList(); buildSaveList(); buildStatsGrid();
       const armorSelect = v('armorSelect');
       if (armorSelect) armorSelect.value = 'none';
@@ -4961,6 +6955,7 @@
 
     function setWizardSkill(name) {
       skillProf[name] = true;
+      skillExpertise[name] = false;
       const index = SKILLS.findIndex(sk => sk.name === name);
       const cb = index >= 0 ? v('sk' + index) : null;
       if (cb) cb.checked = true;
@@ -6534,7 +8529,7 @@
         if (sp.level !== lastLevel) {
           lastLevel = sp.level;
           const hdr = document.createElement('div');
-          hdr.style.cssText = 'font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#aaa;padding:6px 2px 3px;margin-top:4px';
+          hdr.className = 'spell-level-heading';
           hdr.textContent = sp.level === 0 ? 'Заговоры' : sp.level + '-й круг';
           container.appendChild(hdr);
         }
@@ -6545,19 +8540,17 @@
         const isPrep = preparedSpells.has(sp.name);
         const isConc = concSpell === sp.name;
         const isLocked = false; // ограничения по кругу отключены — мастер следит сам
-        const isClassSpell = sp.classes.includes(cls);
 
-        const row = document.createElement('div');
+        const row = document.createElement('article');
         row.className = 'spell-row' + (isPrep ? ' prepared' : (isKnown ? ' known' : '')) + (isLocked ? ' locked' : '');
 
-        // Left: name + badges
         const left = document.createElement('div');
-        left.style.cssText = 'flex:1;min-width:0';
+        left.className = 'spell-main';
         const nameRow = document.createElement('div');
-        nameRow.style.cssText = 'display:flex;align-items:center;gap:5px;flex-wrap:wrap';
+        nameRow.className = 'spell-name-line';
 
         const nameSpan = document.createElement('span');
-        nameSpan.style.cssText = 'font-size:13px;font-weight:500;color:' + (isLocked ? '#bbb' : '#1a1a18');
+        nameSpan.className = 'spell-name';
         nameSpan.textContent = sp.name;
         nameRow.appendChild(nameSpan);
 
@@ -6579,75 +8572,74 @@
         }
         if (isConc) {
           const cb = document.createElement('span');
-          cb.className = 'spell-badge';
-          cb.style.cssText = 'background:#FAECE7;color:#D85A30;border:1px solid #F5C4B3';
+          cb.className = 'spell-badge badge-active';
           cb.textContent = '● Активна';
           nameRow.appendChild(cb);
         }
         if (isExtraKnown) {
           const eb = document.createElement('span');
-          eb.className = 'spell-badge';
-          eb.style.cssText = 'background:#F2ECFF;color:#5B43B5;border:1px solid #D7CBFF';
+          eb.className = 'spell-badge badge-extra';
           eb.textContent = 'Доп.';
           nameRow.appendChild(eb);
         }
         left.appendChild(nameRow);
 
         const meta = document.createElement('div');
-        meta.style.cssText = 'font-size:11px;color:#aaa;margin-top:2px';
+        meta.className = 'spell-meta';
         meta.textContent = sp.cast + ' · ' + sp.range;
         left.appendChild(meta);
         row.appendChild(left);
 
-        // Right: action buttons
         const btns = document.createElement('div');
-        btns.style.cssText = 'display:flex;gap:5px;align-items:center;justify-content:flex-end;flex-wrap:wrap;flex-shrink:0';
+        btns.className = 'spell-actions';
 
         if (!isLocked) {
-          // Info button
           const infoBtn = document.createElement('button');
-          infoBtn.textContent = '?';
-          infoBtn.style.cssText = 'width:24px;height:24px;border:1px solid #e0ddd4;border-radius:6px;background:#f5f4f0;cursor:pointer;font-size:12px;font-weight:600;color:#888;flex-shrink:0';
+          infoBtn.type = 'button';
+          infoBtn.textContent = 'i';
+          infoBtn.className = 'spell-action-btn icon';
+          infoBtn.title = 'Открыть описание';
           infoBtn.onclick = (e) => { e.stopPropagation(); openSpellPopup(sp); };
           btns.appendChild(infoBtn);
 
-          // Know toggle
           const knowBtn = document.createElement('button');
-          knowBtn.textContent = isRegularKnown ? '−' : 'Изучить';
+          knowBtn.type = 'button';
+          knowBtn.textContent = isRegularKnown ? 'Убрать' : 'Изучить';
           knowBtn.title = isRegularKnown ? 'Убрать из обычных изученных' : 'Добавить в обычные изученные';
-          knowBtn.style.cssText = 'font-size:11px;padding:3px 8px;border:1px solid ' + (isRegularKnown ? '#C0DD97' : '#ccc') + ';border-radius:6px;background:' + (isRegularKnown ? '#f0fce8' : '#fff') + ';cursor:pointer;color:' + (isRegularKnown ? '#3B6D11' : '#555') + ';white-space:nowrap';
+          knowBtn.className = 'spell-action-btn' + (isRegularKnown ? ' is-known' : '');
           knowBtn.onclick = (e) => { e.stopPropagation(); toggleKnown(sp.name); };
           btns.appendChild(knowBtn);
 
           const extraBtn = document.createElement('button');
-          extraBtn.textContent = isExtraKnown ? 'Доп. −' : 'Доп. изучить';
+          extraBtn.type = 'button';
+          extraBtn.textContent = isExtraKnown ? 'Доп. убрать' : 'Доп. изучить';
           extraBtn.title = isExtraKnown ? 'Убрать из дополнительных изученных' : 'Изучить дополнительно: свиток, стиль боя, черта, дар, покровитель или сюжетная награда';
-          extraBtn.style.cssText = 'font-size:11px;padding:3px 8px;border:1px solid ' + (isExtraKnown ? '#BCAEFF' : '#ccc') + ';border-radius:6px;background:' + (isExtraKnown ? '#F2ECFF' : '#fff') + ';cursor:pointer;color:' + (isExtraKnown ? '#5B43B5' : '#555') + ';white-space:nowrap';
+          extraBtn.className = 'spell-action-btn' + (isExtraKnown ? ' is-extra' : '');
           extraBtn.onclick = (e) => { e.stopPropagation(); toggleExtraKnown(sp.name); };
           btns.appendChild(extraBtn);
 
-          // Prepare toggle (only if known)
           if (isKnown) {
             const prepBtn = document.createElement('button');
-            prepBtn.textContent = isPrep ? 'Снять' : 'Подг.';
+            prepBtn.type = 'button';
+            prepBtn.textContent = isPrep ? 'Снять' : 'Подготовить';
             prepBtn.title = isPrep ? 'Убрать из подготовленных' : 'Подготовить';
-            prepBtn.style.cssText = 'font-size:11px;padding:3px 8px;border:1px solid ' + (isPrep ? '#B5D4F4' : '#ccc') + ';border-radius:6px;background:' + (isPrep ? '#e8f3ff' : '#fff') + ';cursor:pointer;color:' + (isPrep ? '#185FA5' : '#555') + ';white-space:nowrap';
+            prepBtn.className = 'spell-action-btn' + (isPrep ? ' is-prepared' : '');
             prepBtn.onclick = (e) => { e.stopPropagation(); togglePrepared(sp.name); };
             btns.appendChild(prepBtn);
           }
 
-          // Concentration toggle (only if prepared and has conc)
           if (isPrep && sp.conc) {
             const concBtn = document.createElement('button');
-            concBtn.textContent = isConc ? 'Снять конц.' : 'Конц.';
-            concBtn.style.cssText = 'font-size:11px;padding:3px 8px;border:1px solid ' + (isConc ? '#F5C4B3' : '#ccc') + ';border-radius:6px;background:' + (isConc ? '#FFF8F0' : '#fff') + ';cursor:pointer;color:' + (isConc ? '#993C1D' : '#555') + ';white-space:nowrap';
+            concBtn.type = 'button';
+            concBtn.textContent = isConc ? 'Прекратить' : 'Концентрация';
+            concBtn.className = 'spell-action-btn' + (isConc ? ' is-concentrating' : '');
             concBtn.onclick = (e) => { e.stopPropagation(); toggleConc(sp.name); };
             btns.appendChild(concBtn);
           }
         } else {
           const lockSpan = document.createElement('span');
-          lockSpan.style.cssText = 'font-size:11px;color:#ccc';
-          lockSpan.textContent = isSpellcasterClass() ? 'Недост. круг' : 'Не маг';
+          lockSpan.className = 'spell-meta';
+          lockSpan.textContent = isSpellcasterClass() ? 'Недоступный круг' : 'Класс не использует магию';
           btns.appendChild(lockSpan);
         }
 
@@ -6672,6 +8664,7 @@
       v('knownBadge').innerHTML = knownDisplayCount > 0 ? '<span class="vtab-count">' + knownDisplayCount + '</span>' : '';
       v('extraBadge').innerHTML = ec > 0 ? '<span class="vtab-count">' + ec + '</span>' : '';
       v('prepBadge').innerHTML = pc > 0 ? '<span class="vtab-count">' + pc + '</span>' : '';
+      updateResourceDashboard();
     }
 
     function toggleKnown(name) {
@@ -6731,27 +8724,30 @@
 
     function updateConcBar() {
       v('concSpellName').textContent = concSpell || 'нет';
-      v('concSpellName').style.color = concSpell ? '#993C1D' : '#aaa';
       v('concClearBtn').style.display = concSpell ? '' : 'none';
+      const bar = v('concBar');
+      if (bar) bar.classList.toggle('is-empty', !concSpell);
+      updateResourceDashboard();
     }
 
     function openSpellPopup(sp) {
-      const SCHOOL_COLORS = { Воплощение: '#D85A30', Вызов: '#1D9E75', Иллюзия: '#7F77DD', Некромантия: '#444', Очарование: '#D4537E', Прорицание: '#185FA5', Преобразование: '#BA7517', Ограждение: '#639922' };
-      const col = SCHOOL_COLORS[sp.school] || '#888';
+      const SCHOOL_COLORS = { Воплощение: '#D85A30', Вызов: '#1D9E75', Иллюзия: '#7F77DD', Некромантия: '#777', Очарование: '#D4537E', Прорицание: '#3E78D7', Преобразование: '#BA7517', Ограждение: '#639922' };
+      const col = SCHOOL_COLORS[sp.school] || 'var(--muted)';
       const lvlStr = sp.level === 0 ? 'Заговор' : (sp.level + '-й круг');
+      const classNames = { bard: 'Бард', cleric: 'Жрец', druid: 'Друид', paladin: 'Паладин', ranger: 'Следопыт', sorcerer: 'Чародей', warlock: 'Колдун', wizard: 'Волшебник' };
       v('spellPopupBody').innerHTML = `
-    <div style="margin-bottom:12px">
-      <div style="font-size:18px;font-weight:600;color:#1a1a18;margin-bottom:4px">${sp.name}</div>
-      <div style="font-size:12px;color:${col};font-weight:500">${lvlStr} · ${sp.school}</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;font-size:12px">
-      <div style="background:#f5f4f0;border-radius:6px;padding:6px 8px"><div style="color:#aaa;margin-bottom:1px">Время накладывания</div><div style="font-weight:500">${sp.cast}</div></div>
-      <div style="background:#f5f4f0;border-radius:6px;padding:6px 8px"><div style="color:#aaa;margin-bottom:1px">Дальность</div><div style="font-weight:500">${sp.range}</div></div>
-      <div style="background:#f5f4f0;border-radius:6px;padding:6px 8px"><div style="color:#aaa;margin-bottom:1px">Длительность</div><div style="font-weight:500">${sp.dur}${sp.conc ? ' <span style="color:#993C1D">(конц.)</span>' : ''}</div></div>
-      <div style="background:#f5f4f0;border-radius:6px;padding:6px 8px"><div style="color:#aaa;margin-bottom:1px">Компоненты</div><div style="font-weight:500">${sp.comp}</div></div>
-    </div>
-    <div style="font-size:13px;line-height:1.6;color:#333;margin-bottom:14px">${sp.desc}</div>
-      <div style="font-size:11px;color:#aaa">Доступно: ${sp.classes.map(c => ({ bard: 'Бард', cleric: 'Жрец', druid: 'Друид', paladin: 'Паладин', ranger: 'Следопыт', sorcerer: 'Чародей', warlock: 'Колдун', wizard: 'Волшебник' })[c] || c).join(', ')}</div>`;
+        <header class="spell-detail-head">
+          <div class="spell-detail-kicker" style="--school-color:${col}">${lvlStr} · ${sp.school}</div>
+          <h2>${sp.name}</h2>
+        </header>
+        <div class="spell-detail-grid">
+          <div class="spell-detail-stat"><span>Время накладывания</span><strong>${sp.cast}</strong></div>
+          <div class="spell-detail-stat"><span>Дальность</span><strong>${sp.range}</strong></div>
+          <div class="spell-detail-stat"><span>Длительность</span><strong>${sp.dur}${sp.conc ? ' · концентрация' : ''}</strong></div>
+          <div class="spell-detail-stat"><span>Компоненты</span><strong>${sp.comp}</strong></div>
+        </div>
+        <div class="spell-detail-description">${sp.desc}</div>
+        <footer class="spell-detail-classes"><span>Доступно классам</span><strong>${sp.classes.map(c => classNames[c] || c).join(', ')}</strong></footer>`;
       const popup = v('spellPopup');
       if (popup && popup.parentElement !== document.body) document.body.appendChild(popup);
       popup.style.display = 'flex';
@@ -7063,12 +9059,23 @@
       buildSkillList();
       buildSaveList();
       buildStatsGrid();
+      toggleMainStatsEdit(false);
+      if (v('profs')) v('profs').addEventListener('input', renderProficiencyTags);
+      renderProficiencyTags();
+      ['pp', 'gp', 'ep', 'sp', 'cp'].forEach(id => v(id)?.addEventListener('input', updateInventoryDashboard));
       renderClass();
       updateAll();
       updateHpBar();
       renderSpellBook();
       updateConcBar();
       renderLevelHistory();
+      updateInventoryDashboard();
+      ['personality', 'ideals', 'bonds', 'flaws', 'backstory', 'notes', 'allies'].forEach(id => {
+        const el = v(id);
+        if (!el) return;
+        el.addEventListener('input', updateNotesDashboard);
+      });
+      updateNotesDashboard();
       hookFbSync();
       v('fbConnectBtn').disabled = true;
 
@@ -7127,6 +9134,7 @@
       });
     }
   </script>
+  <script src="./dashboard-ui.js?v=88"></script>
   <div id="saveToast" class="save-toast"></div>
 </body>
 
