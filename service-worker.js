@@ -18,8 +18,6 @@ const APP_SHELL = [
   './obr-sheet-link/style.css',
   './obr-sheet-link/icon.svg',
   './obr-sheet-link/icon.png',
-  './vtt.css',
-  './vtt.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
